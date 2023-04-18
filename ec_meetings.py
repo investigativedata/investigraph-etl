@@ -178,7 +178,7 @@ def parse_record_dg(data: dict[str, Any]):
 
 @task(cache_key_fn=task_input_hash, cache_expiration=timedelta(days=1))
 def load(url: str) -> pd.DataFrame:
-    return pd.read_excel(url, skiprows=1)
+    return pd.read_excel(url, skiprows=1).fillna("")
 
 
 @flow(name="EC meetings", task_runner=DaskTaskRunner())
