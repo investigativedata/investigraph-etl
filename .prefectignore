@@ -1,3 +1,4 @@
+*.store
 # prefect artifacts
 .prefectignore
 
