@@ -1,6 +1,6 @@
 import logging
 from datetime import timedelta
-from typing import Any, Generator
+from typing import Any, Generator, Iterable, Literal
 
 import pandas as pd
 from fingerprints import generate as fp
@@ -8,7 +8,7 @@ from followthemoney import model
 from followthemoney.util import join_text, make_entity_id
 from ftmstore import get_dataset
 from nomenklatura.entity import CE
-from prefect import flow, task
+from prefect import flow, get_run_logger, task
 from prefect.tasks import task_input_hash
 from prefect_dask.task_runners import DaskTaskRunner
 from zavod.util import join_slug
@@ -142,7 +142,6 @@ def parse_record(data: dict[str, Any], body: CE):
         yield rel
 
 
-@task(cache_key_fn=task_input_hash)
 def parse_record_ec(data: dict[str, Any]):
     # meetings of EC representatives
     body = make_proxy("PublicBody")
@@ -158,7 +157,6 @@ def parse_record_ec(data: dict[str, Any]):
     bulk.flush()
 
 
-@task(cache_key_fn=task_input_hash)
 def parse_record_dg(data: dict[str, Any]):
     # meetings of EC Directors-General
     body = make_proxy("PublicBody")
@@ -176,6 +174,18 @@ def parse_record_dg(data: dict[str, Any]):
     bulk.flush()
 
 
+@task
+def parse_batch(
+    handler: Literal[parse_record_ec, parse_record_dg], rows: Iterable[dict[str, Any]]
+):
+    logger = get_run_logger()
+    for ix, row in enumerate(rows):
+        if ix and ix % 1000 == 0:
+            logger.info("Parse row %d ..." % ix)
+        handler(row)
+    logger.info("Parsed %d rows." % (ix + 1))
+
+
 @task(cache_key_fn=task_input_hash, cache_expiration=timedelta(days=1))
 def load(url: str) -> pd.DataFrame:
     return pd.read_excel(url, skiprows=1).fillna("")
@@ -190,8 +200,7 @@ def run():
             handler = parse_record_ec
         else:
             handler = parse_record_dg
-        for _, row in df.iterrows():
-            handler.submit(dict(row))
+        parse_batch.submit(handler, [dict(row) for _, row in df.iterrows()])
 
 
 if __name__ == "__main__":
