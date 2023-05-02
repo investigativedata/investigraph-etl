@@ -11,21 +11,19 @@ With this approach, the following is achieved:
 
 In [this issue](https://github.com/investigativedata/investigraph-prefect/issues/1) we will discuss requirements for the etl process to build upon.
 
-In [this branch](https://github.com/investigativedata/investigraph-prefect/tree/dev/batches) there is a batching implementation which seems to be much more reasonable.
-
 ## example dataset
 
 - [European Commission - Meetings with interest representatives](https://data.europa.eu/data/datasets/european-commission-meetings-with-interest-representatives?locale=en)
 
 ## run locally
 
-Install pip dependencies (use a virtualenv):
+Install app and dependencies (use a virtualenv):
 
-    pip install -r requirements.txt
+    pip install -e .
 
-Execute pipeline:
+Execute example pipeline:
 
-    python ec_meetings.py
+    python investigraph/pipeline.py ec_meetings
 
 View prefect dashboard:
 
@@ -35,6 +33,11 @@ Run the reference (standalone) script:
 
     python ec_meetings_standalone.py
 
+
+## test
+
+    make install
+    make test
 
 ## supported by
 

@@ -4,7 +4,6 @@ from typing import Any, Generator, Iterable, Literal
 
 import pandas as pd
 from fingerprints import generate as fp
-from followthemoney import model
 from followthemoney.util import join_text, make_entity_id
 from ftmstore import get_dataset
 from nomenklatura.entity import CE
@@ -13,6 +12,9 @@ from prefect.tasks import task_input_hash
 from prefect_dask.task_runners import DaskTaskRunner
 from zavod.util import join_slug
 
+from investigraph import fetch
+from investigraph.util import make_proxy
+
 URLS = {
     "ec_juncker": "https://www.ec.europa.eu/transparencyinitiative/meetings/dataxlsx.do?name=meetingscommissionrepresentatives1419",
     "ec_leyen": "https://www.ec.europa.eu/transparencyinitiative/meetings/dataxlsx.do?name=meetingscommissionrepresentatives1924",
@@ -20,10 +22,6 @@ URLS = {
 }
 
 log = logging.getLogger(__name__)
-
-
-def make_proxy(schema: str) -> CE:
-    return model.get_proxy({"schema": schema})
 
 
 def treg_id(regId: str) -> str:
