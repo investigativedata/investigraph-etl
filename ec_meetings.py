@@ -179,11 +179,9 @@ def parse_batch(
     handler: Literal[parse_record_ec, parse_record_dg], rows: Iterable[dict[str, Any]]
 ):
     logger = get_run_logger()
-    for ix, row in enumerate(rows):
-        if ix and ix % 1000 == 0:
-            logger.info("Parse row %d ..." % ix)
+    for row in rows:
         handler(row)
-    logger.info("Parsed %d rows." % (ix + 1))
+    logger.info("Parsed %d rows." % len(rows))
 
 
 @task(cache_key_fn=task_input_hash, cache_expiration=timedelta(days=1))
@@ -193,6 +191,7 @@ def load(url: str) -> pd.DataFrame:
 
 @flow(name="EC meetings", task_runner=DaskTaskRunner())
 def run():
+    logger = get_run_logger()
     for key, url in URLS.items():
         future = load.submit(url)
         df = future.result()
@@ -200,7 +199,16 @@ def run():
             handler = parse_record_ec
         else:
             handler = parse_record_dg
-        parse_batch.submit(handler, [dict(row) for _, row in df.iterrows()])
+        batch = []
+        for ix, row in df.iterrows():
+            batch.append(dict(row))
+            if ix and ix % 1000 == 0:
+                logger.info("Submitted %d rows ..." % ix)
+                parse_batch.submit(handler, batch)
+                batch = []
+        if batch:
+            logger.info("Submitted %d rows ..." % len(batch))
+            parse_batch.submit(handler, batch)
 
 
 if __name__ == "__main__":
