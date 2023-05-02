@@ -3,27 +3,44 @@ The main entrypoint for the prefect flow
 """
 
 import sys
-from datetime import timedelta
 
+import shortuuid
 from prefect import flow, get_run_logger, task
-from prefect.tasks import task_input_hash
 from prefect_dask.task_runners import DaskTaskRunner
 
-from investigraph.model import Config, get_config
+from investigraph import __version__
+from investigraph.model import Config, Source, get_config
 
 
-@task(cache_key_fn=task_input_hash, cache_expiration=timedelta(days=1))
-def dummy(config: Config):
+@task
+def fetch(uri: str):
     logger = get_run_logger()
-    logger.info(dict(config))
+    logger.info("FETCH %s", uri)
 
 
-@flow(task_runner=DaskTaskRunner())
-def run(dataset: str):
+@flow(
+    name="investigraph-pipeline",
+    version=__version__,
+    flow_run_name="{config.dataset}-pipeline-{source.name}-{run_id}",
+    task_runner=DaskTaskRunner(),
+)
+def run_pipeline(config: Config, source: Source, run_id: str):
+    logger = get_run_logger()
+    logger.info(dict(source))
+    fetch.submit(source.uri)
+
+
+@flow(
+    name="investigraph",
+    version=__version__,
+    flow_run_name="{dataset}-{run_id}",
+)
+def run(dataset: str, run_id: str):
     config = get_config(dataset)
-    dummy.submit(config)
+    for source in config.pipeline.sources:
+        run_pipeline(config, source, run_id)
 
 
 if __name__ == "__main__":
     dataset = sys.argv[1]
-    run(dataset)
+    run(dataset, shortuuid.uuid())
