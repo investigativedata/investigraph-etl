@@ -4,16 +4,10 @@ Trying out [prefect.io](https://www.prefect.io/) for ftm pipeline processing
 
 ## findings
 
-This current example implementation creates a seperate task for each csv row that maps the data to ftm entities and writes them to a sqlite store.
+This current example implementation creates a task for each batch of 1000 csv rows that maps the data to ftm entities and writes them to a sqlite store.
 
 With this approach, the following is achieved:
 - parallel and distributed execution
-- granular task reporting
-- granular task caching: if a similar csv row was already parsed, prefect will return the cached entities
-
-While this seems to make sense, it is totally inefficient (as in >1.000 times slower plus huge memory and storage overhead) compared to a [test script](./ec_meetings_standalone.py) that just parses the excel files in chunks and emits ftm entities.
-
-Therefore, the per-row task approach seems to be just wrong. Even with other frameworks that would use RabbitMQ or Redis as caching mechanism instead of a SQL-Backend it would still be very inefficient.
 
 In [this issue](https://github.com/investigativedata/investigraph-prefect/issues/1) we will discuss requirements for the etl process to build upon.
 
