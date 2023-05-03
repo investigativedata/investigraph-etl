@@ -20,6 +20,7 @@ from investigraph.util import lowercase_dict
 class Source(BaseModel):
     name: str
     uri: str
+    extract_kwargs: dict | None = {}
 
 
 class SourceHead(BaseModel):
@@ -77,8 +78,10 @@ class Config(BaseModel):
 
 
 class Context(BaseModel):
+    dataset: str
     config: Config
     source: Source
+    run_id: str
 
     @property
     def cache(self) -> Cache:
@@ -86,8 +89,8 @@ class Context(BaseModel):
 
 
 @cache
-def get_config(name: str) -> Config:
-    return Config.from_path(DATASETS_DIR / name / "config.yml")
+def get_config(dataset: str) -> Config:
+    return Config.from_path(DATASETS_DIR / dataset / "config.yml")
 
 
 @cache

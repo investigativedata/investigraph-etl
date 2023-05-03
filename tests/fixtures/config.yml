@@ -28,7 +28,13 @@ pipeline:
   sources:
     - name: ec_juncker
       uri: https://ec.europa.eu/transparencyinitiative/meetings/dataxlsx.do?name=meetingscommissionrepresentatives1419
+      extract_kwargs:
+        skiprows: 1
     - name: ec_leyen
       uri: https://ec.europa.eu/transparencyinitiative/meetings/dataxlsx.do?name=meetingscommissionrepresentatives1924
+      extract_kwargs:
+        skiprows: 1
     - name: dc_meetings
       uri: https://ec.europa.eu/transparencyinitiative/meetings/dataxlsx.do?name=meetingsdirectorgenerals
+      extract_kwargs:
+        skiprows: 1

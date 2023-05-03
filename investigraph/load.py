@@ -1,18 +1,27 @@
 """
-Load sources to records iteration
+Load transformed data (aka CE proxies) to various targets like json files,
+databases, s3 endpoints...
 """
 
-from io import BytesIO
-from typing import Generator
+from typing import Any, Iterable
 
-import pandas as pd
-from pantomime.types import XLSX
+import orjson
+from smart_open import open
+
+from investigraph import settings
+from investigraph.model import Context
+from investigraph.util import ensure_path
 
 
-def iter_records(mimetype: str, content: bytes) -> Generator[dict, None, None]:
-    if mimetype == XLSX:
-        df = pd.read_excel(BytesIO(content), skiprows=1).fillna("")
-        for _, row in df.iterrows():
-            yield dict(row)
-        return
-    raise NotImplementedError("unsupported mimetype: `%s`" % mimetype)
+def to_fragments(
+    ctx: Context, proxies: Iterable[dict[str, Any]], uri: str | None = None
+):
+    if uri is None:
+        path = ensure_path(settings.DATA_ROOT / ctx.dataset / ctx.run_id)
+        uri = (path / "fragments.json").as_uri()
+
+    out = b""
+    for proxy in proxies:
+        out += orjson.dumps(proxy, option=orjson.OPT_APPEND_NEWLINE)
+    with open(uri, "ab") as f:
+        f.write(out)

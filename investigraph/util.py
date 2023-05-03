@@ -1,3 +1,5 @@
+from functools import cache
+from pathlib import Path
 from typing import Any
 
 from banal import ensure_dict
@@ -17,3 +19,9 @@ def ensure_proxy(data: dict[str, Any] | CE) -> CE:
     if isinstance(data, CE):
         return data
     return CompositeEntity.from_dict(model, data)
+
+
+@cache
+def ensure_path(path: Path) -> Path:
+    path.mkdir(parents=True, exist_ok=True)
+    return path
