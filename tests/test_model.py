@@ -2,19 +2,22 @@ from pathlib import Path
 
 from pantomime.types import XLSX
 
-from investigraph.model import Config, SourceHead, get_config
+from investigraph.model import Config, SourceHead, get_config, get_parse_func
 
 
 def test_model_config(config_path: Path):
     config = Config.from_path(config_path)
     assert config.dataset == "ec_meetings"
     assert len(config.pipeline.sources) == 3
-    assert config.parse_module_path == "datasets.ec_meetings.parse:parse_record"
+    assert config.parse_module_path == "datasets.ec_meetings.parse"
 
     config = get_config("ec_meetings")
     assert config.dataset == "ec_meetings"
     assert len(config.pipeline.sources) == 3
-    assert config.parse_module_path == "datasets.ec_meetings.parse:parse_record"
+    assert config.parse_module_path == "datasets.ec_meetings.parse"
+
+    func = get_parse_func(config.parse_module_path)
+    assert callable(func)
 
 
 def test_model_source(config: Config):

@@ -1,5 +1,8 @@
 all: clean install test
 
+server:
+	prefect server start
+
 install:
 	pip install -e .
 	pip install twine coverage nose moto pytest pytest-cov black flake8 isort bump2version mypy ipdb

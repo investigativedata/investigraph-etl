@@ -11,7 +11,7 @@ from pantomime.types import XLSX
 
 def iter_records(mimetype: str, content: bytes) -> Generator[dict, None, None]:
     if mimetype == XLSX:
-        df = pd.read_excel(BytesIO(content))
+        df = pd.read_excel(BytesIO(content), skiprows=1).fillna("")
         for _, row in df.iterrows():
             yield dict(row)
         return

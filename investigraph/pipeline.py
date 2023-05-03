@@ -12,40 +12,45 @@ from prefect_dask.task_runners import DaskTaskRunner
 from investigraph import __version__
 from investigraph.fetch import fetch_source
 from investigraph.load import iter_records
-from investigraph.model import Config, Source, SourceResult, get_config
+from investigraph.model import Context, SourceResult, get_config, get_parse_func
 
 
 @task
-def parse(records: Iterable[dict[str, Any]]):
+def parse(ctx: Context, records: Iterable[dict[str, Any]]) -> list[dict[str, Any]]:
     logger = get_run_logger()
-    logger.info("PARSE %d records", len(records))
+    parse_record = get_parse_func(ctx.config.parse_module_path)
+    proxies: list[dict[str, Any]] = []
+    for rec in records:
+        for proxy in parse_record(ctx, rec):
+            proxies.append(proxy.to_dict())
+    logger.info("PARSED %d records", len(records))
 
 
 @task
-def fetch(source: Source) -> SourceResult:
+def fetch(ctx: Context) -> SourceResult:
     logger = get_run_logger()
-    logger.info("FETCH %s", source.uri)
-    return fetch_source(source)
+    logger.info("FETCH %s", ctx.source.uri)
+    return fetch_source(ctx.source)
 
 
 @flow(
     name="investigraph-pipeline",
     version=__version__,
-    flow_run_name="{config.dataset}-pipeline-{source.name}-{run_id}",
+    flow_run_name="{ctx.config.dataset}-pipeline-{ctx.source.name}-{ctx.run_id}",
     task_runner=DaskTaskRunner(),
 )
-def run_pipeline(config: Config, source: Source, run_id: str):
-    res = fetch.submit(source)
+def run_pipeline(ctx: Context):
+    res = fetch.submit(ctx)
     res = res.result()
     ix = 0
     batch = []
     for ix, rec in enumerate(iter_records(res.mimetype, res.content)):
         batch.append(rec)
         if ix and ix % 1000 == 0:
-            parse.submit(batch)
+            parse.submit(ctx, batch)
             batch = []
     if batch:
-        parse.submit(batch)
+        parse.submit(ctx, batch)
 
 
 @flow(
@@ -56,7 +61,8 @@ def run_pipeline(config: Config, source: Source, run_id: str):
 def run(dataset: str, run_id: str):
     config = get_config(dataset)
     for source in config.pipeline.sources:
-        run_pipeline(config, source, run_id)
+        ctx = Context(run_id=run_id, config=config, source=source)
+        run_pipeline(ctx)
 
 
 if __name__ == "__main__":

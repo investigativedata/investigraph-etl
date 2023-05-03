@@ -1,6 +1,7 @@
 from datetime import datetime
 from functools import cache
-from typing import Any
+from importlib import import_module
+from typing import Any, Callable
 
 import requests
 import yaml
@@ -61,7 +62,7 @@ class Config(BaseModel):
 
     @property
     def parse_module_path(self) -> str:
-        return f"{DATASETS_MODULE}.{self.dataset}.parse:parse_record"
+        return f"{DATASETS_MODULE}.{self.dataset}.parse"
 
     @classmethod
     def from_path(cls, fp: PathLike) -> "Config":
@@ -74,6 +75,18 @@ class Config(BaseModel):
         )
 
 
+class Context(BaseModel):
+    run_id: str
+    config: Config
+    source: Source
+
+
 @cache
 def get_config(name: str) -> Config:
     return Config.from_path(DATASETS_DIR / name / "config.yml")
+
+
+@cache
+def get_parse_func(parse_module_path: str) -> Callable:
+    module = import_module(parse_module_path)
+    return getattr(module, "parse")
