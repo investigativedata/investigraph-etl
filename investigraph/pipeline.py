@@ -3,7 +3,7 @@ The main entrypoint for the prefect flow
 """
 
 import sys
-from typing import Any, Iterable
+from typing import Any
 
 import orjson
 from prefect import flow, get_run_logger, task
@@ -17,10 +17,11 @@ from investigraph.model import Context, SourceResult, get_config, get_parse_func
 
 
 @task
-def load(ctx: Context, proxies: Iterable[dict[str, Any]]):
+def load(ctx: Context, ckey: str):
     logger = get_run_logger()
     name = flow_run.get_name()
     run_id = flow_run.get_id()
+    proxies = ctx.cache.get(ckey)
 
     out = b""
     for proxy in proxies:
@@ -31,15 +32,16 @@ def load(ctx: Context, proxies: Iterable[dict[str, Any]]):
 
 
 @task
-def transform(ctx: Context, records: Iterable[dict[str, Any]]) -> list[dict[str, Any]]:
+def transform(ctx: Context, ckey: str) -> str:
     logger = get_run_logger()
     parse_record = get_parse_func(ctx.config.parse_module_path)
     proxies: list[dict[str, Any]] = []
+    records = ctx.cache.get(ckey)
     for rec in records:
         for proxy in parse_record(ctx, rec):
             proxies.append(proxy.to_dict())
     logger.info("TRANSFORMED %d records", len(records))
-    return proxies
+    return ctx.cache.set(None, proxies)
 
 
 @task
@@ -52,7 +54,7 @@ def fetch(ctx: Context) -> SourceResult:
 @flow(
     name="investigraph-pipeline",
     version=__version__,
-    flow_run_name="{ctx.config.dataset}-pipeline-{ctx.source.name}",
+    flow_run_name="{ctx.config.dataset}-{ctx.source.name}",
     task_runner=ConcurrentTaskRunner(),
 )
 def run_pipeline(ctx: Context):
@@ -64,10 +66,10 @@ def run_pipeline(ctx: Context):
     for ix, rec in enumerate(iter_records(res.mimetype, res.content)):
         batch.append(rec)
         if ix and ix % 1000 == 0:
-            results.append(transform.submit(ctx, batch))
+            results.append(transform.submit(ctx, ctx.cache.set(None, batch)))
             batch = []
     if batch:
-        results.append(transform.submit(ctx, batch))
+        results.append(transform.submit(ctx, ctx.cache.set(None, batch)))
 
     logger = get_run_logger()
     logger.info("EXTRACTED %d records", ix + 1)

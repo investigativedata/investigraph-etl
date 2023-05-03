@@ -12,6 +12,7 @@ from nomenklatura.util import PathLike
 from pantomime import normalize_mimetype
 from pydantic import BaseModel
 
+from investigraph.cache import Cache, get_cache
 from investigraph.settings import DATASETS_DIR, DATASETS_MODULE
 from investigraph.util import lowercase_dict
 
@@ -78,6 +79,10 @@ class Config(BaseModel):
 class Context(BaseModel):
     config: Config
     source: Source
+
+    @property
+    def cache(self) -> Cache:
+        return get_cache()
 
 
 @cache

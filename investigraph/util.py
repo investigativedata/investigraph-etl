@@ -11,3 +11,9 @@ def lowercase_dict(data: Any) -> dict:
 
 def make_proxy(schema: str) -> CE:
     return CompositeEntity.from_dict(model, {"schema": schema})
+
+
+def ensure_proxy(data: dict[str, Any] | CE) -> CE:
+    if isinstance(data, CE):
+        return data
+    return CompositeEntity.from_dict(model, data)
