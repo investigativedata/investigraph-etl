@@ -76,7 +76,6 @@ class Config(BaseModel):
 
 
 class Context(BaseModel):
-    run_id: str
     config: Config
     source: Source
 

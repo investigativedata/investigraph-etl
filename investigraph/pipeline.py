@@ -5,7 +5,6 @@ The main entrypoint for the prefect flow
 import sys
 from typing import Any, Iterable
 
-import shortuuid
 from prefect import flow, get_run_logger, task
 from prefect_dask.task_runners import DaskTaskRunner
 
@@ -36,7 +35,7 @@ def fetch(ctx: Context) -> SourceResult:
 @flow(
     name="investigraph-pipeline",
     version=__version__,
-    flow_run_name="{ctx.config.dataset}-pipeline-{ctx.source.name}-{ctx.run_id}",
+    flow_run_name="{ctx.config.dataset}-pipeline-{ctx.source.name}",
     task_runner=DaskTaskRunner(),
 )
 def run_pipeline(ctx: Context):
@@ -56,15 +55,15 @@ def run_pipeline(ctx: Context):
 @flow(
     name="investigraph",
     version=__version__,
-    flow_run_name="{dataset}-{run_id}",
+    flow_run_name="{dataset}",
 )
-def run(dataset: str, run_id: str):
+def run(dataset: str):
     config = get_config(dataset)
     for source in config.pipeline.sources:
-        ctx = Context(run_id=run_id, config=config, source=source)
+        ctx = Context(config=config, source=source)
         run_pipeline(ctx)
 
 
 if __name__ == "__main__":
     dataset = sys.argv[1]
-    run(dataset, shortuuid.uuid())
+    run(dataset)

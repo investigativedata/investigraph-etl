@@ -182,6 +182,6 @@ def parse(context: Zavod):
 
 
 if __name__ == "__main__":
-    with init_context("metadata.yml") as context:
+    with init_context("config.yml") as context:
         context.export_metadata("export/index.json")
         parse(context)
