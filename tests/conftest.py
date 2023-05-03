@@ -2,9 +2,16 @@ from pathlib import Path
 
 import pytest
 
-FIXTURES_PATH = Path(__file__).parent.joinpath("fixtures")
+from investigraph.model import Config
+
+FIXTURES_PATH = Path(__file__).parent / "fixtures"
 
 
 @pytest.fixture(scope="module")
 def config_path():
-    return FIXTURES_PATH.joinpath("config.yml")
+    return FIXTURES_PATH / "config.yml"
+
+
+@pytest.fixture(scope="module")
+def config(config_path: Path):
+    return Config.from_path(config_path)

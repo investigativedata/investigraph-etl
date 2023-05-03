@@ -11,13 +11,43 @@ from nomenklatura.util import PathLike
 from pantomime import normalize_mimetype
 from pydantic import BaseModel
 
-from .settings import DATASETS_DIR, DATASETS_MODULE
-from .util import lowercase_dict
+from investigraph.settings import DATASETS_DIR, DATASETS_MODULE
+from investigraph.util import lowercase_dict
 
 
 class Source(BaseModel):
     name: str
     uri: str
+
+
+class SourceHead(BaseModel):
+    source: Source
+    etag: str | None = None
+    last_modified: datetime | None = None
+    content_type: str | None = None
+
+    def __init__(self, **data):
+        content_type = data.pop("content-type", None)
+        last_modified = data.pop("last-modified", "")
+        super().__init__(
+            last_modified=parse_date(last_modified),
+            content_type=normalize_mimetype(content_type),
+            **data,
+        )
+
+    @classmethod
+    def from_source(cls, source: Source) -> "SourceHead":
+        res = requests.head(source.uri)
+        return cls(source=source, **lowercase_dict(res.headers))
+
+
+class SourceResult(Source):
+    header: dict
+    content: bytes
+
+    @property
+    def mimetype(self) -> str:
+        return normalize_mimetype(self.header["content-type"])
 
 
 class Pipeline(BaseModel):
@@ -42,27 +72,6 @@ class Config(BaseModel):
         return cls(
             dataset=dataset.name, metadata=dataset.to_dict(), pipeline=data["pipeline"]
         )
-
-
-class SourceHead(BaseModel):
-    source: Source
-    etag: str | None = None
-    last_modified: datetime | None = None
-    content_type: str | None = None
-
-    def __init__(self, **data):
-        content_type = data.pop("content-type", None)
-        last_modified = data.pop("last-modified", "")
-        super().__init__(
-            last_modified=parse_date(last_modified),
-            content_type=normalize_mimetype(content_type),
-            **data,
-        )
-
-    @classmethod
-    def from_source(cls, source: Source) -> "SourceHead":
-        res = requests.head(source.uri)
-        return cls(source=source, **lowercase_dict(res.headers))
 
 
 @cache

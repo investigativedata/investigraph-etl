@@ -17,8 +17,7 @@ def test_model_config(config_path: Path):
     assert config.parse_module_path == "datasets.ec_meetings.parse:parse_record"
 
 
-def test_model_source(config_path: Path):
-    config = Config.from_path(config_path)
+def test_model_source(config: Config):
     for source in config.pipeline.sources:
         head = SourceHead.from_source(source)
         assert head.source == source

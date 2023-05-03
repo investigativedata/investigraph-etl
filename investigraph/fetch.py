@@ -7,7 +7,8 @@ from datetime import datetime
 import requests
 from dateparser import parse as parse_date
 
-from .util import lowercase_dict
+from investigraph.model import Source, SourceResult
+from investigraph.util import lowercase_dict
 
 
 def head_cache(url: str) -> tuple[str | None, datetime | None]:
@@ -50,3 +51,11 @@ def get(
     if force or should_fetch(url, last_modified, etag):
         return requests.get(url, **kwargs)
     return
+
+
+def fetch_source(source: Source) -> SourceResult:
+    res = get(source.uri, force=True)  # FIXME
+    assert res.ok
+    return SourceResult(
+        **source.dict(), header=lowercase_dict(res.headers), content=res.content
+    )
