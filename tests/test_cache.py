@@ -5,35 +5,23 @@ from investigraph.util import make_proxy
 def test_cache():
     cache = get_cache()
 
-    cache.set("foo", "bar")
-    assert cache.get("foo") == "bar"
+    key = cache.set("bar")
+    assert cache.get(key) == "bar"
     # GETDEL after 1st get
-    assert cache.get("foo") is None
-
-    cache.set("foo", "bar")
-    cache.set("foo", "bar2")
-    assert cache.get("foo") == "bar2"
+    assert cache.get(key) is None
 
     # serialization
-    cache.set("foo", 1)
-    assert cache.get("foo") == 1
-    cache.set("foo", 1.0)
-    assert cache.get("foo") == 1.0
-
-    cache.set(1, 2)
-    assert cache.get(1) == 2
+    key = cache.set(1)
+    assert cache.get(key) == 1
+    key = cache.set(1.0)
+    assert cache.get(key) == 1.0
 
     data = {"foo": 1, "bar": True}
-    cache.set("data", data)
-    assert cache.get("data") == data
+    key = cache.set(data)
+    assert cache.get(key) == data
 
     proxy = make_proxy("Person")
     proxy.add("name", "Alice")
     proxy.id = "id-alice"
-    cache.set("p", proxy.to_dict())
-    assert cache.get("p") == proxy.to_dict()
-
-    # implicit key
-    key = cache.set(None, "data")
-    assert isinstance(key, str)
-    assert cache.get(key) == "data"
+    key = cache.set(proxy.to_dict())
+    assert cache.get(key) == proxy.to_dict()

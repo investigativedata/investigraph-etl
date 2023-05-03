@@ -10,6 +10,16 @@ from investigraph import settings
 
 
 class Cache:
+    """
+    This is an extremly simple cache interface for sharing tasks data
+    efficiently via redis (or fakeredis during development)
+
+    it creates (prefixed) random keys during data set to cache.
+
+    it mimics redis GETDEL so that after fetching data from cache the key is
+    deleted.
+    """
+
     serializer = RedisSerializer()
 
     def __init__(self):
@@ -20,10 +30,9 @@ class Cache:
         con.ping()
         self.cache = con
 
-    def set(self, key: str | None, data: Any) -> str:
-        if key is None:
-            key = shortuuid.uuid()
+    def set(self, data: Any) -> str:
         data = self.serializer.dumps(data)
+        key = shortuuid.uuid()
         self.cache.set(self.get_key(key), data)
         return key
 
