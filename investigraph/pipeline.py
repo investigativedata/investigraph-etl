@@ -9,6 +9,7 @@ from prefect import flow, get_run_logger, task
 from prefect.task_runners import ConcurrentTaskRunner
 
 from investigraph import __version__
+from investigraph.aggregate import in_memory
 from investigraph.context import init_context
 from investigraph.extract import iter_records
 from investigraph.fetch import fetch_source
@@ -17,10 +18,17 @@ from investigraph.model import Context, SourceResult, get_config, get_parse_func
 
 
 @task
+def aggregate(ctx: Context):
+    logger = get_run_logger()
+    fragments, proxies = in_memory(ctx.config.fragments_uri, ctx.config.entities_uri)
+    logger.info("AGGREGATED %d fragments to %d proxies", fragments, proxies)
+
+
+@task
 def load(ctx: Context, ckey: str):
     logger = get_run_logger()
     proxies = ctx.cache.get(ckey)
-    to_fragments(ctx, proxies)
+    to_fragments(ctx.config.fragments_uri, proxies)
     logger.info("LOADED %d proxies", len(proxies))
 
 
@@ -83,6 +91,8 @@ def run(dataset: str):
     for source in config.pipeline.sources:
         ctx = init_context(config=config, source=source)
         run_pipeline(ctx)
+
+    aggregate(ctx)
 
 
 if __name__ == "__main__":

@@ -61,6 +61,8 @@ class Config(BaseModel):
     dataset: str
     metadata: dict[str, Any]
     pipeline: Pipeline
+    fragments_uri: str | None = None
+    entities_uri: str | None = None
 
     @property
     def parse_module_path(self) -> str:
