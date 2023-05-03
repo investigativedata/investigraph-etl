@@ -11,7 +11,7 @@ test:
 	pytest tests -s --cov=investigraph --cov-report term-missing
 
 typecheck:
-	mypy --strict ftm_geocode
+	mypy --strict investigraph
 
 build:
 	python setup.py sdist bdist_wheel
