@@ -5,6 +5,7 @@ from typing import Any, Callable
 
 import requests
 import yaml
+from banal import clean_dict
 from dateparser import parse as parse_date
 from nomenklatura.dataset.catalog import DataCatalog
 from nomenklatura.dataset.dataset import Dataset
@@ -68,6 +69,7 @@ class Config(BaseModel):
     pipeline: Pipeline
     fragments_uri: str | None = None
     entities_uri: str | None = None
+    aggregate: bool | None = True
 
     @property
     def parse_module_path(self) -> str:
@@ -82,6 +84,31 @@ class Config(BaseModel):
         return cls(
             dataset=dataset.name, metadata=dataset.to_dict(), pipeline=data["pipeline"]
         )
+
+
+class FlowOptions(BaseModel):
+    dataset: str
+    fragments_uri: str | None = None
+    entities_uri: str | None = None
+    aggregate: bool | None = True
+
+
+class Flow(BaseModel):
+    dataset: str
+    config: Config
+
+    def __init__(self, **data):
+        # override base config with runtime options
+        config = get_config(data["dataset"])
+        options = data.get("options")
+        if options is not None:
+            options = dict(options)
+        data["config"] = {**clean_dict(config.dict()), **options}
+        super().__init__(**data)
+
+    @classmethod
+    def from_options(cls, options: FlowOptions) -> "Flow":
+        return cls(dataset=options.dataset, options=options)
 
 
 class Context(BaseModel):

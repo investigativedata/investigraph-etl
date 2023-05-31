@@ -13,7 +13,7 @@ from investigraph.context import init_context
 from investigraph.extract import iter_records
 from investigraph.fetch import fetch_source
 from investigraph.load import to_fragments
-from investigraph.model import Context, SourceResult, get_config, get_parse_func
+from investigraph.model import Context, Flow, FlowOptions, SourceResult, get_parse_func
 
 
 @task
@@ -83,12 +83,13 @@ def run_pipeline(ctx: Context):
 @flow(
     name="investigraph",
     version=__version__,
-    flow_run_name="{dataset}",
+    flow_run_name="{options.dataset}",
 )
-def run(dataset: str):
-    config = get_config(dataset)
-    for source in config.pipeline.sources:
-        ctx = init_context(config=config, source=source)
+def run(options: FlowOptions):
+    flow = Flow.from_options(options)
+    for source in flow.config.pipeline.sources:
+        ctx = init_context(config=flow.config, source=source)
         run_pipeline(ctx)
 
-    aggregate(ctx)
+    if flow.config.aggregate:
+        aggregate(ctx)

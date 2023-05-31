@@ -1,13 +1,28 @@
-import typer
+from typing import Optional
 
-from investigraph.pipeline import run as run_etl
+import typer
+from typing_extensions import Annotated
+
+from investigraph.model import FlowOptions
+from investigraph.pipeline import run
 
 cli = typer.Typer()
 
 
-@cli.command()
-def run(dataset: str):
+@cli.command("run")
+def cli_run(
+    dataset: str,
+    fragments_uri: Annotated[Optional[str], typer.Option(...)] = None,
+    entities_uri: Annotated[Optional[str], typer.Option(...)] = None,
+    aggregate: Annotated[Optional[bool], typer.Option(True)] = True,
+):
     """
     Execute a dataset pipeline
     """
-    run_etl(dataset)
+    options = FlowOptions(
+        dataset=dataset,
+        fragments_uri=fragments_uri,
+        entities_uri=entities_uri,
+        aggregate=aggregate,
+    )
+    run(options)
