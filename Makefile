@@ -1,5 +1,8 @@
 all: clean install test
 
+agent:
+	prefect agent start -q "default"
+
 server:
 	prefect server start
 
