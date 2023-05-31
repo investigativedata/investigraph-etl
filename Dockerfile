@@ -4,7 +4,7 @@ LABEL org.opencontainers.image.title "Investigraph ETL"
 LABEL org.opencontainers.image.licenses MIT
 LABEL org.opencontainers.image.source https://github.com/investigativedata/investigraph-etl
 
-# RUN apt-get update && apt-get -y upgrade
+RUN apt-get update && apt-get -y upgrade
 
 COPY investigraph /investigraph/investigraph
 COPY setup.py /investigraph/
