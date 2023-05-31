@@ -1,29 +1,12 @@
-import logging
-from datetime import timedelta
-from typing import Any, Generator, Iterable, Literal
+from typing import Any, Generator
 
-import pandas as pd
 from fingerprints import generate as fp
-from followthemoney import model
 from followthemoney.util import join_text, make_entity_id
-from ftmstore import get_dataset
 from nomenklatura.entity import CE
-from prefect import flow, get_run_logger, task
-from prefect.tasks import task_input_hash
-from prefect_dask.task_runners import DaskTaskRunner
 from zavod.util import join_slug
 
-URLS = {
-    "ec_juncker": "https://www.ec.europa.eu/transparencyinitiative/meetings/dataxlsx.do?name=meetingscommissionrepresentatives1419",
-    "ec_leyen": "https://www.ec.europa.eu/transparencyinitiative/meetings/dataxlsx.do?name=meetingscommissionrepresentatives1924",
-    "dc_meetings": "https://ec.europa.eu/transparencyinitiative/meetings/dataxlsx.do?name=meetingsdirectorgenerals",
-}
-
-log = logging.getLogger(__name__)
-
-
-def make_proxy(schema: str) -> CE:
-    return model.get_proxy({"schema": schema})
+from investigraph.model import Context
+from investigraph.util import make_proxy
 
 
 def treg_id(regId: str) -> str:
@@ -65,7 +48,8 @@ def zip_things(
         yield things1, things2
     else:
         if scream:
-            log.error(f"Unable to unzip things: {things1} | {things2}")
+            raise Exception
+            # log.error(f"Unable to unzip things: {things1} | {things2}")
 
 
 def make_organizations(data: dict[str, Any]) -> Generator[CE, None, None]:
@@ -149,12 +133,8 @@ def parse_record_ec(data: dict[str, Any]):
     body.add("jurisdiction", "eu")
     body.id = join_slug(fp(body.caption))
 
-    ds = get_dataset("ec_meetings")
-    bulk = ds.bulk()
-    for proxy in parse_record(data, body):
-        bulk.put(proxy)
-    bulk.put(body)
-    bulk.flush()
+    yield body
+    yield from parse_record(data, body)
 
 
 def parse_record_dg(data: dict[str, Any]):
@@ -166,50 +146,13 @@ def parse_record_dg(data: dict[str, Any]):
     body.add("jurisdiction", "eu")
     body.id = join_slug("dg", acronym)
 
-    ds = get_dataset("ec_meetings")
-    bulk = ds.bulk()
-    for proxy in parse_record(data, body):
-        bulk.put(proxy)
-    bulk.put(body)
-    bulk.flush()
+    yield body
+    yield from parse_record(data, body)
 
 
-@task
-def parse_batch(
-    handler: Literal[parse_record_ec, parse_record_dg], rows: Iterable[dict[str, Any]]
-):
-    logger = get_run_logger()
-    for row in rows:
-        handler(row)
-    logger.info("Parsed %d rows." % len(rows))
-
-
-@task(cache_key_fn=task_input_hash, cache_expiration=timedelta(days=1))
-def load(url: str) -> pd.DataFrame:
-    return pd.read_excel(url, skiprows=1).fillna("")
-
-
-@flow(name="EC meetings", task_runner=DaskTaskRunner())
-def run():
-    logger = get_run_logger()
-    for key, url in URLS.items():
-        future = load.submit(url)
-        df = future.result()
-        if key.startswith("ec"):
-            handler = parse_record_ec
-        else:
-            handler = parse_record_dg
-        batch = []
-        for ix, row in df.iterrows():
-            batch.append(dict(row))
-            if ix and ix % 1000 == 0:
-                logger.info("Submitted %d rows ..." % ix)
-                parse_batch.submit(handler, batch)
-                batch = []
-        if batch:
-            logger.info("Submitted %d rows ..." % len(batch))
-            parse_batch.submit(handler, batch)
-
-
-if __name__ == "__main__":
-    run()
+def parse(ctx: Context, data: dict[str, Any]):
+    if ctx.source.name.startswith("ec"):
+        handler = parse_record_ec
+    else:
+        handler = parse_record_dg
+    yield from handler(data)

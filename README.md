@@ -2,30 +2,31 @@
 
 Trying out [prefect.io](https://www.prefect.io/) for ftm pipeline processing
 
-## findings
+## status
 
-This current example implementation creates a task for each batch of 1000 csv rows that maps the data to ftm entities and writes them to a sqlite store.
+This current example implementation creates a task for each batch of 1000 csv rows that maps the data to ftm entities and writes them to an output file.
 
 With this approach, the following is achieved:
 - parallel and distributed execution
+- task state monitoring via prefect ui
 
 In [this issue](https://github.com/investigativedata/investigraph-prefect/issues/1) we will discuss requirements for the etl process to build upon.
 
-In [this branch](https://github.com/investigativedata/investigraph-prefect/tree/dev/batches) there is a batching implementation which seems to be much more reasonable.
-
-## example dataset
+## example datasets
 
 - [European Commission - Meetings with interest representatives](https://data.europa.eu/data/datasets/european-commission-meetings-with-interest-representatives?locale=en)
+- [Global Database of Humanitarian Organisations](https://www.humanitarianoutcomes.org/projects/gdho)
+- [EU Authorities from asktheeu.org](https://www.asktheeu.org/en/help/api)
 
 ## run locally
 
-Install pip dependencies (use a virtualenv):
+Install app and dependencies (use a virtualenv):
 
-    pip install -r requirements.txt
+    pip install -e .
 
-Execute pipeline:
+Execute example pipeline:
 
-    python ec_meetings.py
+    python investigraph/pipeline.py ec_meetings
 
 View prefect dashboard:
 
@@ -35,6 +36,11 @@ Run the reference (standalone) script:
 
     python ec_meetings_standalone.py
 
+
+## test
+
+    make install
+    make test
 
 ## supported by
 
