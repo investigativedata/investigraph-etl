@@ -18,9 +18,14 @@ from investigraph.util import lowercase_dict
 
 
 class Source(BaseModel):
-    name: str
+    name: str | None = None
     uri: str
     extract_kwargs: dict | None = {}
+
+    def __init__(self, **data):
+        if not data.get("name"):
+            data["name"] = data["uri"]
+        super().__init__(**data)
 
 
 class SourceHead(BaseModel):
