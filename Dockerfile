@@ -1,8 +1,8 @@
+FROM ghcr.io/investigativedata/ftm-docker:main
+
 LABEL org.opencontainers.image.title "Investigraph ETL"
 LABEL org.opencontainers.image.licenses MIT
 LABEL org.opencontainers.image.source https://github.com/investigativedata/investigraph-etl
-
-FROM ghcr.io/investigativedata/ftm-docker:main
 
 # RUN apt-get update && apt-get -y upgrade
 
