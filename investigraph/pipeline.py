@@ -2,7 +2,6 @@
 The main entrypoint for the prefect flow
 """
 
-import sys
 from typing import Any
 
 from prefect import flow, get_run_logger, task
@@ -93,8 +92,3 @@ def run(dataset: str):
         run_pipeline(ctx)
 
     aggregate(ctx)
-
-
-if __name__ == "__main__":
-    dataset = sys.argv[1]
-    run(dataset)
