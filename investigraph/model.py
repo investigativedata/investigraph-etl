@@ -11,6 +11,7 @@ from nomenklatura.dataset.catalog import DataCatalog
 from nomenklatura.dataset.dataset import Dataset
 from nomenklatura.util import PathLike
 from pantomime import normalize_mimetype
+from prefect.blocks.core import Block
 from pydantic import BaseModel
 
 from investigraph.cache import Cache, get_cache
@@ -87,6 +88,7 @@ class Config(BaseModel):
 
 
 class FlowOptions(BaseModel):
+    block: str
     dataset: str
     fragments_uri: str | None = None
     entities_uri: str | None = None
@@ -99,6 +101,8 @@ class Flow(BaseModel):
 
     def __init__(self, **data):
         # override base config with runtime options
+        block = Block.load(data["options"].block)
+        block.get_directory(data["dataset"], DATASETS_DIR)
         config = get_config(data["dataset"])
         options = data.get("options")
         if options is not None:

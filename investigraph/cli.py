@@ -12,6 +12,7 @@ cli = typer.Typer()
 @cli.command("run")
 def cli_run(
     dataset: str,
+    block: Annotated[Optional[str], typer.Option(...)] = "github/investigraph-datasets",
     fragments_uri: Annotated[Optional[str], typer.Option(...)] = None,
     entities_uri: Annotated[Optional[str], typer.Option(...)] = None,
     aggregate: Annotated[Optional[bool], typer.Option(True)] = True,
@@ -21,6 +22,7 @@ def cli_run(
     """
     options = FlowOptions(
         dataset=dataset,
+        block=block,
         fragments_uri=fragments_uri,
         entities_uri=entities_uri,
         aggregate=aggregate,
