@@ -16,6 +16,7 @@ def init_context(config: Config, source: Source) -> Context:
 
     return Context(
         dataset=config.dataset,
+        prefix=config.metadata.get("prefix", config.dataset),
         config=config,
         source=source,
         run_id=flow_run.get_id(),

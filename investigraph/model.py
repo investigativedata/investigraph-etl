@@ -81,6 +81,7 @@ class Config(BaseModel):
 
 class Context(BaseModel):
     dataset: str
+    prefix: str
     config: Config
     source: Source
     run_id: str
