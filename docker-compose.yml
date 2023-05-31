@@ -1,0 +1,25 @@
+# vim: ft=yaml.jinja
+
+version: "3.9"
+
+services:
+  server:
+    build: .
+    ports:
+      - 127.0.0.1:4200:4200
+    volumes:
+      - data:/data/prefect
+
+  agent:
+    build: .
+    command: prefect agent start -q 'default'
+    depends_on:
+      - server
+    volumes:
+      - data:/data/prefect
+    environment:
+      PREFECT_API_URL: http://server:4200/api
+
+
+volumes:
+  data:
