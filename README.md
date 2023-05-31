@@ -24,18 +24,17 @@ Install app and dependencies (use a virtualenv):
 
     pip install -e .
 
-Execute example pipeline:
+After installation, `investigraph` as a command should be available:
 
-    python investigraph/pipeline.py ec_meetings
+    investigraph --help
+
+Run a dataset pipeline:
+
+    investigraph ec_meetings
 
 View prefect dashboard:
 
     prefect server start
-
-Run the reference (standalone) script:
-
-    python ec_meetings_standalone.py
-
 
 ## test
 
