@@ -14,9 +14,7 @@ In [this issue](https://github.com/investigativedata/investigraph-prefect/issues
 
 ## example datasets
 
-- [European Commission - Meetings with interest representatives](https://data.europa.eu/data/datasets/european-commission-meetings-with-interest-representatives?locale=en)
-- [Global Database of Humanitarian Organisations](https://www.humanitarianoutcomes.org/projects/gdho)
-- [EU Authorities from asktheeu.org](https://www.asktheeu.org/en/help/api)
+There is a dedicated [repo](https://github.com/investigativedata/investigraph-datasets) for example datasets that can be used as a [Block](https://docs.prefect.io/2.10.11/concepts/blocks/) within the prefect.io deployment.
 
 ## run locally
 
