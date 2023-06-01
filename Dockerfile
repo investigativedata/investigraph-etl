@@ -1,4 +1,4 @@
-FROM ghcr.io/investigativedata/ftm-docker:main
+FROM prefecthq/prefect:2-python3.11
 
 LABEL org.opencontainers.image.title "Investigraph ETL"
 LABEL org.opencontainers.image.licenses MIT
@@ -15,7 +15,6 @@ COPY VERSION /investigraph/
 RUN pip install -q -U pip setuptools
 RUN pip install -q /investigraph
 
-COPY datasets /investigraph/datasets
 COPY docker-entrypoint.sh /docker-entrypoint.sh
 RUN chmod +x /docker-entrypoint.sh
 
