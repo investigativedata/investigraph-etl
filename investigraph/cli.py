@@ -42,8 +42,8 @@ def cli_setup(
             prompt=f"Datasets configuration block, for example: {DATASETS_BLOCK}",
         ),
     ],
-    repo_uri: Annotated[
-        str, typer.Option("-r", prompt=f"Repository uri, example: {DATASETS_REPO}")
+    uri: Annotated[
+        str, typer.Option("-u", prompt=f"Block source uri, example: {DATASETS_REPO}")
     ],
 ):
     """
@@ -51,8 +51,8 @@ def cli_setup(
     """
     block = DatasetBlock.from_string(block)
     try:
-        block.register(repo_uri)
-        print(f"[bold green]OK[/bold red] block `{block}` created.")
+        block.register(uri)
+        print(f"[bold green]OK[/bold green] block `{block}` created.")
     except ValueError as e:
         if "already in use" in str(e):
             print(f"[bold red]Error[/bold red] block `{block}` already existing.")
