@@ -1,6 +1,7 @@
 from functools import cache
+from importlib import import_module
 from pathlib import Path
-from typing import Any, Generator, Iterable
+from typing import Any, Callable, Generator, Iterable
 
 import orjson
 from banal import ensure_dict
@@ -55,3 +56,10 @@ def smart_write_proxies(
 def ensure_path(path: Path) -> Path:
     path.mkdir(parents=True, exist_ok=True)
     return path
+
+
+@cache
+def get_func(parse_module_path: str) -> Callable:
+    module, func = parse_module_path.split(":")
+    module = import_module(module)
+    return getattr(module, func)

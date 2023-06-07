@@ -1,7 +1,6 @@
 from datetime import datetime
 from functools import cache
-from importlib import import_module
-from typing import Any, Callable
+from typing import Any
 
 import orjson
 import requests
@@ -158,12 +157,7 @@ class Context(BaseModel):
 
 
 @cache
-def get_config(dataset: str) -> Config:
+def get_config(dataset: str, block: str | None = DATASETS_BLOCK) -> Config:
+    block = get_block(block)
+    block.load(dataset)
     return Config.from_path(DATASETS_DIR / dataset / "config.yml")
-
-
-@cache
-def get_parse_func(parse_module_path: str) -> Callable:
-    module, func = parse_module_path.split(":")
-    module = import_module(module)
-    return getattr(module, func)

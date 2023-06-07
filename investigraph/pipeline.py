@@ -13,7 +13,8 @@ from investigraph.context import init_context
 from investigraph.extract import iter_records
 from investigraph.fetch import fetch_source
 from investigraph.load import to_fragments
-from investigraph.model import Context, Flow, FlowOptions, SourceResult, get_parse_func
+from investigraph.model import Context, Flow, FlowOptions, SourceResult
+from investigraph.util import get_func
 
 
 @task
@@ -40,7 +41,7 @@ def load(ctx: Context, ckey: str):
 @task
 def transform(ctx: Context, ckey: str) -> str:
     logger = get_run_logger()
-    parse_record = get_parse_func(ctx.config.parse_module_path)
+    parse_record = get_func(ctx.config.parse_module_path)
     proxies: list[dict[str, Any]] = []
     records = ctx.cache.get(ckey)
     for rec in records:

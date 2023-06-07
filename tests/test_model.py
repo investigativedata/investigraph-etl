@@ -1,6 +1,7 @@
 from pantomime.types import CSV, XLSX
 
-from investigraph.model import Config, SourceHead, get_config  # , get_parse_func
+from investigraph.model import Config, SourceHead, get_config
+from investigraph.util import get_func
 
 
 def test_model_config(ec_meetings: Config):
@@ -9,13 +10,13 @@ def test_model_config(ec_meetings: Config):
     assert len(config.pipeline.sources) == 3
     assert config.parse_module_path == "datasets.ec_meetings.parse:parse"
 
-    # config = get_config("ec_meetings")
-    # assert config.dataset == "ec_meetings"
-    # assert len(config.pipeline.sources) == 3
-    # assert config.parse_module_path == "datasets.ec_meetings.parse:parse"
+    config = get_config("ec_meetings")
+    assert config.dataset == "ec_meetings"
+    assert len(config.pipeline.sources) == 3
+    assert config.parse_module_path == "datasets.ec_meetings.parse:parse"
 
-    # func = get_parse_func(config.parse_module_path)
-    # assert callable(func)
+    func = get_func(config.parse_module_path)
+    assert callable(func)
 
 
 def test_model_gdho_config(gdho: Config):
@@ -26,8 +27,8 @@ def test_model_gdho_config(gdho: Config):
     assert len(config.mappings) == 1
     assert config.parse_module_path == "investigraph.transform:map_ftm"
 
-    # func = get_parse_func(config.parse_module_path)
-    # assert callable(func)
+    func = get_func(config.parse_module_path)
+    assert callable(func)
 
 
 def test_model_source(gdho: Config, ec_meetings: Config):
