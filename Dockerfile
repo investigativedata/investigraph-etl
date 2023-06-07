@@ -7,6 +7,8 @@ LABEL org.opencontainers.image.source https://github.com/investigativedata/inves
 RUN apt-get update && apt-get -y upgrade
 RUN pip install -q -U pip setuptools
 
+RUN apt-get install -y python3-icu
+
 COPY investigraph /investigraph/investigraph
 COPY setup.py /investigraph/
 COPY setup.cfg /investigraph/
