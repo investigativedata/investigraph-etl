@@ -18,7 +18,6 @@ BLOCK_TYPES = ("github", "local-file-system")
 
 
 class DatasetBlock(BaseModel):
-    dataset: str | None = None
     prefix: str
     name: str
 

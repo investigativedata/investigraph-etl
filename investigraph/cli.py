@@ -17,7 +17,7 @@ cli = typer.Typer()
 @cli.command("run")
 def cli_run(
     dataset: str,
-    block: Annotated[Optional[str], typer.Option(...)] = DATASETS_BLOCK,
+    block: Annotated[Optional[str], typer.Option("-b")] = DATASETS_BLOCK,
     fragments_uri: Annotated[Optional[str], typer.Option(...)] = None,
     entities_uri: Annotated[Optional[str], typer.Option(...)] = None,
     aggregate: Annotated[Optional[bool], typer.Option(...)] = True,
@@ -36,7 +36,7 @@ def cli_run(
 
 
 @cli.command("add-block")
-def cli_setup(
+def cli_add_block(
     block: Annotated[
         str,
         typer.Option(

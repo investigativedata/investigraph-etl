@@ -125,7 +125,7 @@ class Flow(BaseModel):
         # override base config with runtime options
         block = get_block(data["options"].block or DATASETS_BLOCK)
         block.load(data["dataset"])
-        config = get_config(data["dataset"])
+        config = get_config(data["dataset"], str(block))
         options = data.get("options")
         if options is not None:
             options = dict(options)
