@@ -4,9 +4,9 @@ import typer
 from rich import print
 from typing_extensions import Annotated
 
+from investigraph.block import get_block
 from investigraph.model import FlowOptions
 from investigraph.pipeline import run
-from investigraph.prefect import DatasetBlock
 from investigraph.settings import DATASETS_BLOCK, DATASETS_REPO
 
 cli = typer.Typer()
@@ -47,9 +47,9 @@ def cli_setup(
     ],
 ):
     """
-    Configure a datasets block (currently only github supported.)
+    Configure a datasets block (currently only github and local filesystem supported.)
     """
-    block = DatasetBlock.from_string(block)
+    block = get_block(block)
     try:
         block.register(uri)
         print(f"[bold green]OK[/bold green] block `{block}` created.")

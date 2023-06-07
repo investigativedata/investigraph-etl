@@ -5,6 +5,7 @@ from typing import Any, Generator, Iterable
 import orjson
 from banal import ensure_dict
 from followthemoney import model
+from followthemoney.proxy import E
 from nomenklatura.entity import CE, CompositeEntity
 from smart_open import open
 
@@ -15,6 +16,10 @@ def lowercase_dict(data: Any) -> dict:
 
 def make_proxy(schema: str) -> CE:
     return CompositeEntity.from_dict(model, {"schema": schema})
+
+
+def uplevel_proxy(proxy: E) -> CE:
+    return CompositeEntity.from_dict(model, proxy.to_dict())
 
 
 def load_proxy(data: dict[str, Any]) -> CE:

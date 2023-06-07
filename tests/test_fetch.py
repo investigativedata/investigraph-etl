@@ -1,14 +1,13 @@
 from datetime import datetime
-from pathlib import Path
 
 from pantomime.types import XLSX
 from requests import Response
 
 from investigraph import fetch
-from investigraph.model import SourceResult
+from investigraph.model import Config, SourceResult
 
 
-def test_fetch(config: Path):
+def test_fetch(ec_meetings: Config):
     # ftm.store has cache headers
     url = "https://data.ftm.store/catalog.json"
     last_modified, etag = fetch.head_cache(url)
@@ -23,7 +22,7 @@ def test_fetch(config: Path):
     assert res.status_code == 200
 
     # ec_mettings has no cache headers
-    for source in config.pipeline.sources:
+    for source in ec_meetings.pipeline.sources:
         url = source.uri
         last_modified, etag = fetch.head_cache(url)
         assert last_modified is None

@@ -21,14 +21,20 @@ def aggregate(ctx: Context):
     logger = get_run_logger()
     fragments, proxies = in_memory(ctx.config.fragments_uri, ctx.config.entities_uri)
     logger.info("AGGREGATED %d fragments to %d proxies", fragments, proxies)
+    out = ctx.config.entities_uri
+    logger.info("OUTPUT: %s", out)
+    return out
 
 
 @task
 def load(ctx: Context, ckey: str):
     logger = get_run_logger()
     proxies = ctx.cache.get(ckey)
-    to_fragments(ctx.config.fragments_uri, proxies)
+    out = ctx.config.fragments_uri
+    to_fragments(out, proxies)
     logger.info("LOADED %d proxies", len(proxies))
+    logger.info("OUTPUT: %s", out)
+    return out
 
 
 @task

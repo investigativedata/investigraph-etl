@@ -6,8 +6,10 @@ from typing import Any, Callable
 import orjson
 import requests
 import yaml
-from banal import clean_dict
+from banal import clean_dict, keys_values
 from dateparser import parse as parse_date
+from followthemoney import model
+from followthemoney.mapping import QueryMapping
 from nomenklatura.dataset.catalog import DataCatalog
 from nomenklatura.dataset.dataset import Dataset
 from nomenklatura.util import PathLike, datetime_iso
@@ -15,8 +17,8 @@ from pantomime import normalize_mimetype
 from pydantic import BaseModel
 from smart_open import open
 
+from investigraph.block import get_block
 from investigraph.cache import Cache, get_cache
-from investigraph.prefect import DatasetBlock
 from investigraph.settings import DATASETS_BLOCK, DATASETS_DIR, DATASETS_MODULE
 from investigraph.util import lowercase_dict
 
@@ -69,15 +71,21 @@ class Pipeline(BaseModel):
 class Config(BaseModel):
     dataset: str
     metadata: dict[str, Any]
+    mappings: list[QueryMapping]
     pipeline: Pipeline
     index_uri: str | None = None
     fragments_uri: str | None = None
     entities_uri: str | None = None
     aggregate: bool | None = True
 
+    class Config:
+        arbitrary_types_allowed = True
+
     @property
     def parse_module_path(self) -> str:
-        return f"{DATASETS_MODULE}.{self.dataset}.parse"
+        if len(self.mappings):
+            return "investigraph.transform:map_ftm"
+        return f"{DATASETS_MODULE}.{self.dataset}.parse:parse"
 
     @classmethod
     def from_path(cls, fp: PathLike) -> "Config":
@@ -85,8 +93,19 @@ class Config(BaseModel):
         with open(fp, "r") as fh:
             data = yaml.safe_load(fh)
         dataset: Dataset = catalog.make_dataset(data)
+        mappings = []
+        if data.get("mapping") is not None:
+            for m in keys_values(data["mapping"], "queries", "query"):
+                m.pop("database", None)
+                m["csv_url"] = "/dev/null"
+                mapping = model.make_mapping(m)
+                mappings.append(mapping)
+
         return cls(
-            dataset=dataset.name, metadata=dataset.to_dict(), pipeline=data["pipeline"]
+            dataset=dataset.name,
+            metadata=dataset.to_dict(),
+            pipeline=data["pipeline"],
+            mappings=mappings,
         )
 
 
@@ -105,9 +124,8 @@ class Flow(BaseModel):
 
     def __init__(self, **data):
         # override base config with runtime options
-        block = data["options"].block or DATASETS_BLOCK
-        block = DatasetBlock.from_string(block)
-        block.ensure()
+        block = get_block(data["options"].block or DATASETS_BLOCK)
+        block.load(data["dataset"])
         config = get_config(data["dataset"])
         options = data.get("options")
         if options is not None:
@@ -146,5 +164,6 @@ def get_config(dataset: str) -> Config:
 
 @cache
 def get_parse_func(parse_module_path: str) -> Callable:
-    module = import_module(parse_module_path)
-    return getattr(module, "parse")
+    module, func = parse_module_path.split(":")
+    module = import_module(module)
+    return getattr(module, func)
