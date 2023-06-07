@@ -1,6 +1,8 @@
 # investigraph-prefect
 
-Trying out [prefect.io](https://www.prefect.io/) for ftm pipeline processing
+Using [prefect.io](https://www.prefect.io/) for ftm pipeline processing
+
+[Documentation](https://investigativedata.github.io/investigraph/)
 
 ## status
 
@@ -28,7 +30,11 @@ After installation, `investigraph` as a command should be available:
 
     investigraph --help
 
-Register default datasets block:
+Register a local datasets block:
+
+    investigraph add-block -b local-file-system/investigraph-local -u ./datasets
+
+Register github datasets block:
 
     investigraph add-block -b github/investigraph-datasets -u https://github.com/investigativedata/investigraph-datasets.git
 
