@@ -89,6 +89,7 @@ def run(options: FlowOptions):
     flow = Flow.from_options(options)
     for source in flow.config.pipeline.sources:
         ctx = init_context(config=flow.config, source=source)
+        ctx.export_metadata()
         run_pipeline(ctx)
 
     if flow.config.aggregate:

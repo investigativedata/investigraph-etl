@@ -6,12 +6,12 @@ from investigraph.util import ensure_path
 
 
 def init_context(config: Config, source: Source) -> Context:
-    run_id = flow_run.get_id()
+    path = ensure_path(DATA_ROOT / config.dataset)
+    if config.index_uri is None:
+        config.index_uri = (path / "index.json").as_uri()
     if config.fragments_uri is None:
-        path = ensure_path(DATA_ROOT / config.dataset / run_id)
         config.fragments_uri = (path / "fragments.json").as_uri()
     if config.entities_uri is None:
-        path = ensure_path(DATA_ROOT / config.dataset / run_id)
         config.entities_uri = (path / "entities.ftm.json").as_uri()
 
     return Context(

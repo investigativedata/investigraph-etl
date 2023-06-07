@@ -3,15 +3,17 @@ from functools import cache
 from importlib import import_module
 from typing import Any, Callable
 
+import orjson
 import requests
 import yaml
 from banal import clean_dict
 from dateparser import parse as parse_date
 from nomenklatura.dataset.catalog import DataCatalog
 from nomenklatura.dataset.dataset import Dataset
-from nomenklatura.util import PathLike
+from nomenklatura.util import PathLike, datetime_iso
 from pantomime import normalize_mimetype
 from pydantic import BaseModel
+from smart_open import open
 
 from investigraph.cache import Cache, get_cache
 from investigraph.prefect import DatasetBlock
@@ -68,6 +70,7 @@ class Config(BaseModel):
     dataset: str
     metadata: dict[str, Any]
     pipeline: Pipeline
+    index_uri: str | None = None
     fragments_uri: str | None = None
     entities_uri: str | None = None
     aggregate: bool | None = True
@@ -90,6 +93,7 @@ class Config(BaseModel):
 class FlowOptions(BaseModel):
     block: str | None = DATASETS_BLOCK
     dataset: str
+    index_uri: str | None = None
     fragments_uri: str | None = None
     entities_uri: str | None = None
     aggregate: bool | None = True
@@ -126,6 +130,13 @@ class Context(BaseModel):
     @property
     def cache(self) -> Cache:
         return get_cache()
+
+    def export_metadata(self) -> None:
+        with open(self.config.index_uri, "wb") as fh:
+            data = self.config.metadata
+            data["updated_at"] = data.get("updated_at", datetime_iso(datetime.utcnow()))
+            data = orjson.dumps(data)
+            fh.write(data)
 
 
 @cache
