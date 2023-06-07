@@ -9,6 +9,7 @@ services:
       - 127.0.0.1:4200:4200
     volumes:
       - data:/data/prefect
+      - ./datasets:/data/local/datasets
 
   agent:
     build: .
@@ -17,6 +18,7 @@ services:
       - server
     volumes:
       - data:/data/prefect
+      - ./datasets:/data/local/datasets
     environment:
       PREFECT_API_URL: http://server:4200/api
 
