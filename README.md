@@ -30,7 +30,7 @@ After installation, `investigraph` as a command should be available:
 
 Register default datasets block:
 
-    investigraph add-block -b github/investigraph-datasets -r https://github.com/investigativedata/investigraph-datasets.git
+    investigraph add-block -b github/investigraph-datasets -u https://github.com/investigativedata/investigraph-datasets.git
 
 Run a dataset pipeline:
 

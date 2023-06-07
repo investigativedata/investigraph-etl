@@ -5,14 +5,13 @@ LABEL org.opencontainers.image.licenses MIT
 LABEL org.opencontainers.image.source https://github.com/investigativedata/investigraph-etl
 
 RUN apt-get update && apt-get -y upgrade
+RUN pip install -q -U pip setuptools
 
 COPY investigraph /investigraph/investigraph
 COPY setup.py /investigraph/
 COPY setup.cfg /investigraph/
 COPY VERSION /investigraph/
 
-
-RUN pip install -q -U pip setuptools
 RUN pip install -q /investigraph
 
 COPY docker-entrypoint.sh /docker-entrypoint.sh
