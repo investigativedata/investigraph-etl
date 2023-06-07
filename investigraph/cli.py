@@ -1,6 +1,8 @@
+import shutil
 from typing import Optional
 
 import typer
+from prefect.settings import PREFECT_HOME
 from rich import print
 from typing_extensions import Annotated
 
@@ -58,3 +60,14 @@ def cli_setup(
             print(f"[bold red]Error[/bold red] block `{block}` already existing.")
         else:
             raise e
+
+
+@cli.command("reset")
+def cli_reset(yes: Annotated[str, typer.Option(prompt="Are you sure? [yes/no]")]):
+    """
+    Reset all prefect data in `PREFECT_HOME`
+    """
+    if yes == "yes":
+        path = PREFECT_HOME.value()
+        shutil.rmtree(str(path), ignore_errors=True)
+        print(f"[bold green]OK[/bold green] deleted everything in `{path}`.")
