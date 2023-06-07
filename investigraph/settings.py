@@ -12,6 +12,8 @@ def get_env(env: str, default: Any | None = None) -> Any | None:
 
 
 DEBUG = as_bool(get_env("DEBUG", 1))
+DATASETS_REPO = "https://github.com/investigativedata/investigraph-datasets.git"
+DATASETS_BLOCK = "github/investigraph-datasets"
 DATASETS_DIR = get_env("DATASETS_DIR", "datasets")
 DATASETS_MODULE = DATASETS_DIR.split("/")[-1]
 DATASETS_DIR = Path.cwd() / DATASETS_DIR

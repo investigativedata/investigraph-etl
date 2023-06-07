@@ -3,9 +3,10 @@ from pathlib import Path
 from pantomime.types import XLSX
 
 from investigraph.model import Config, SourceHead, get_config, get_parse_func
+from investigraph.prefect import DatasetBlock
 
 
-def test_model_config(config_path: Path):
+def test_model_config(config_path: Path, default_block: DatasetBlock):
     config = Config.from_path(config_path)
     assert config.dataset == "ec_meetings"
     assert len(config.pipeline.sources) == 3

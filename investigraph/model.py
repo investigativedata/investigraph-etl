@@ -11,11 +11,11 @@ from nomenklatura.dataset.catalog import DataCatalog
 from nomenklatura.dataset.dataset import Dataset
 from nomenklatura.util import PathLike
 from pantomime import normalize_mimetype
-from prefect.blocks.core import Block
 from pydantic import BaseModel
 
 from investigraph.cache import Cache, get_cache
-from investigraph.settings import DATASETS_DIR, DATASETS_MODULE
+from investigraph.prefect import DatasetBlock
+from investigraph.settings import DATASETS_BLOCK, DATASETS_DIR, DATASETS_MODULE
 from investigraph.util import lowercase_dict
 
 
@@ -88,7 +88,7 @@ class Config(BaseModel):
 
 
 class FlowOptions(BaseModel):
-    block: str
+    block: str | None = DATASETS_BLOCK
     dataset: str
     fragments_uri: str | None = None
     entities_uri: str | None = None
@@ -101,8 +101,9 @@ class Flow(BaseModel):
 
     def __init__(self, **data):
         # override base config with runtime options
-        block = Block.load(data["options"].block)
-        block.get_directory(data["dataset"], DATASETS_DIR)
+        block = data["options"].block or DATASETS_BLOCK
+        block = DatasetBlock.from_string(block)
+        block.ensure()
         config = get_config(data["dataset"])
         options = data.get("options")
         if options is not None:

@@ -1,10 +1,13 @@
 from typing import Optional
 
 import typer
+from rich import print
 from typing_extensions import Annotated
 
 from investigraph.model import FlowOptions
 from investigraph.pipeline import run
+from investigraph.prefect import DatasetBlock
+from investigraph.settings import DATASETS_BLOCK, DATASETS_REPO
 
 cli = typer.Typer()
 
@@ -12,10 +15,10 @@ cli = typer.Typer()
 @cli.command("run")
 def cli_run(
     dataset: str,
-    block: Annotated[Optional[str], typer.Option(...)] = "github/investigraph-datasets",
+    block: Annotated[Optional[str], typer.Option(...)] = DATASETS_BLOCK,
     fragments_uri: Annotated[Optional[str], typer.Option(...)] = None,
     entities_uri: Annotated[Optional[str], typer.Option(...)] = None,
-    aggregate: Annotated[Optional[bool], typer.Option(True)] = True,
+    aggregate: Annotated[Optional[bool], typer.Option(...)] = True,
 ):
     """
     Execute a dataset pipeline
@@ -28,3 +31,30 @@ def cli_run(
         aggregate=aggregate,
     )
     run(options)
+
+
+@cli.command("add-block")
+def cli_setup(
+    block: Annotated[
+        str,
+        typer.Option(
+            "-b",
+            prompt=f"Datasets configuration block, for example: {DATASETS_BLOCK}",
+        ),
+    ],
+    repo_uri: Annotated[
+        str, typer.Option("-r", prompt=f"Repository uri, example: {DATASETS_REPO}")
+    ],
+):
+    """
+    Configure a datasets block (currently only github supported.)
+    """
+    block = DatasetBlock.from_string(block)
+    try:
+        block.register(repo_uri)
+        print(f"[bold green]OK[/bold red] block `{block}` created.")
+    except ValueError as e:
+        if "already in use" in str(e):
+            print(f"[bold red]Error[/bold red] block `{block}` already existing.")
+        else:
+            raise e

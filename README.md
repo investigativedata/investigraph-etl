@@ -18,6 +18,8 @@ There is a dedicated [repo](https://github.com/investigativedata/investigraph-da
 
 ## run locally
 
+Clone repo first.
+
 Install app and dependencies (use a virtualenv):
 
     pip install -e .
@@ -26,13 +28,17 @@ After installation, `investigraph` as a command should be available:
 
     investigraph --help
 
+Register default datasets block:
+
+    investigraph add-block -b github/investigraph-datasets -r https://github.com/investigativedata/investigraph-datasets.git
+
 Run a dataset pipeline:
 
-    investigraph ec_meetings
+    investigraph run ec_meetings
 
 View prefect dashboard:
 
-    prefect server start
+    make server
 
 ## test
 
