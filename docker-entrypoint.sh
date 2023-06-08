@@ -10,7 +10,7 @@ if [ ! -f "/data/prefect/initialized" ]; then
     echo "adding github datasets block ..."
     investigraph add-block -b github/investigraph-datasets -u https://github.com/investigativedata/investigraph-datasets.git
     echo "applying default deployment ..."
-    prefect deployment build investigraph/pipeline.py:run -n investigraph-local --apply
+    prefect deployment build investigraph.pipeline:run -n investigraph-local --apply
 fi
 
 # FIXME

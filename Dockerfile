@@ -21,11 +21,17 @@ RUN pip install -q /investigraph
 COPY docker-entrypoint.sh /docker-entrypoint.sh
 RUN chmod +x /docker-entrypoint.sh
 
-ENV DATASETS_DIR=/investigraph/datasets
+RUN mkdir -p /data/datasets
+RUN mkdir -p /data/prefect
+RUN chown -R 1000:1000 /data
+
+ENV DATASETS_DIR=/data/datasets
 ENV PREFECT_HOME=/data/prefect
 ENV PREFECT_EXTRA_ENTRYPOINTS=investigraph
 ENV PREFECT_SERVER_API_HOST=0.0.0.0
+ENV DEBUG=0
 
-WORKDIR /investigraph
+USER 1000
+WORKDIR /data
 ENTRYPOINT ["/docker-entrypoint.sh"]
 CMD ["prefect server start"]
