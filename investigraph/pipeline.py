@@ -2,18 +2,19 @@
 The main entrypoint for the prefect flow
 """
 
+from datetime import datetime
 from typing import Any
 
 from prefect import flow, get_run_logger, task
 from prefect.task_runners import ConcurrentTaskRunner
 
-from investigraph import __version__
+from investigraph import __version__, settings
 from investigraph.aggregate import in_memory
 from investigraph.context import init_context
 from investigraph.extract import iter_records
-from investigraph.fetch import fetch_source
+from investigraph.fetch import fetch_source, get_cache_key
 from investigraph.load import to_fragments
-from investigraph.model import Context, Flow, FlowOptions, SourceResult
+from investigraph.model import Context, Flow, FlowOptions, SourceHead, SourceResult
 from investigraph.util import get_func
 
 
@@ -51,8 +52,14 @@ def transform(ctx: Context, ckey: str) -> str:
     return ctx.cache.set(proxies)
 
 
-@task
-def fetch(ctx: Context) -> SourceResult:
+@task(
+    retries=settings.FETCH_RETRIES,
+    retry_delay_seconds=settings.FETCH_RETRY_DELAY,
+    cache_key_fn=get_cache_key,
+)
+def fetch(
+    ctx: Context, etag: str | None = None, last_modified: datetime | None = None
+) -> SourceResult:
     logger = get_run_logger()
     logger.info("FETCH %s", ctx.source.uri)
     return fetch_source(ctx.source)
@@ -65,7 +72,8 @@ def fetch(ctx: Context) -> SourceResult:
     task_runner=ConcurrentTaskRunner(),
 )
 def run_pipeline(ctx: Context):
-    res = fetch.submit(ctx)
+    head = SourceHead.from_source(ctx.source)
+    res = fetch.submit(ctx, etag=head.etag, last_modified=head.last_modified)
     res = res.result()
     ix = 0
     batch = []

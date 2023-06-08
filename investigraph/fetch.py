@@ -7,7 +7,7 @@ from datetime import datetime
 import requests
 from dateparser import parse as parse_date
 
-from investigraph.model import Source, SourceResult
+from investigraph.model import Context, Source, SourceResult
 from investigraph.util import lowercase_dict
 
 
@@ -43,7 +43,7 @@ def get(
     last_modified: datetime | None = None,
     etag: str | None = None,
     force: bool | None = False,
-    **kwargs
+    **kwargs,
 ) -> requests.Response | None:
     """
     Fetch given url if it needs to be re-fetched or forced
@@ -59,3 +59,18 @@ def fetch_source(source: Source) -> SourceResult:
     return SourceResult(
         **source.dict(), header=lowercase_dict(res.headers), content=res.content
     )
+
+
+def get_cache_key(_, params) -> str:
+    """
+    cache results of fetch tasks based on etag or last_modified
+    """
+    ctx: Context = params["ctx"]
+    url = ctx.source.uri
+    etag = params["etag"]
+    if etag:
+        return f"{url}-{etag}"
+    last_modified = params["last_modified"]
+    if last_modified:
+        return f"{url}-{last_modified}"
+    return f"{url}-{datetime.now()}"  # actually don't cache
