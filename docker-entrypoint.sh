@@ -1,7 +1,5 @@
 #!/bin/bash
 
-# set -e
-
 if [ ! -f "/data/prefect/initialized" ]; then
     echo "initializing ..."
     echo `date +"%Y-%m-%d %H:%M:%S"` > /data/prefect/initialized
@@ -13,7 +11,7 @@ if [ ! -f "/data/prefect/initialized" ]; then
     prefect deployment build investigraph.pipeline:run -n investigraph-local --apply
 fi
 
-# FIXME
-# exec sh -c "$@"
-$@
+prefect server database upgrade -y
+
+exec $@
 
