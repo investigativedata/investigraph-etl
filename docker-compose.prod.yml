@@ -16,8 +16,7 @@ services:
       POSTGRES_DB: investigraph
 
   server:
-    # image: ghcr.io/investigativedata/investigraph:main
-    image: investigraph
+    image: ghcr.io/investigativedata/investigraph:main
     ports:
       - 127.0.0.1:4200:4200
     depends_on:
@@ -32,8 +31,7 @@ services:
       REDIS_URL: redis://redis:6379
 
   agent:
-    # image: ghcr.io/investigativedata/investigraph:main
-    image: investigraph
+    image: ghcr.io/investigativedata/investigraph:main
     command: prefect agent start -q 'default'
     depends_on:
       - server
