@@ -4,6 +4,8 @@ Using [prefect.io](https://www.prefect.io/) for ftm pipeline processing
 
 [Documentation](https://investigativedata.github.io/investigraph/)
 
+[Tutorial](https://investigativedata.github.io/investigraph/tutorial/)
+
 ## status
 
 This current example implementation creates a task for each batch of 1000 csv rows that maps the data to ftm entities and writes them to an output file.
