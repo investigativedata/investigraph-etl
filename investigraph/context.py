@@ -1,3 +1,4 @@
+import shortuuid
 from prefect.runtime import flow_run
 
 from investigraph.model import Config, Context, Source
@@ -19,5 +20,5 @@ def init_context(config: Config, source: Source) -> Context:
         prefix=config.metadata.get("prefix", config.dataset),
         config=config,
         source=source,
-        run_id=flow_run.get_id(),
+        run_id=flow_run.get_id() or f"dummy-{shortuuid.uuid()}",
     )

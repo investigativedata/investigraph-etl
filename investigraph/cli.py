@@ -1,12 +1,15 @@
 import shutil
+from pathlib import Path
 from typing import Optional
 
+import orjson
 import typer
 from prefect.settings import PREFECT_HOME
 from rich import print
 from typing_extensions import Annotated
 
 from investigraph.block import get_block
+from investigraph.inspect import inspect_config, inspect_extract, inspect_transform
 from investigraph.model import FlowOptions
 from investigraph.pipeline import run
 from investigraph.settings import DATASETS_BLOCK, DATASETS_REPO
@@ -62,6 +65,32 @@ def cli_add_block(
             print(f"[bold red]Error[/bold red] block `{block}` already existing.")
         else:
             raise e
+
+
+@cli.command("inspect")
+def cli_inspect(
+    config_path: Annotated[Path, typer.Argument()],
+    extract: Annotated[Optional[bool], typer.Option()] = False,
+    transform: Annotated[Optional[bool], typer.Option()] = False,
+):
+    config = inspect_config(config_path)
+    print(f"[bold green]OK[/bold green] `{config_path}`")
+    print(f"[bold]dataset:[/bold] {config.dataset}")
+    print(f"[bold]title:[/bold] {config.metadata.get('title')}")
+
+    if extract:
+        for name, data in inspect_extract(config):
+            print(f"[bold green]OK[/bold green] {name}")
+            print(data)
+
+    if transform:
+        for name, proxies in inspect_transform(config):
+            print(f"[bold green]OK[/bold green] {name}")
+            for proxy in proxies:
+                data = orjson.dumps(
+                    proxy.to_dict(), option=orjson.OPT_APPEND_NEWLINE
+                ).decode()
+                print(data)
 
 
 @cli.command("reset")
