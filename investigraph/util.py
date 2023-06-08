@@ -1,10 +1,13 @@
+import sys
 from functools import cache
+from importlib import import_module
 from pathlib import Path
-from typing import Any, Generator, Iterable
+from typing import Any, Callable, Generator, Iterable
 
 import orjson
 from banal import ensure_dict
 from followthemoney import model
+from followthemoney.proxy import E
 from nomenklatura.entity import CE, CompositeEntity
 from smart_open import open
 
@@ -15,6 +18,10 @@ def lowercase_dict(data: Any) -> dict:
 
 def make_proxy(schema: str) -> CE:
     return CompositeEntity.from_dict(model, {"schema": schema})
+
+
+def uplevel_proxy(proxy: E) -> CE:
+    return CompositeEntity.from_dict(model, proxy.to_dict())
 
 
 def load_proxy(data: dict[str, Any]) -> CE:
@@ -50,3 +57,17 @@ def smart_write_proxies(
 def ensure_path(path: Path) -> Path:
     path.mkdir(parents=True, exist_ok=True)
     return path
+
+
+@cache
+def ensure_pythonpath(path: Path) -> None:
+    path = str(path)
+    if path not in sys.path:
+        sys.path.append(path)
+
+
+@cache
+def get_func(parse_module_path: str) -> Callable:
+    module, func = parse_module_path.split(":")
+    module = import_module(module)
+    return getattr(module, func)

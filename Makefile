@@ -1,5 +1,8 @@
 all: clean install test
 
+agent:
+	prefect agent start -q "default"
+
 server:
 	prefect server start
 
@@ -8,7 +11,9 @@ install:
 	pip install twine coverage nose moto pytest pytest-cov black flake8 isort bump2version mypy ipdb
 
 test:
-	pytest tests -s --cov=investigraph --cov-report term-missing
+	PREFECT_HOME=.test investigraph reset --yes yes
+	PREFECT_HOME=.test pytest tests -s --cov=investigraph --cov-report term-missing
+	PREFECT_HOME=.test investigraph reset --yes yes
 
 typecheck:
 	mypy --strict investigraph

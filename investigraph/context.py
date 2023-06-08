@@ -1,3 +1,4 @@
+import shortuuid
 from prefect.runtime import flow_run
 
 from investigraph.model import Config, Context, Source
@@ -6,12 +7,13 @@ from investigraph.util import ensure_path
 
 
 def init_context(config: Config, source: Source) -> Context:
-    run_id = flow_run.get_id()
+    run_id = flow_run.get_id() or f"dummy-{shortuuid.uuid()}"
+    path = ensure_path(DATA_ROOT / config.dataset)
+    if config.index_uri is None:
+        config.index_uri = (path / "index.json").as_uri()
     if config.fragments_uri is None:
-        path = ensure_path(DATA_ROOT / config.dataset / run_id)
-        config.fragments_uri = (path / "fragments.json").as_uri()
+        config.fragments_uri = (path / f"fragments.{run_id}.json").as_uri()
     if config.entities_uri is None:
-        path = ensure_path(DATA_ROOT / config.dataset / run_id)
         config.entities_uri = (path / "entities.ftm.json").as_uri()
 
     return Context(
@@ -19,5 +21,5 @@ def init_context(config: Config, source: Source) -> Context:
         prefix=config.metadata.get("prefix", config.dataset),
         config=config,
         source=source,
-        run_id=flow_run.get_id(),
+        run_id=run_id,
     )

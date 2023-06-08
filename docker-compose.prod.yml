@@ -1,0 +1,49 @@
+# vim: ft=yaml.jinja
+
+version: "3.9"
+
+services:
+  redis:
+    image: redis:latest
+
+  postgres:
+    image: postgres:15
+    volumes:
+      - db:/var/lib/postgresql
+    environment:
+      POSTGRES_PASSWORD: investigraph
+      POSTGRES_USER: investigraph
+      POSTGRES_DB: investigraph
+
+  server:
+    image: ghcr.io/investigativedata/investigraph:main
+    ports:
+      - 127.0.0.1:4200:4200
+    depends_on:
+      - postgres
+      - redis
+    volumes:
+      - data:/data/prefect
+      - ./datasets:/data/local/datasets
+    environment:
+      FTM_STORE_URI: postgresql://investigraph:investigraph@postgres/investigraph
+      PREFECT_API_DATABASE_CONNECTION_URL: postgresql+asyncpg://investigraph:investigraph@postgres/investigraph
+      REDIS_URL: redis://redis:6379
+
+  agent:
+    image: ghcr.io/investigativedata/investigraph:main
+    command: prefect agent start -q 'default'
+    depends_on:
+      - server
+    volumes:
+      - data:/data/prefect
+      - ./datasets:/data/local/datasets
+    environment:
+      FTM_STORE_URI: postgresql://investigraph:investigraph@postgres/investigraph
+      PREFECT_API_URL: http://server:4200/api
+      REDIS_URL: redis://redis:6379
+
+
+volumes:
+  db:
+  data:

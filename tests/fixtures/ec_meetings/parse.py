@@ -15,25 +15,25 @@ def treg_id(regId: str) -> str:
 
 def make_address(data: dict[str, Any]) -> CE:
     proxy = make_proxy("Address")
-    proxy.add("full", data.pop("Location"))
     proxy.id = join_slug(make_entity_id(proxy.caption), prefix="addr")
+    proxy.add("full", data.pop("Location"))
     return proxy
 
 
 def make_person(name: str, role: str, body: CE) -> CE:
     proxy = make_proxy("Person")
+    proxy.id = join_slug("person", make_entity_id(body.id, fp(name)))
     proxy.add("name", name)
     proxy.add("description", role)
-    proxy.id = join_slug("person", make_entity_id(body.id, fp(name)))
     return proxy
 
 
 def make_organization(regId: str, name: str | None = None) -> CE:
     proxy = make_proxy("Organization")
+    proxy.id = treg_id(regId)
     if fp(name):
         proxy.add("name", name)
     proxy.add("idNumber", regId)
-    proxy.id = treg_id(regId)
     return proxy
 
 
@@ -84,9 +84,14 @@ def make_persons(data: dict[str, Any], body: CE) -> Generator[CE, None, None]:
 def make_event(
     data: dict[str, Any], organizer: CE, involved: list[CE]
 ) -> Generator[CE, None, None]:
-    proxy = make_proxy("Event")
     date = data.pop("Date of meeting")
     participants = [o for o in make_organizations(data)]
+    proxy = make_proxy("Event")
+    proxy.id = join_slug(
+        "meeting",
+        date,
+        make_entity_id(organizer.id, *sorted([p.id for p in participants])),
+    )
     name = f"{date} - {organizer.caption} x {join_text(*[p.first('name') for p in participants])}"
     proxy.add("name", name)
     proxy.add("date", date)
@@ -101,11 +106,6 @@ def make_event(
     proxy.add("organizer", organizer)
     proxy.add("involved", involved)
     proxy.add("involved", participants)
-    proxy.id = join_slug(
-        "meeting",
-        date,
-        make_entity_id(organizer.id, *sorted([p.id for p in participants])),
-    )
 
     yield from participants
     yield address
@@ -119,19 +119,19 @@ def parse_record(data: dict[str, Any], body: CE):
 
     for member in involved:
         rel = make_proxy("Membership")
+        rel.id = join_slug("membership", make_entity_id(body.id, member.id))
         rel.add("organization", body)
         rel.add("member", member)
         rel.add("role", member.get("description"))
-        rel.id = join_slug("membership", make_entity_id(body.id, member.id))
         yield rel
 
 
 def parse_record_ec(data: dict[str, Any]):
     # meetings of EC representatives
     body = make_proxy("PublicBody")
+    body.id = join_slug(fp(body.caption))
     body.add("name", data.pop("Name of cabinet"))
     body.add("jurisdiction", "eu")
-    body.id = join_slug(fp(body.caption))
 
     yield body
     yield from parse_record(data, body)
@@ -139,12 +139,12 @@ def parse_record_ec(data: dict[str, Any]):
 
 def parse_record_dg(data: dict[str, Any]):
     # meetings of EC Directors-General
-    body = make_proxy("PublicBody")
-    body.add("name", data.pop("Name of DG - full name"))
     acronym = data.pop("Name of DG - acronym")
+    body = make_proxy("PublicBody")
+    body.id = join_slug("dg", acronym)
+    body.add("name", data.pop("Name of DG - full name"))
     body.add("weakAlias", acronym)
     body.add("jurisdiction", "eu")
-    body.id = join_slug("dg", acronym)
 
     yield body
     yield from parse_record(data, body)

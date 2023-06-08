@@ -1,20 +1,27 @@
 from datetime import datetime
 from functools import cache
-from importlib import import_module
-from typing import Any, Callable
+from pathlib import Path
+from typing import Any
 
+import orjson
 import requests
 import yaml
+from banal import clean_dict, keys_values
 from dateparser import parse as parse_date
+from followthemoney import model
+from followthemoney.mapping import QueryMapping
 from nomenklatura.dataset.catalog import DataCatalog
 from nomenklatura.dataset.dataset import Dataset
-from nomenklatura.util import PathLike
+from nomenklatura.util import PathLike, datetime_iso
 from pantomime import normalize_mimetype
 from pydantic import BaseModel
+from smart_open import open
 
+from investigraph.block import get_block
 from investigraph.cache import Cache, get_cache
-from investigraph.settings import DATASETS_DIR, DATASETS_MODULE
-from investigraph.util import lowercase_dict
+from investigraph.exceptions import ImproperlyConfigured
+from investigraph.settings import DATASETS_DIR
+from investigraph.util import ensure_pythonpath, lowercase_dict
 
 
 class Source(BaseModel):
@@ -64,24 +71,88 @@ class Pipeline(BaseModel):
 
 class Config(BaseModel):
     dataset: str
+    base_path: Path
     metadata: dict[str, Any]
+    mappings: list[QueryMapping]
     pipeline: Pipeline
+    index_uri: str | None = None
     fragments_uri: str | None = None
     entities_uri: str | None = None
+    aggregate: bool | None = True
+
+    class Config:
+        arbitrary_types_allowed = True
+
+    @property
+    def target(self) -> str:
+        if self.entities_uri is not None:
+            if self.entities_uri.startswith("post"):
+                return "postgres"
+        return "json"
 
     @property
     def parse_module_path(self) -> str:
-        return f"{DATASETS_MODULE}.{self.dataset}.parse"
+        if len(self.mappings):
+            return "investigraph.transform:map_ftm"
+        return f"{self.base_path.parent.name}.{self.dataset}.parse:parse"
 
     @classmethod
     def from_path(cls, fp: PathLike) -> "Config":
+        base_path = Path(fp).parent
+        ensure_pythonpath(base_path.parent.parent)
         catalog = DataCatalog(Dataset, {})
         with open(fp, "r") as fh:
             data = yaml.safe_load(fh)
         dataset: Dataset = catalog.make_dataset(data)
+        mappings = []
+        if data.get("mapping") is not None:
+            for m in keys_values(data["mapping"], "queries", "query"):
+                m.pop("database", None)
+                m["csv_url"] = "/dev/null"
+                mapping = model.make_mapping(m)
+                mappings.append(mapping)
+
         return cls(
-            dataset=dataset.name, metadata=dataset.to_dict(), pipeline=data["pipeline"]
+            dataset=dataset.name,
+            base_path=base_path,
+            metadata=dataset.to_dict(),
+            pipeline=data["pipeline"],
+            mappings=mappings,
         )
+
+
+class FlowOptions(BaseModel):
+    dataset: str
+    block: str | None = None
+    config: str | None = None
+    index_uri: str | None = None
+    fragments_uri: str | None = None
+    entities_uri: str | None = None
+    aggregate: bool | None = True
+
+
+class Flow(BaseModel):
+    dataset: str
+    config: Config
+
+    def __init__(self, **data):
+        # override base config with runtime options
+        options = data.get("options")
+        if options is not None:
+            options = dict(options)
+        config = get_config(
+            data["dataset"], options.get("block"), options.get("config")
+        )
+        data["config"] = {**clean_dict(config.dict()), **options}
+        super().__init__(**data)
+
+    @property
+    def should_aggregate(self) -> bool:
+        return self.config.target != "postgres" and self.config.aggregate
+
+    @classmethod
+    def from_options(cls, options: FlowOptions) -> "Flow":
+        return cls(dataset=options.dataset, options=options)
 
 
 class Context(BaseModel):
@@ -95,13 +166,25 @@ class Context(BaseModel):
     def cache(self) -> Cache:
         return get_cache()
 
+    def export_metadata(self) -> None:
+        with open(self.config.index_uri, "wb") as fh:
+            data = self.config.metadata
+            data["updated_at"] = data.get("updated_at", datetime_iso(datetime.utcnow()))
+            data = orjson.dumps(data)
+            fh.write(data)
+
 
 @cache
-def get_config(dataset: str) -> Config:
-    return Config.from_path(DATASETS_DIR / dataset / "config.yml")
-
-
-@cache
-def get_parse_func(parse_module_path: str) -> Callable:
-    module = import_module(parse_module_path)
-    return getattr(module, "parse")
+def get_config(
+    dataset: str | None = None, block: str | None = None, path: PathLike | None = None
+) -> Config:
+    """
+    Return configuration based on block or path (path has precedence)
+    """
+    if path is not None:
+        return Config.from_path(path)
+    if block is not None and dataset is not None:
+        block = get_block(block)
+        block.load(dataset)
+        return Config.from_path(DATASETS_DIR / dataset / "config.yml")
+    raise ImproperlyConfigured("Specify `dataset` and `block` or `path` to config.")

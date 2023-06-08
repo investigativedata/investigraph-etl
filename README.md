@@ -1,6 +1,10 @@
 # investigraph-prefect
 
-Trying out [prefect.io](https://www.prefect.io/) for ftm pipeline processing
+Using [prefect.io](https://www.prefect.io/) for ftm pipeline processing
+
+[Documentation](https://investigativedata.github.io/investigraph/)
+
+[Tutorial](https://investigativedata.github.io/investigraph/tutorial/)
 
 ## status
 
@@ -14,28 +18,39 @@ In [this issue](https://github.com/investigativedata/investigraph-prefect/issues
 
 ## example datasets
 
-- [European Commission - Meetings with interest representatives](https://data.europa.eu/data/datasets/european-commission-meetings-with-interest-representatives?locale=en)
-- [Global Database of Humanitarian Organisations](https://www.humanitarianoutcomes.org/projects/gdho)
-- [EU Authorities from asktheeu.org](https://www.asktheeu.org/en/help/api)
+There is a dedicated [repo](https://github.com/investigativedata/investigraph-datasets) for example datasets that can be used as a [Block](https://docs.prefect.io/2.10.11/concepts/blocks/) within the prefect.io deployment.
 
 ## run locally
+
+Clone repo first.
 
 Install app and dependencies (use a virtualenv):
 
     pip install -e .
 
-Execute example pipeline:
+After installation, `investigraph` as a command should be available:
 
-    python investigraph/pipeline.py ec_meetings
+    investigraph --help
+
+Quick run a local dataset definition:
+
+    investigraph run <dataset_name> -c ./path/to/config.yml
+
+Register a local datasets block:
+
+    investigraph add-block -b local-file-system/investigraph-local -u ./datasets
+
+Register github datasets block:
+
+    investigraph add-block -b github/investigraph-datasets -u https://github.com/investigativedata/investigraph-datasets.git
+
+Run a dataset pipeline from a dataset defined in a registered block:
+
+    investigraph run ec_meetings
 
 View prefect dashboard:
 
-    prefect server start
-
-Run the reference (standalone) script:
-
-    python ec_meetings_standalone.py
-
+    make server
 
 ## test
 

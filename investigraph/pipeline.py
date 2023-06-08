@@ -2,19 +2,20 @@
 The main entrypoint for the prefect flow
 """
 
-import sys
+from datetime import datetime
 from typing import Any
 
 from prefect import flow, get_run_logger, task
 from prefect.task_runners import ConcurrentTaskRunner
 
-from investigraph import __version__
+from investigraph import __version__, settings
 from investigraph.aggregate import in_memory
 from investigraph.context import init_context
 from investigraph.extract import iter_records
-from investigraph.fetch import fetch_source
-from investigraph.load import to_fragments
-from investigraph.model import Context, SourceResult, get_config, get_parse_func
+from investigraph.fetch import fetch_source, get_cache_key
+from investigraph.load import to_fragments, to_store
+from investigraph.model import Context, Flow, FlowOptions, SourceHead, SourceResult
+from investigraph.util import get_func
 
 
 @task
@@ -22,20 +23,30 @@ def aggregate(ctx: Context):
     logger = get_run_logger()
     fragments, proxies = in_memory(ctx.config.fragments_uri, ctx.config.entities_uri)
     logger.info("AGGREGATED %d fragments to %d proxies", fragments, proxies)
+    out = ctx.config.entities_uri
+    logger.info("OUTPUT: %s", out)
+    return out
 
 
 @task
 def load(ctx: Context, ckey: str):
     logger = get_run_logger()
     proxies = ctx.cache.get(ckey)
-    to_fragments(ctx.config.fragments_uri, proxies)
+    out = ctx.config.fragments_uri
+    if ctx.config.target == "postgres":
+        out = ctx.config.entities_uri
+        to_store(out, ctx.dataset, proxies)
+    else:
+        to_fragments(out, proxies)
     logger.info("LOADED %d proxies", len(proxies))
+    logger.info("OUTPUT: %s", out)
+    return out
 
 
 @task
 def transform(ctx: Context, ckey: str) -> str:
     logger = get_run_logger()
-    parse_record = get_parse_func(ctx.config.parse_module_path)
+    parse_record = get_func(ctx.config.parse_module_path)
     proxies: list[dict[str, Any]] = []
     records = ctx.cache.get(ckey)
     for rec in records:
@@ -45,8 +56,14 @@ def transform(ctx: Context, ckey: str) -> str:
     return ctx.cache.set(proxies)
 
 
-@task
-def fetch(ctx: Context) -> SourceResult:
+@task(
+    retries=settings.FETCH_RETRIES,
+    retry_delay_seconds=settings.FETCH_RETRY_DELAY,
+    cache_key_fn=get_cache_key,
+)
+def fetch(
+    ctx: Context, etag: str | None = None, last_modified: datetime | None = None
+) -> SourceResult:
     logger = get_run_logger()
     logger.info("FETCH %s", ctx.source.uri)
     return fetch_source(ctx.source)
@@ -59,7 +76,8 @@ def fetch(ctx: Context) -> SourceResult:
     task_runner=ConcurrentTaskRunner(),
 )
 def run_pipeline(ctx: Context):
-    res = fetch.submit(ctx)
+    head = SourceHead.from_source(ctx.source)
+    res = fetch.submit(ctx, etag=head.etag, last_modified=head.last_modified)
     res = res.result()
     ix = 0
     batch = []
@@ -84,17 +102,14 @@ def run_pipeline(ctx: Context):
 @flow(
     name="investigraph",
     version=__version__,
-    flow_run_name="{dataset}",
+    flow_run_name="{options.dataset}",
 )
-def run(dataset: str):
-    config = get_config(dataset)
-    for source in config.pipeline.sources:
-        ctx = init_context(config=config, source=source)
+def run(options: FlowOptions):
+    flow = Flow.from_options(options)
+    for source in flow.config.pipeline.sources:
+        ctx = init_context(config=flow.config, source=source)
+        ctx.export_metadata()
         run_pipeline(ctx)
 
-    aggregate(ctx)
-
-
-if __name__ == "__main__":
-    dataset = sys.argv[1]
-    run(dataset)
+    if flow.should_aggregate:
+        aggregate(ctx)

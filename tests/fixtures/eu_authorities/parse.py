@@ -1,6 +1,6 @@
 from typing import Any
 
-import html2text
+# import html2text
 from zavod.util import join_slug
 
 from investigraph.model import Context
@@ -17,7 +17,7 @@ def parse(ctx: Context, data: dict[str, Any]):
     body.add("keywords", tags)
     body.add("legalForm", tags)
     body.add("website", data.pop("Home page"))
-    body.add("description", html2text.html2text(data.pop("Notes")))
+    # body.add("description", html2text.html2text(data.pop("Notes")))
     body.add("sourceUrl", f"https://www.asktheeu.org/en/body/{slug}")
     body.add("jurisdiction", "eu")
     yield body
