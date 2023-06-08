@@ -91,7 +91,7 @@ class Config(BaseModel):
     @classmethod
     def from_path(cls, fp: PathLike) -> "Config":
         base_path = Path(fp).parent
-        ensure_pythonpath(base_path.parent)
+        ensure_pythonpath(base_path.parent.parent)
         catalog = DataCatalog(Dataset, {})
         with open(fp, "r") as fh:
             data = yaml.safe_load(fh)
