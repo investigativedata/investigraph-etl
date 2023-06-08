@@ -3,7 +3,6 @@ Dataset configuration (metadata and optional python function) is stored in
 prefect blocks for easy distributed access
 """
 
-import sys
 from functools import cache
 from pathlib import Path
 
@@ -12,7 +11,7 @@ from prefect.blocks.core import Block
 from pydantic import BaseModel, validator
 
 from investigraph.settings import DATASETS_DIR
-from investigraph.util import ensure_path
+from investigraph.util import ensure_path, ensure_pythonpath
 
 BLOCK_TYPES = ("github", "local-file-system")
 
@@ -65,9 +64,7 @@ class DatasetBlock(BaseModel):
         Load dataset from block and add path to python path
         """
         self.load_dataset(dataset)
-        pypath = str(DATASETS_DIR.parent)
-        if pypath not in sys.path:
-            sys.path.append(pypath)
+        ensure_pythonpath(DATASETS_DIR.parent)
 
 
 class LocalFileSystemBlock(DatasetBlock):

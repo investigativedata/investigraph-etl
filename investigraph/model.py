@@ -1,5 +1,6 @@
 from datetime import datetime
 from functools import cache
+from pathlib import Path
 from typing import Any
 
 import orjson
@@ -18,8 +19,8 @@ from smart_open import open
 
 from investigraph.block import get_block
 from investigraph.cache import Cache, get_cache
-from investigraph.settings import DATASETS_DIR, DATASETS_MODULE
-from investigraph.util import lowercase_dict
+from investigraph.settings import DATASETS_DIR
+from investigraph.util import ensure_pythonpath, lowercase_dict
 
 
 class Source(BaseModel):
@@ -69,6 +70,7 @@ class Pipeline(BaseModel):
 
 class Config(BaseModel):
     dataset: str
+    base_path: Path
     metadata: dict[str, Any]
     mappings: list[QueryMapping]
     pipeline: Pipeline
@@ -84,10 +86,12 @@ class Config(BaseModel):
     def parse_module_path(self) -> str:
         if len(self.mappings):
             return "investigraph.transform:map_ftm"
-        return f"{DATASETS_MODULE}.{self.dataset}.parse:parse"
+        return f"{self.base_path.parent.name}.{self.dataset}.parse:parse"
 
     @classmethod
     def from_path(cls, fp: PathLike) -> "Config":
+        base_path = Path(fp).parent
+        ensure_pythonpath(base_path.parent)
         catalog = DataCatalog(Dataset, {})
         with open(fp, "r") as fh:
             data = yaml.safe_load(fh)
@@ -102,6 +106,7 @@ class Config(BaseModel):
 
         return cls(
             dataset=dataset.name,
+            base_path=base_path,
             metadata=dataset.to_dict(),
             pipeline=data["pipeline"],
             mappings=mappings,

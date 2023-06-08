@@ -1,3 +1,4 @@
+import sys
 from functools import cache
 from importlib import import_module
 from pathlib import Path
@@ -56,6 +57,13 @@ def smart_write_proxies(
 def ensure_path(path: Path) -> Path:
     path.mkdir(parents=True, exist_ok=True)
     return path
+
+
+@cache
+def ensure_pythonpath(path: Path) -> None:
+    path = str(path)
+    if path not in sys.path:
+        sys.path.append(path)
 
 
 @cache
