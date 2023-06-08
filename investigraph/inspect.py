@@ -8,13 +8,17 @@ from typing import Any, Generator
 import pandas as pd
 from nomenklatura.entity import CE
 from nomenklatura.util import PathLike
+from rich import print
 
 from investigraph.context import init_context
-from investigraph.exceptions import ImproperlyConfigured
 from investigraph.extract import iter_records
 from investigraph.fetch import fetch_source
 from investigraph.model import Config, Source, get_config
 from investigraph.util import get_func
+
+
+def print_error(msg: str):
+    print(f"[bold red]ERROR[/bold red] {msg}")
 
 
 def get_records(source: Source) -> list[dict[str, Any]]:
@@ -28,11 +32,14 @@ def get_records(source: Source) -> list[dict[str, Any]]:
 
 def inspect_config(p: PathLike) -> Config:
     config = get_config(path=p)
-    func = get_func(config.parse_module_path)
-    if not callable(func):
-        raise ImproperlyConfigured(
-            f"module not found or not callable: `{config.parse_module_path}`"
-        )
+    try:
+        func = get_func(config.parse_module_path)
+        if not callable(func):
+            print_error(
+                f"module not found or not callable: `{config.parse_module_path}`"
+            )
+    except ModuleNotFoundError:
+        print_error(f"no parsing function: `{config.parse_module_path}`")
     return config
 
 
