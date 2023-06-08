@@ -10,6 +10,8 @@ services:
     volumes:
       - data:/data/prefect
       - ./datasets:/data/local/datasets
+    environment:
+      DEBUG: true
 
   agent:
     build: .
