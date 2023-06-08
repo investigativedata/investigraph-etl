@@ -1,16 +1,22 @@
 from pantomime.types import CSV, XLSX
 
+from investigraph.block import DatasetBlock
 from investigraph.model import Config, SourceHead, get_config
 from investigraph.util import get_func
 
 
-def test_model_config(ec_meetings: Config):
+def test_model_config(ec_meetings: Config, local_block: DatasetBlock):
     config = ec_meetings
     assert config.dataset == "ec_meetings"
     assert len(config.pipeline.sources) == 3
     assert config.parse_module_path == "datasets.ec_meetings.parse:parse"
 
-    config = get_config("ec_meetings")
+    config = get_config("ec_meetings", block="local-file-system/testdata")
+    assert config.dataset == "ec_meetings"
+    assert len(config.pipeline.sources) == 3
+    assert config.parse_module_path == "datasets.ec_meetings.parse:parse"
+
+    config = get_config("ec_meetings", path="./tests/fixtures/ec_meetings/config.yml")
     assert config.dataset == "ec_meetings"
     assert len(config.pipeline.sources) == 3
     assert config.parse_module_path == "datasets.ec_meetings.parse:parse"

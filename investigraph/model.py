@@ -18,7 +18,7 @@ from smart_open import open
 
 from investigraph.block import get_block
 from investigraph.cache import Cache, get_cache
-from investigraph.settings import DATASETS_BLOCK, DATASETS_DIR, DATASETS_MODULE
+from investigraph.settings import DATASETS_DIR, DATASETS_MODULE
 from investigraph.util import lowercase_dict
 
 
@@ -109,8 +109,9 @@ class Config(BaseModel):
 
 
 class FlowOptions(BaseModel):
-    block: str | None = DATASETS_BLOCK
     dataset: str
+    block: str | None = None
+    config: str | None = None
     index_uri: str | None = None
     fragments_uri: str | None = None
     entities_uri: str | None = None
@@ -123,12 +124,12 @@ class Flow(BaseModel):
 
     def __init__(self, **data):
         # override base config with runtime options
-        block = get_block(data["options"].block or DATASETS_BLOCK)
-        block.load(data["dataset"])
-        config = get_config(data["dataset"], str(block))
         options = data.get("options")
         if options is not None:
             options = dict(options)
+        config = get_config(
+            data["dataset"], options.get("block"), options.get("config")
+        )
         data["config"] = {**clean_dict(config.dict()), **options}
         super().__init__(**data)
 
@@ -157,7 +158,15 @@ class Context(BaseModel):
 
 
 @cache
-def get_config(dataset: str, block: str | None = DATASETS_BLOCK) -> Config:
-    block = get_block(block)
-    block.load(dataset)
+def get_config(
+    dataset: str, block: str | None = None, path: PathLike | None = None
+) -> Config:
+    """
+    Return configuration based on block or path (path has precedence)
+    """
+    if path is not None:
+        return Config.from_path(path)
+    if block is not None:
+        block = get_block(block)
+        block.load(dataset)
     return Config.from_path(DATASETS_DIR / dataset / "config.yml")

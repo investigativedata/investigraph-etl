@@ -30,6 +30,10 @@ After installation, `investigraph` as a command should be available:
 
     investigraph --help
 
+Quick run a local dataset definition:
+
+    investigraph run <dataset_name> -c ./path/to/config.yml
+
 Register a local datasets block:
 
     investigraph add-block -b local-file-system/investigraph-local -u ./datasets
@@ -38,7 +42,7 @@ Register github datasets block:
 
     investigraph add-block -b github/investigraph-datasets -u https://github.com/investigativedata/investigraph-datasets.git
 
-Run a dataset pipeline:
+Run a dataset pipeline from a dataset defined in a registered block:
 
     investigraph run ec_meetings
 
