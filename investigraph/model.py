@@ -84,6 +84,13 @@ class Config(BaseModel):
         arbitrary_types_allowed = True
 
     @property
+    def target(self) -> str:
+        if self.entities_uri is not None:
+            if self.entities_uri.startswith("post"):
+                return "postgres"
+        return "json"
+
+    @property
     def parse_module_path(self) -> str:
         if len(self.mappings):
             return "investigraph.transform:map_ftm"
@@ -138,6 +145,10 @@ class Flow(BaseModel):
         )
         data["config"] = {**clean_dict(config.dict()), **options}
         super().__init__(**data)
+
+    @property
+    def should_aggregate(self) -> bool:
+        return self.config.target != "postgres" and self.config.aggregate
 
     @classmethod
     def from_options(cls, options: FlowOptions) -> "Flow":

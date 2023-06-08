@@ -13,7 +13,7 @@ from investigraph.aggregate import in_memory
 from investigraph.context import init_context
 from investigraph.extract import iter_records
 from investigraph.fetch import fetch_source, get_cache_key
-from investigraph.load import to_fragments
+from investigraph.load import to_fragments, to_store
 from investigraph.model import Context, Flow, FlowOptions, SourceHead, SourceResult
 from investigraph.util import get_func
 
@@ -33,7 +33,11 @@ def load(ctx: Context, ckey: str):
     logger = get_run_logger()
     proxies = ctx.cache.get(ckey)
     out = ctx.config.fragments_uri
-    to_fragments(out, proxies)
+    if ctx.config.target == "postgres":
+        out = ctx.config.entities_uri
+        to_store(out, ctx.dataset, proxies)
+    else:
+        to_fragments(out, proxies)
     logger.info("LOADED %d proxies", len(proxies))
     logger.info("OUTPUT: %s", out)
     return out
@@ -107,5 +111,5 @@ def run(options: FlowOptions):
         ctx.export_metadata()
         run_pipeline(ctx)
 
-    if flow.config.aggregate:
+    if flow.should_aggregate:
         aggregate(ctx)
