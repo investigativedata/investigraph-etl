@@ -19,6 +19,7 @@ from smart_open import open
 
 from investigraph.block import get_block
 from investigraph.cache import Cache, get_cache
+from investigraph.exceptions import ImproperlyConfigured
 from investigraph.settings import DATASETS_DIR
 from investigraph.util import ensure_pythonpath, lowercase_dict
 
@@ -164,14 +165,15 @@ class Context(BaseModel):
 
 @cache
 def get_config(
-    dataset: str, block: str | None = None, path: PathLike | None = None
+    dataset: str | None = None, block: str | None = None, path: PathLike | None = None
 ) -> Config:
     """
     Return configuration based on block or path (path has precedence)
     """
     if path is not None:
         return Config.from_path(path)
-    if block is not None:
+    if block is not None and dataset is not None:
         block = get_block(block)
         block.load(dataset)
-    return Config.from_path(DATASETS_DIR / dataset / "config.yml")
+        return Config.from_path(DATASETS_DIR / dataset / "config.yml")
+    raise ImproperlyConfigured("Specify `dataset` and `block` or `path` to config.")
