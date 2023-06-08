@@ -10,6 +10,7 @@ RUN pip install -q -U pip setuptools
 RUN apt-get install -y pkg-config libicu-dev
 RUN pip install -q --no-binary=:pyicu: pyicu
 RUN pip install -q psycopg2-binary
+RUN pip install -q asyncpg
 
 COPY investigraph /investigraph/investigraph
 COPY setup.py /investigraph/
