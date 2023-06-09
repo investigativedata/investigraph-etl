@@ -98,7 +98,7 @@ def get_config(
             block = get_block(block)
         else:
             block = get_block(DATASETS_BLOCK)
-        log.info("Using block `%s`" % block.name)
+        log.info("Using block `%s`" % block)
         block.load(dataset)
         return Config.from_path(DATASETS_DIR / dataset / "config.yml")
     raise ImproperlyConfigured("Specify `dataset` and `block` or `path` to config.")
