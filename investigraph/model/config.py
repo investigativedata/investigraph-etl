@@ -41,7 +41,7 @@ class Config(BaseModel):
     @property
     def target(self) -> str:
         if self.entities_uri is not None:
-            if self.entities_uri.startswith("post"):
+            if self.entities_uri.startswith("postg"):
                 return "postgres"
         return "json"
 

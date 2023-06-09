@@ -7,12 +7,13 @@ from uuid import uuid4
 
 from ftmstore import get_dataset
 
-from investigraph.util import smart_iter_proxies, smart_write_proxies
+from investigraph.model import Context
+from investigraph.util import smart_iter_proxies
 
 log = logging.getLogger(__name__)
 
 
-def in_memory(in_uri: str, out_uri: str) -> tuple[int, int]:
+def in_memory(ctx: Context, in_uri: str) -> tuple[int, int]:
     """
     aggregate in memory: read fragments from `in_uri` and write aggregated
     proxies to `out_uri`
@@ -28,11 +29,12 @@ def in_memory(in_uri: str, out_uri: str) -> tuple[int, int]:
             buffer[proxy.id].merge(proxy)
         else:
             buffer[proxy.id] = proxy
-    proxies = smart_write_proxies(out_uri, buffer.values(), serialize=True)
-    return fragments, proxies
+
+    ctx.entities_loader.write(buffer.values(), serialize=True)
+    return fragments, len(buffer.values())
 
 
-def in_db(in_uri: str, out_uri: str) -> tuple[int, int]:
+def in_db(ctx: Context, in_uri: str) -> tuple[int, int]:
     """
     use ftm store database to aggregate.
     `in_uri`: database connection string
@@ -48,8 +50,8 @@ def in_db(in_uri: str, out_uri: str) -> tuple[int, int]:
     for ox, proxy in enumerate(dataset.iterate()):
         proxies.append(proxy)
         if ox % 10000 == 0:
-            smart_write_proxies(out_uri, proxies, serialize=True)
+            ctx.entities_loader.write(proxies, serialize=True)
             proxies = []
-    smart_write_proxies(out_uri, proxies, serialize=True)
+    ctx.entities_loader.write(proxies, serialize=True)
     dataset.drop()
     return ix, ox

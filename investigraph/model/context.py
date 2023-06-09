@@ -8,6 +8,7 @@ from pydantic import BaseModel
 from smart_open import open
 
 from investigraph.cache import Cache, get_cache
+from investigraph.logic.load import Loader, get_loader
 from investigraph.settings import DATA_ROOT
 from investigraph.util import ensure_path
 
@@ -21,6 +22,11 @@ class Context(BaseModel):
     config: Config
     source: Source
     run_id: str
+    entities_loader: Loader
+    fragments_loader: Loader
+
+    class Config:
+        arbitrary_types_allowed = True
 
     @property
     def cache(self) -> Cache:
@@ -50,4 +56,6 @@ def init_context(config: Config, source: Source) -> Context:
         config=config,
         source=source,
         run_id=run_id,
+        fragments_loader=get_loader(config.fragments_uri, config.dataset),
+        entities_loader=get_loader(config.entities_uri, config.dataset),
     )

@@ -31,7 +31,9 @@ class Flow(BaseModel):
 
     @property
     def should_aggregate(self) -> bool:
-        return self.config.target != "postgres" and self.config.aggregate
+        if self.config.entities_uri.startswith("postg"):
+            return False
+        return self.config.aggregate
 
     @classmethod
     def from_options(cls, options: FlowOptions) -> "Flow":

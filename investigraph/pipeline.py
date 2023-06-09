@@ -12,7 +12,6 @@ from investigraph import __version__, settings
 from investigraph.logic.aggregate import in_memory
 from investigraph.logic.extract import iter_records
 from investigraph.logic.fetch import fetch_source, get_cache_key
-from investigraph.logic.load import to_fragments, to_store
 from investigraph.model import Context, Flow, FlowOptions, SourceResponse
 from investigraph.model.context import init_context
 from investigraph.util import get_func
@@ -21,7 +20,7 @@ from investigraph.util import get_func
 @task
 def aggregate(ctx: Context):
     logger = get_run_logger()
-    fragments, proxies = in_memory(ctx.config.fragments_uri, ctx.config.entities_uri)
+    fragments, proxies = in_memory(ctx, ctx.config.fragments_uri)
     logger.info("AGGREGATED %d fragments to %d proxies", fragments, proxies)
     out = ctx.config.entities_uri
     logger.info("OUTPUT: %s", out)
@@ -34,10 +33,12 @@ def load(ctx: Context, ckey: str):
     proxies = ctx.cache.get(ckey)
     out = ctx.config.fragments_uri
     if ctx.config.target == "postgres":
+        # write directly to entities instead of fragments
+        # as aggregation is happening within postgres store on write
         out = ctx.config.entities_uri
-        to_store(out, ctx.dataset, proxies)
+        ctx.entities_loader.write(proxies)
     else:
-        to_fragments(out, proxies)
+        ctx.fragments_loader.write(proxies)
     logger.info("LOADED %d proxies", len(proxies))
     logger.info("OUTPUT: %s", out)
     return out
