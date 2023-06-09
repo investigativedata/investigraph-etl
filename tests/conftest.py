@@ -5,7 +5,12 @@ import pytest
 from investigraph.model import Config
 from investigraph.model.block import get_block
 
-FIXTURES_PATH = Path(__file__).parent / "fixtures"
+FIXTURES_PATH = (Path(__file__).parent / "fixtures").absolute()
+
+
+@pytest.fixture(scope="module")
+def fixtures_path():
+    return FIXTURES_PATH
 
 
 @pytest.fixture(scope="module")
