@@ -26,6 +26,7 @@ RUN mkdir -p /data/datasets
 RUN mkdir -p /data/prefect
 RUN chown -R 1000:1000 /data
 
+ENV DATA_ROOT=/data
 ENV DATASETS_DIR=/data/datasets
 ENV PREFECT_HOME=/data/prefect
 ENV PREFECT_EXTRA_ENTRYPOINTS=investigraph
