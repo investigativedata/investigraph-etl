@@ -1,4 +1,5 @@
 import shutil
+import sys
 from pathlib import Path
 from typing import Optional
 
@@ -6,13 +7,19 @@ import orjson
 import typer
 from prefect.settings import PREFECT_HOME
 from rich import print
+from smart_open import open
 from typing_extensions import Annotated
 
+from investigraph.catalog import build_catalog
 from investigraph.inspect import inspect_config, inspect_extract, inspect_transform
 from investigraph.model.block import get_block
 from investigraph.model.flow import FlowOptions
 from investigraph.pipeline import run
 from investigraph.settings import DATASETS_BLOCK, DATASETS_REPO
+
+from .logging import configure_logging
+
+configure_logging()
 
 cli = typer.Typer()
 
@@ -91,6 +98,25 @@ def cli_inspect(
                     proxy.to_dict(), option=orjson.OPT_APPEND_NEWLINE
                 ).decode()
                 print(data)
+
+
+@cli.command("build-catalog")
+def cli_catalog(
+    config: Annotated[Path, typer.Argument()],
+    uri: Annotated[str, typer.Option("-o")] = "-",
+):
+    """
+    Build a catalog from datasets metadata and write it to anywhere from stdout
+    (default) to any uri `smart_open` can handle, e.g.:
+
+        investigraph build-catalog catalog.yml -u s3://mybucket/catalog.json
+    """
+    catalog = build_catalog(config)
+    data = orjson.dumps(catalog.to_dict(), option=orjson.OPT_APPEND_NEWLINE)
+    if uri == "-":
+        sys.stdout.write(data.decode())
+    with open(uri, "wb") as fh:
+        fh.write(data)
 
 
 @cli.command("reset")
