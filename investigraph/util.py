@@ -2,18 +2,21 @@ import sys
 from functools import cache
 from importlib import import_module
 from pathlib import Path
-from typing import Any, Callable, Generator, Iterable
+from typing import Any, Callable, Iterable
 
 import orjson
 from banal import ensure_dict
 from followthemoney import model
 from followthemoney.proxy import E
 from nomenklatura.entity import CE, CompositeEntity
+from normality import slugify
 from smart_open import open
 
+from investigraph.types import CEGenerator, SDict
 
-def lowercase_dict(data: Any) -> dict:
-    return {str(k).lower(): v for k, v in ensure_dict(data).items()}
+
+def slugified_dict(data: dict[Any, Any]) -> SDict:
+    return {slugify(k, "_"): v for k, v in ensure_dict(data).items()}
 
 
 def make_proxy(schema: str) -> CE:
@@ -24,24 +27,24 @@ def uplevel_proxy(proxy: E) -> CE:
     return CompositeEntity.from_dict(model, proxy.to_dict())
 
 
-def load_proxy(data: dict[str, Any]) -> CE:
+def load_proxy(data: SDict) -> CE:
     return CompositeEntity.from_dict(model, data)
 
 
-def ensure_proxy(data: dict[str, Any] | CE) -> CE:
+def ensure_proxy(data: SDict | CE) -> CE:
     if isinstance(data, CE):
         return data
     return load_proxy(data)
 
 
-def smart_iter_proxies(uri: str) -> Generator[CE, None, None]:
+def smart_iter_proxies(uri: str) -> CEGenerator:
     for line in open(uri):
         yield load_proxy(orjson.loads(line))
 
 
 def smart_write_proxies(
     uri: str,
-    proxies: Iterable[CE | dict[str, Any]],
+    proxies: Iterable[CE | SDict],
     mode: str | None = "wb",
     serialize: bool | None = False,
 ) -> int:

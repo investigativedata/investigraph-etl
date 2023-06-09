@@ -1,5 +1,4 @@
-from investigraph.block import DatasetBlock
-from investigraph.model import FlowOptions
+from investigraph.model import DatasetBlock, FlowOptions
 from investigraph.pipeline import run
 
 

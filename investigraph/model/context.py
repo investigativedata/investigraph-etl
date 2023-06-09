@@ -1,9 +1,37 @@
-import shortuuid
-from prefect.runtime import flow_run
+from datetime import datetime
 
-from investigraph.model import Config, Context, Source
+import orjson
+import shortuuid
+from nomenklatura.util import datetime_iso
+from prefect.runtime import flow_run
+from pydantic import BaseModel
+from smart_open import open
+
+from investigraph.cache import Cache, get_cache
 from investigraph.settings import DATA_ROOT
 from investigraph.util import ensure_path
+
+from .config import Config
+from .source import Source
+
+
+class Context(BaseModel):
+    dataset: str
+    prefix: str
+    config: Config
+    source: Source
+    run_id: str
+
+    @property
+    def cache(self) -> Cache:
+        return get_cache()
+
+    def export_metadata(self) -> None:
+        data = self.config.metadata
+        data["updated_at"] = data.get("updated_at", datetime_iso(datetime.utcnow()))
+        data = orjson.dumps(data)
+        with open(self.config.index_uri, "wb") as fh:
+            fh.write(data)
 
 
 def init_context(config: Config, source: Source) -> Context:

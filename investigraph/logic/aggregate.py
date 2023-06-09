@@ -13,6 +13,13 @@ log = logging.getLogger(__name__)
 
 
 def in_memory(in_uri: str, out_uri: str) -> tuple[int, int]:
+    """
+    aggregate in memory: read fragments from `in_uri` and write aggregated
+    proxies to `out_uri`
+
+    as `smart_open` is used here, `in_uri` and `out_uri` can be any local or
+    remote locations
+    """
     fragments = 0
     buffer = {}
     for proxy in smart_iter_proxies(in_uri):
@@ -26,6 +33,10 @@ def in_memory(in_uri: str, out_uri: str) -> tuple[int, int]:
 
 
 def in_db(in_uri: str, out_uri: str) -> tuple[int, int]:
+    """
+    use ftm store database to aggregate.
+    `in_uri`: database connection string
+    """
     dataset = get_dataset("aggregate_%s" % uuid4().hex)
     bulk = dataset.bulk()
     for ix, proxy in enumerate(smart_iter_proxies(in_uri)):

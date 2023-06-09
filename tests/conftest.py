@@ -2,8 +2,8 @@ from pathlib import Path
 
 import pytest
 
-from investigraph.block import get_block
 from investigraph.model import Config
+from investigraph.model.block import get_block
 
 FIXTURES_PATH = Path(__file__).parent / "fixtures"
 

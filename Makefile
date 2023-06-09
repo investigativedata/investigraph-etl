@@ -11,9 +11,9 @@ install:
 	pip install twine coverage nose moto pytest pytest-cov black flake8 isort bump2version mypy ipdb
 
 test:
-	PREFECT_HOME=.test investigraph reset --yes yes
-	PREFECT_HOME=.test pytest tests -s --cov=investigraph --cov-report term-missing
-	PREFECT_HOME=.test investigraph reset --yes yes
+	rm -rf .test
+	pytest tests -s --cov=investigraph --cov-report term-missing
+	rm -rf .test
 
 typecheck:
 	mypy --strict investigraph

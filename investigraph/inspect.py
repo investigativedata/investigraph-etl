@@ -10,10 +10,11 @@ from nomenklatura.entity import CE
 from nomenklatura.util import PathLike
 from rich import print
 
-from investigraph.context import init_context
-from investigraph.extract import iter_records
-from investigraph.fetch import fetch_source
-from investigraph.model import Config, Source, get_config
+from investigraph.logic.extract import iter_records
+from investigraph.logic.fetch import fetch_source
+from investigraph.model.config import Config, get_config
+from investigraph.model.context import init_context
+from investigraph.model.source import Source
 from investigraph.util import get_func
 
 

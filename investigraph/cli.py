@@ -8,9 +8,9 @@ from prefect.settings import PREFECT_HOME
 from rich import print
 from typing_extensions import Annotated
 
-from investigraph.block import get_block
 from investigraph.inspect import inspect_config, inspect_extract, inspect_transform
-from investigraph.model import FlowOptions
+from investigraph.model.block import get_block
+from investigraph.model.flow import FlowOptions
 from investigraph.pipeline import run
 from investigraph.settings import DATASETS_BLOCK, DATASETS_REPO
 

@@ -9,12 +9,12 @@ from prefect import flow, get_run_logger, task
 from prefect.task_runners import ConcurrentTaskRunner
 
 from investigraph import __version__, settings
-from investigraph.aggregate import in_memory
-from investigraph.context import init_context
-from investigraph.extract import iter_records
-from investigraph.fetch import fetch_source, get_cache_key
-from investigraph.load import to_fragments, to_store
-from investigraph.model import Context, Flow, FlowOptions, SourceHead, SourceResult
+from investigraph.logic.aggregate import in_memory
+from investigraph.logic.extract import iter_records
+from investigraph.logic.fetch import fetch_source, get_cache_key
+from investigraph.logic.load import to_fragments, to_store
+from investigraph.model import Context, Flow, FlowOptions, SourceResponse
+from investigraph.model.context import init_context
 from investigraph.util import get_func
 
 
@@ -63,7 +63,7 @@ def transform(ctx: Context, ckey: str) -> str:
 )
 def fetch(
     ctx: Context, etag: str | None = None, last_modified: datetime | None = None
-) -> SourceResult:
+) -> SourceResponse:
     logger = get_run_logger()
     logger.info("FETCH %s", ctx.source.uri)
     return fetch_source(ctx.source)
@@ -76,7 +76,7 @@ def fetch(
     task_runner=ConcurrentTaskRunner(),
 )
 def run_pipeline(ctx: Context):
-    head = SourceHead.from_source(ctx.source)
+    head = ctx.source.head()
     res = fetch.submit(ctx, etag=head.etag, last_modified=head.last_modified)
     res = res.result()
     ix = 0

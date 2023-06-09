@@ -1,5 +1,5 @@
-from investigraph.extract import iter_records
-from investigraph.fetch import fetch_source
+from investigraph.logic.extract import iter_records
+from investigraph.logic.fetch import fetch_source
 from investigraph.model import Config
 
 

@@ -3,8 +3,8 @@ from datetime import datetime
 from pantomime.types import XLSX
 from requests import Response
 
-from investigraph import fetch
-from investigraph.model import Config, SourceResult
+from investigraph.logic import fetch
+from investigraph.model import Config, SourceResponse
 
 
 def test_fetch(ec_meetings: Config):
@@ -33,8 +33,8 @@ def test_fetch(ec_meetings: Config):
         assert should_fetch is True
 
         res = fetch.fetch_source(source)
-        assert isinstance(res, SourceResult)
-        assert isinstance(res.content, bytes)
+        assert isinstance(res, SourceResponse)
+        assert isinstance(res.response.content, bytes)
         assert res.mimetype == XLSX
 
         break

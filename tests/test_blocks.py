@@ -1,7 +1,7 @@
 import shutil
 from pathlib import Path
 
-from investigraph.block import GitHubBlock, LocalFileSystemBlock, get_block
+from investigraph.model.block import GitHubBlock, LocalFileSystemBlock, get_block
 from investigraph.settings import DATASETS_BLOCK, DATASETS_DIR, DATASETS_REPO
 
 

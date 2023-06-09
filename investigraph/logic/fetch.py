@@ -7,8 +7,8 @@ from datetime import datetime
 import requests
 from dateparser import parse as parse_date
 
-from investigraph.model import Context, Source, SourceResult
-from investigraph.util import lowercase_dict
+from investigraph.model import Context, Source, SourceResponse
+from investigraph.util import slugified_dict
 
 
 def head_cache(url: str) -> tuple[str | None, datetime | None]:
@@ -16,8 +16,8 @@ def head_cache(url: str) -> tuple[str | None, datetime | None]:
     Get Last-Modified and ETag headers from head request to given url
     """
     res = requests.head(url)
-    headers = lowercase_dict(res.headers)
-    last_modified: datetime | None = parse_date(headers.get("last-modified", ""))
+    headers = slugified_dict(res.headers)
+    last_modified: datetime | None = parse_date(headers.get("last_modified", ""))
     etag: str | None = headers.get("etag")
     return last_modified, etag
 
@@ -53,11 +53,11 @@ def get(
     return
 
 
-def fetch_source(source: Source) -> SourceResult:
+def fetch_source(source: Source) -> SourceResponse:
     res = get(source.uri, force=True)  # FIXME
     assert res.ok
-    return SourceResult(
-        **source.dict(), header=lowercase_dict(res.headers), content=res.content
+    return SourceResponse(
+        **source.dict(), header=slugified_dict(res.headers), response=res
     )
 
 
