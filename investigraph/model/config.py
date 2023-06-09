@@ -13,11 +13,14 @@ from pydantic import BaseModel
 from smart_open import open
 
 from investigraph.exceptions import ImproperlyConfigured
-from investigraph.settings import DATASETS_DIR, DEFAULT_TRANSFORMER
+from investigraph.logging import get_logger
+from investigraph.settings import DATASETS_BLOCK, DATASETS_DIR, DEFAULT_TRANSFORMER
 from investigraph.util import ensure_pythonpath
 
 from .block import get_block
 from .source import Source
+
+log = get_logger(__name__)
 
 
 class Pipeline(BaseModel):
@@ -90,8 +93,12 @@ def get_config(
     """
     if path is not None:
         return Config.from_path(path)
-    if block is not None and dataset is not None:
-        block = get_block(block)
+    if dataset is not None:
+        if block is not None:
+            block = get_block(block)
+        else:
+            block = get_block(DATASETS_BLOCK)
+        log.info("Using block `%s`" % block.name)
         block.load(dataset)
         return Config.from_path(DATASETS_DIR / dataset / "config.yml")
     raise ImproperlyConfigured("Specify `dataset` and `block` or `path` to config.")
