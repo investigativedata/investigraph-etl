@@ -38,7 +38,7 @@ def load(ctx: Context, ckey: str):
         out = ctx.config.entities_uri
         ctx.entities_loader.write(proxies)
     else:
-        ctx.fragments_loader.write(proxies)
+        ctx.fragments_loader.write(proxies, mode="ab")
     logger.info("LOADED %d proxies", len(proxies))
     logger.info("OUTPUT: %s", out)
     return out

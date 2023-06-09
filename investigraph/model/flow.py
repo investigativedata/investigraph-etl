@@ -26,7 +26,7 @@ class Flow(BaseModel):
         config = get_config(
             data["dataset"], options.get("block"), options.get("config")
         )
-        data["config"] = {**clean_dict(config.dict()), **options}
+        data["config"] = {**clean_dict(config.dict()), **clean_dict(options)}
         super().__init__(**data)
 
     @property

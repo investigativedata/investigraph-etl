@@ -3,7 +3,7 @@ Load transformed data (aka CE proxies) to various targets like json files,
 databases, s3 endpoints...
 """
 
-from functools import lru_cache
+from functools import cache
 from typing import Iterable, TypeAlias
 from urllib.parse import urlparse
 
@@ -16,7 +16,7 @@ Proxies: TypeAlias = Iterable[SDict]
 
 
 def to_uri(uri: str, proxies: Proxies, **kwargs):
-    smart_write_proxies(uri, proxies, "ab", **kwargs)
+    smart_write_proxies(uri, proxies, **kwargs)
 
 
 def to_store(uri: str, dataset: str, proxies: Proxies):
@@ -45,6 +45,6 @@ class Loader:
             to_uri(self.uri, proxies, **kwargs)
 
 
-@lru_cache(1024)
+@cache
 def get_loader(uri: str, dataset: str) -> Loader:
     return Loader(uri, dataset)

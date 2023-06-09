@@ -67,13 +67,18 @@ class Config(BaseModel):
                 mapping = model.make_mapping(m)
                 mappings.append(mapping)
 
-        return cls(
-            dataset=dataset.name,
-            base_path=base_path,
-            metadata=dataset.to_dict(),
-            pipeline=data["pipeline"],
-            mappings=mappings,
-        )
+        config = {
+            "dataset": dataset.name,
+            "base_path": base_path,
+            "metadata": dataset.to_dict(),
+            "mappings": mappings,
+        }
+
+        for key in cls.__fields__:
+            if key not in config:
+                config[key] = data.get(key)
+
+        return cls(**config)
 
 
 @cache
