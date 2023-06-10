@@ -14,7 +14,7 @@ from smart_open import open
 
 from investigraph.exceptions import ImproperlyConfigured
 from investigraph.logging import get_logger
-from investigraph.settings import DATASETS_BLOCK, DATASETS_DIR, DEFAULT_TRANSFORMER
+from investigraph.settings import DATASETS_BLOCK, DEFAULT_TRANSFORMER
 from investigraph.util import ensure_pythonpath
 
 from .block import get_block
@@ -100,5 +100,5 @@ def get_config(
             block = get_block(DATASETS_BLOCK)
         log.info("Using block `%s`" % block)
         block.load(dataset)
-        return Config.from_path(DATASETS_DIR / dataset / "config.yml")
+        return Config.from_path(block.path / dataset / "config.yml")
     raise ImproperlyConfigured("Specify `dataset` and `block` or `path` to config.")

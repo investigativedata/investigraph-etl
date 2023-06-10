@@ -13,9 +13,10 @@ def get_env(env: str, default: Any | None = None) -> Any | None:
 
 DEBUG = as_bool(get_env("DEBUG", 1))
 DATA_ROOT = Path(get_env("DATA_ROOT", Path.cwd() / "data")).absolute()
-DATASETS_REPO = "https://github.com/investigativedata/investigraph-datasets.git"
+DATASETS_REPO = get_env(
+    "DATASETS_REPO", "https://github.com/investigativedata/investigraph-datasets.git"
+)
 DATASETS_BLOCK = get_env("DATASETS_BLOCK", "github/investigraph-datasets")
-DATASETS_DIR = Path(get_env("DATASETS_DIR", DATA_ROOT / "datasets")).absolute()
 
 DEFAULT_TRANSFORMER = get_env(
     "DEFAULT_TRANSFORMER", "investigraph.logic.transform:map_ftm"

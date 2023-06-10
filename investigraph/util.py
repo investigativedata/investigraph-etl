@@ -59,7 +59,7 @@ def smart_write_proxies(
 @cache
 def ensure_path(path: Path) -> Path:
     path.mkdir(parents=True, exist_ok=True)
-    return path
+    return path.absolute()
 
 
 @cache

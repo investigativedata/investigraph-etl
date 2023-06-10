@@ -1,24 +1,23 @@
 import shutil
-from pathlib import Path
 
 from investigraph.model.block import GitHubBlock, LocalFileSystemBlock, get_block
-from investigraph.settings import DATASETS_BLOCK, DATASETS_DIR, DATASETS_REPO
+from investigraph.settings import DATA_ROOT, DATASETS_BLOCK, DATASETS_REPO
 
 
 def test_blocks_github():
     DATASET = "ec_meetings"
 
     # remove old testdata
-    path = Path.cwd() / DATASETS_DIR / DATASET
-    shutil.rmtree(path.parent, ignore_errors=True)
+    shutil.rmtree(DATA_ROOT / "blocks", ignore_errors=True)
 
     block = get_block(DATASETS_BLOCK)
+    path = block.path
     assert isinstance(block, GitHubBlock)
     block.register(DATASETS_REPO, overwrite=True)
     block.load(DATASET)
     assert path.exists()
     assert path.is_dir()
-    assert "ec_meetings" in str(path)
+    assert "ec_meetings" in [i for p in path.glob("*") for i in p.parts]
     shutil.rmtree(path.parent)
 
 
@@ -27,16 +26,14 @@ def test_blocks_local():
     DATASETS_BLOCK = "local-file-system/testdata"
 
     # remove old testdata
-    path = Path.cwd() / DATASETS_DIR / DATASET
-    shutil.rmtree(path.parent, ignore_errors=True)
+    shutil.rmtree(DATA_ROOT / "blocks", ignore_errors=True)
 
     block = get_block(DATASETS_BLOCK)
+    path = block.path
     assert isinstance(block, LocalFileSystemBlock)
     block.register("./tests/fixtures", overwrite=True)
     block.load(DATASET)
     assert path.exists()
     assert path.is_dir()
-    assert "gdho" in str(path)
+    assert "gdho" in [i for p in path.glob("*") for i in p.parts]
     shutil.rmtree(path.parent)
-
-    block.register("./tests/fixtures", ignore_errors=True)
