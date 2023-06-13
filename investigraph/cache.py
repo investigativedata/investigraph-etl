@@ -17,7 +17,7 @@ class Cache:
     it creates (prefixed) random keys during data set to cache.
 
     it mimics redis GETDEL so that after fetching data from cache the key is
-    deleted.
+    deleted (turn of by `delete=False`)
     """
 
     serializer = RedisSerializer()
@@ -30,17 +30,18 @@ class Cache:
         con.ping()
         self.cache = con
 
-    def set(self, data: Any) -> str:
+    def set(self, data: Any, key: str | None = None) -> str:
         data = self.serializer.dumps(data)
-        key = shortuuid.uuid()
+        key = key or shortuuid.uuid()
         self.cache.set(self.get_key(key), data)
         return key
 
-    def get(self, key: str) -> Any:
+    def get(self, key: str, delete: bool | None = True) -> Any:
         key = self.get_key(key)
         res = self.cache.get(key)
-        if res is not None:
+        if delete:
             self.cache.delete(key)  # GETDEL
+        if res is not None:
             data = self.serializer.loads(res)
             return data
 
