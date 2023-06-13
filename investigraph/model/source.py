@@ -1,5 +1,4 @@
 from datetime import datetime
-from typing import TypeAlias
 
 import requests
 from dateparser import parse as parse_date
@@ -9,8 +8,6 @@ from pydantic import BaseModel
 
 from investigraph.types import SDict
 from investigraph.util import slugified_dict
-
-TSourceHead: TypeAlias = "SourceHead"
 
 
 class SourceHead(BaseModel):
