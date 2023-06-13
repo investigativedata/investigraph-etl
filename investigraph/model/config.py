@@ -61,6 +61,7 @@ class Config(BaseModel):
         catalog = DataCatalog(Dataset, {})
         with open(fp, "r") as fh:
             data = yaml.safe_load(fh)
+        data["title"] = data.get("title", data["name"].title())
         dataset: Dataset = catalog.make_dataset(data)
         mappings = []
         if data.get("mapping") is not None:
