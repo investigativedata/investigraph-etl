@@ -40,7 +40,7 @@ def test_extract_http_tabular():
 
 @mock_s3
 def test_extract_smart_tabular(fixtures_path):
-    setup_s3_bucket()
+    setup_s3_bucket(with_content=True)
 
     base_uri = "s3://investigraph/%s"
 
