@@ -26,10 +26,11 @@ RUN mkdir -p /data/datasets
 RUN mkdir -p /data/prefect
 RUN chown -R 1000:1000 /data
 
-ENV DATASETS_DIR=/data/datasets
+ENV DATA_ROOT=/data
 ENV PREFECT_HOME=/data/prefect
 ENV PREFECT_EXTRA_ENTRYPOINTS=investigraph
 ENV PREFECT_SERVER_API_HOST=0.0.0.0
+ENV PREFECT_RESULTS_PERSIST_BY_DEFAULT=true
 ENV DEBUG=0
 
 USER 1000

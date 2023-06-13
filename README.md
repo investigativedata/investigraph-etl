@@ -1,24 +1,22 @@
 # investigraph-prefect
 
+**Research and implementation of an ETL process for a curated and up-to-date public and open-source data catalog of frequently used datasets in investigative journalism.**
+
 Using [prefect.io](https://www.prefect.io/) for ftm pipeline processing
 
 [Documentation](https://investigativedata.github.io/investigraph/)
 
 [Tutorial](https://investigativedata.github.io/investigraph/tutorial/)
 
-## status
-
-This current example implementation creates a task for each batch of 1000 csv rows that maps the data to ftm entities and writes them to an output file.
-
-With this approach, the following is achieved:
-- parallel and distributed execution
-- task state monitoring via prefect ui
-
-In [this issue](https://github.com/investigativedata/investigraph-prefect/issues/1) we will discuss requirements for the etl process to build upon.
-
 ## example datasets
 
 There is a dedicated [repo](https://github.com/investigativedata/investigraph-datasets) for example datasets that can be used as a [Block](https://docs.prefect.io/2.10.11/concepts/blocks/) within the prefect.io deployment.
+
+## deployment
+
+### docker
+
+`docker-compose.yml` for local development / testing, use `docker-compose.prod.yml` as a starting point for a production setup. [More instructions here](https://investigativedata.github.io/investigraph/deployment/)
 
 ## run locally
 

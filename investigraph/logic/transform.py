@@ -1,19 +1,15 @@
 """
-Transform stage
+Transform stage: map data records to ftm proxies
 """
 
-from typing import Any, Generator
-
 from followthemoney.mapping import QueryMapping
-from nomenklatura.entity import CE
 
 from investigraph.model import Context
+from investigraph.types import CEGenerator, SDict
 from investigraph.util import uplevel_proxy
 
 
-def map_record(
-    record: dict[str, Any], mapping: QueryMapping
-) -> Generator[CE, None, None]:
+def map_record(record: SDict, mapping: QueryMapping) -> CEGenerator:
     if mapping.source.check_filters(record):
         entities = mapping.map(record)
         for proxy in entities.values():
@@ -21,6 +17,6 @@ def map_record(
             yield proxy
 
 
-def map_ftm(ctx: Context, data: dict[str, Any]) -> Generator[CE, None, None]:
+def map_ftm(ctx: Context, data: SDict) -> CEGenerator:
     for mapping in ctx.config.mappings:
         yield from map_record(data, mapping)

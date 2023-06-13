@@ -3,43 +3,58 @@ Dataset configuration (metadata and optional python function) is stored in
 prefect blocks for easy distributed access
 """
 
-from functools import cache
+from functools import cache, cached_property
 from pathlib import Path
 
+from normality import slugify
 from prefect import filesystems
 from prefect.blocks.core import Block
-from pydantic import BaseModel, validator
 
-from investigraph.settings import DATASETS_DIR
+from investigraph.exceptions import BlockError
+from investigraph.settings import DATA_ROOT
 from investigraph.util import ensure_path, ensure_pythonpath
 
 BLOCK_TYPES = ("github", "local-file-system")
 
 
-class DatasetBlock(BaseModel):
-    prefix: str
-    name: str
+class DatasetBlock:
+    def __init__(self, prefix: str, name: str):
+        if prefix not in BLOCK_TYPES:
+            raise ValueError(f"unsupported block type: `{prefix}`")
+        self.prefix = prefix
+        self.name = name
 
     def __str__(self) -> str:
         return f"{self.prefix}/{self.name}"
 
-    @validator("prefix")
-    def ensure_allowed_prefix(cls, v):
-        if str(v) not in BLOCK_TYPES:
-            raise ValueError(f"unsupported block type: `{v}`")
-        return str(v)
-
-    @property
+    @cached_property
     def block(self) -> Block:
         return Block.load(str(self))
+
+    @property
+    def is_registered(self) -> bool:
+        try:
+            self.block
+            return self.get_path().exists()
+        except ValueError:
+            return False
+
+    @property
+    def path(self) -> Path:
+        if not self.is_registered:
+            raise BlockError(f"Block `{self}` not registered yet.")
+        return self.get_path()
+
+    def get_path(self) -> Path:
+        return DATA_ROOT / "blocks" / slugify(self.block._block_document_id, sep="_")
 
     def load_dataset(self, dataset: str) -> None:
         raise NotImplementedError  # subclass
 
     @classmethod
-    def from_string(cls, block: str, dataset: str | None = None) -> "DatasetBlock":
+    def from_string(cls, block: str) -> "DatasetBlock":
         prefix, name = block.split("/")
-        return cls(prefix=prefix, name=name, dataset=dataset)
+        return cls(prefix=prefix, name=name)
 
     @staticmethod
     def get_create_kwargs(uri: str) -> dict[str, str]:
@@ -64,7 +79,7 @@ class DatasetBlock(BaseModel):
         Load dataset from block and add path to python path
         """
         self.load_dataset(dataset)
-        ensure_pythonpath(DATASETS_DIR.parent)
+        ensure_pythonpath(self.path.parent)
 
 
 class LocalFileSystemBlock(DatasetBlock):
@@ -76,7 +91,7 @@ class LocalFileSystemBlock(DatasetBlock):
 
     def load_dataset(self, dataset: str) -> None:
         remote_path = Path(self.block.basepath) / dataset
-        local_path = ensure_path(DATASETS_DIR / dataset)
+        local_path = ensure_path(self.get_path() / dataset)
         self.block.get_directory(remote_path, local_path)
 
 
@@ -88,7 +103,7 @@ class GitHubBlock(DatasetBlock):
         return {"repository": uri, "include_git_objects": False}
 
     def load_dataset(self, dataset: str) -> None:
-        self.block.get_directory(dataset, ensure_path(DATASETS_DIR))
+        self.block.get_directory(dataset, self.get_path())
 
 
 @cache

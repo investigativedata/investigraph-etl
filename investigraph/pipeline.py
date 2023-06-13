@@ -2,26 +2,30 @@
 The main entrypoint for the prefect flow
 """
 
-from datetime import datetime
-from typing import Any
+from typing import Any, Literal
 
 from prefect import flow, get_run_logger, task
 from prefect.task_runners import ConcurrentTaskRunner
 
 from investigraph import __version__, settings
-from investigraph.aggregate import in_memory
-from investigraph.context import init_context
-from investigraph.extract import iter_records
-from investigraph.fetch import fetch_source, get_cache_key
-from investigraph.load import to_fragments, to_store
-from investigraph.model import Context, Flow, FlowOptions, SourceHead, SourceResult
+from investigraph.logic.aggregate import in_memory
+from investigraph.logic.extract import iter_records
+from investigraph.logic.fetch import fetch_source, get_cache_key
+from investigraph.model import (
+    Context,
+    Flow,
+    FlowOptions,
+    HttpSourceResponse,
+    SmartSourceResponse,
+)
+from investigraph.model.context import init_context
 from investigraph.util import get_func
 
 
 @task
 def aggregate(ctx: Context):
     logger = get_run_logger()
-    fragments, proxies = in_memory(ctx.config.fragments_uri, ctx.config.entities_uri)
+    fragments, proxies = in_memory(ctx, ctx.config.fragments_uri)
     logger.info("AGGREGATED %d fragments to %d proxies", fragments, proxies)
     out = ctx.config.entities_uri
     logger.info("OUTPUT: %s", out)
@@ -34,10 +38,11 @@ def load(ctx: Context, ckey: str):
     proxies = ctx.cache.get(ckey)
     out = ctx.config.fragments_uri
     if ctx.config.target == "postgres":
-        out = ctx.config.entities_uri
-        to_store(out, ctx.dataset, proxies)
+        # write directly to entities instead of fragments
+        # as aggregation is happening within postgres store on write
+        out = ctx.entities_loader.write(proxies)
     else:
-        to_fragments(out, proxies)
+        out = ctx.fragments_loader.write(proxies)
     logger.info("LOADED %d proxies", len(proxies))
     logger.info("OUTPUT: %s", out)
     return out
@@ -61,11 +66,9 @@ def transform(ctx: Context, ckey: str) -> str:
     retry_delay_seconds=settings.FETCH_RETRY_DELAY,
     cache_key_fn=get_cache_key,
 )
-def fetch(
-    ctx: Context, etag: str | None = None, last_modified: datetime | None = None
-) -> SourceResult:
+def fetch(ctx: Context) -> Literal[HttpSourceResponse, SmartSourceResponse]:
     logger = get_run_logger()
-    logger.info("FETCH %s", ctx.source.uri)
+    logger.info("OPEN %s", ctx.source.uri)
     return fetch_source(ctx.source)
 
 
@@ -76,8 +79,7 @@ def fetch(
     task_runner=ConcurrentTaskRunner(),
 )
 def run_pipeline(ctx: Context):
-    head = SourceHead.from_source(ctx.source)
-    res = fetch.submit(ctx, etag=head.etag, last_modified=head.last_modified)
+    res = fetch.submit(ctx)
     res = res.result()
     ix = 0
     batch = []

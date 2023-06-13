@@ -25,3 +25,19 @@ def test_cache():
     proxy.id = "id-alice"
     key = cache.set(proxy.to_dict())
     assert cache.get(key) == proxy.to_dict()
+
+    # manual key & no delete
+    cache.set("bar", key="foo")
+    assert cache.get("foo", delete=False) == "bar"
+    assert cache.get("foo") == "bar"
+    assert cache.get("foo") is None
+
+    # sets
+    key = cache.sadd("value1")
+    cache.sadd("value2", "value3", key=key)
+    assert "value1" in cache.smembers(key, delete=False)
+    assert "value2" in cache.smembers(key, delete=False)
+    assert "value3" in cache.smembers(key)
+    assert cache.smembers(key) is None
+
+    cache.flushall()

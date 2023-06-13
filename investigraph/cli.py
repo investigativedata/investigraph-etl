@@ -1,4 +1,5 @@
 import shutil
+import sys
 from pathlib import Path
 from typing import Optional
 
@@ -6,13 +7,19 @@ import orjson
 import typer
 from prefect.settings import PREFECT_HOME
 from rich import print
+from smart_open import open
 from typing_extensions import Annotated
 
-from investigraph.block import get_block
+from investigraph.catalog import build_catalog
 from investigraph.inspect import inspect_config, inspect_extract, inspect_transform
-from investigraph.model import FlowOptions
+from investigraph.model.block import get_block
+from investigraph.model.flow import FlowOptions
 from investigraph.pipeline import run
 from investigraph.settings import DATASETS_BLOCK, DATASETS_REPO
+
+from .logging import configure_logging
+
+configure_logging()
 
 cli = typer.Typer()
 
@@ -22,6 +29,7 @@ def cli_run(
     dataset: str,
     block: Annotated[Optional[str], typer.Option("-b")] = None,
     config: Annotated[Optional[str], typer.Option("-c")] = None,
+    index_uri: Annotated[Optional[str], typer.Option(...)] = None,
     fragments_uri: Annotated[Optional[str], typer.Option(...)] = None,
     entities_uri: Annotated[Optional[str], typer.Option(...)] = None,
     aggregate: Annotated[Optional[bool], typer.Option(...)] = True,
@@ -33,6 +41,7 @@ def cli_run(
         dataset=dataset,
         block=block,
         config=config,
+        index_uri=index_uri,
         fragments_uri=fragments_uri,
         entities_uri=entities_uri,
         aggregate=aggregate,
@@ -72,6 +81,7 @@ def cli_inspect(
     config_path: Annotated[Path, typer.Argument()],
     extract: Annotated[Optional[bool], typer.Option()] = False,
     transform: Annotated[Optional[bool], typer.Option()] = False,
+    to_json: Annotated[Optional[bool], typer.Option()] = False,
 ):
     config = inspect_config(config_path)
     print(f"[bold green]OK[/bold green] `{config_path}`")
@@ -79,9 +89,17 @@ def cli_inspect(
     print(f"[bold]title:[/bold] {config.metadata.get('title')}")
 
     if extract:
-        for name, data in inspect_extract(config):
+        for name, df in inspect_extract(config):
             print(f"[bold green]OK[/bold green] {name}")
-            print(data)
+            if to_json:
+                for _, row in df.iterrows():
+                    print(
+                        orjson.dumps(
+                            row.to_dict(), option=orjson.OPT_APPEND_NEWLINE
+                        ).decode()
+                    )
+            else:
+                print(df.to_markdown(index=False))
 
     if transform:
         for name, proxies in inspect_transform(config):
@@ -91,6 +109,25 @@ def cli_inspect(
                     proxy.to_dict(), option=orjson.OPT_APPEND_NEWLINE
                 ).decode()
                 print(data)
+
+
+@cli.command("build-catalog")
+def cli_catalog(
+    config: Annotated[Path, typer.Argument()],
+    uri: Annotated[str, typer.Option("-o")] = "-",
+):
+    """
+    Build a catalog from datasets metadata and write it to anywhere from stdout
+    (default) to any uri `smart_open` can handle, e.g.:
+
+        investigraph build-catalog catalog.yml -u s3://mybucket/catalog.json
+    """
+    catalog = build_catalog(config)
+    data = orjson.dumps(catalog.to_dict(), option=orjson.OPT_APPEND_NEWLINE)
+    if uri == "-":
+        sys.stdout.write(data.decode())
+    with open(uri, "wb") as fh:
+        fh.write(data)
 
 
 @cli.command("reset")

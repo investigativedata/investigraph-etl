@@ -20,9 +20,6 @@ publisher:
     governments.
   url: https://www.humanitarianoutcomes.org
 
-
-index_uri: s3://s3.investigativedata.org@data.ftm.store/investigraph/gdho/index.json
-entities_uri: s3://s3.investigativedata.org@data.ftm.store/investigraph/gdho/entities.ftm.json
 pipeline:
   sources:
     - uri: https://www.humanitarianoutcomes.org/gdho/search/results?format=csv

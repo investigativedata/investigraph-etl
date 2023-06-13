@@ -19,9 +19,9 @@ services:
     depends_on:
       - server
     volumes:
-      - data:/data/prefect
-      - ./datasets:/data/local/datasets
+      - ./output:/data/output
     environment:
+      DEBUG: true
       PREFECT_API_URL: http://server:4200/api
 
 
