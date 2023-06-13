@@ -3,8 +3,9 @@ from datetime import datetime
 import requests
 from dateparser import parse as parse_date
 from normality import slugify
-from pantomime import normalize_mimetype
+from pantomime import normalize_mimetype, types
 from pydantic import BaseModel
+from smart_open import parse_uri
 
 from investigraph.types import SDict
 from investigraph.util import slugified_dict
@@ -23,14 +24,19 @@ class SourceHead(BaseModel):
             **data,
         )
 
+    def should_stream(self) -> bool:
+        return self.content_type in (types.CSV, types.JSON)
+
 
 class Source(BaseModel):
     name: str
     uri: str
+    scheme: str
     extract_kwargs: dict | None = {}
 
     def __init__(self, **data):
         data["name"] = data.get("name", slugify(data["uri"]))
+        data["scheme"] = data.get("scheme", parse_uri(data["uri"].scheme))
         super().__init__(**data)
 
     def head(self) -> SourceHead:

@@ -38,16 +38,20 @@ def iter_records(res: SourceResponse) -> RecordGenerator:
             lines = []
             for ix, line in enumerate(res.response.iter_lines()):
                 lines.append(line)
-                if ix and ix % 10_000:
-                    content = "\n".join(lines)
-                    lines = []
+                if ix and ix % 10_000 == 0:
+                    content = b"\n".join(lines)
                     df = read_pandas(res.mimetype, content, **kwargs)
+                    lines = []
                     if ix == 10_000:  # first chunk
                         # fix initial kwargs for next chunk
                         kwargs["names"] = df.columns
                         kwargs["header"] = 0
                         kwargs.pop("skiprows")  # FIXME what else?
                     yield from yield_pandas(df)
+            if lines:
+                content = b"\n".join(lines)
+                df = read_pandas(res.mimetype, content, **kwargs)
+                yield from yield_pandas(df)
         else:
             df = read_pandas(res.mimetype, res.response.content, **kwargs)
             yield from yield_pandas(df)
