@@ -7,7 +7,7 @@ from io import BytesIO, StringIO
 import pandas as pd
 from pantomime import types
 
-from investigraph.model import SourceResponse
+from investigraph.model import Source
 from investigraph.types import RecordGenerator
 
 TABULAR = [types.CSV, types.EXCEL, types.XLS, types.XLSX]
@@ -29,17 +29,17 @@ def yield_pandas(df: pd.DataFrame) -> RecordGenerator:
         yield dict(row)
 
 
-def iter_records(res: SourceResponse) -> RecordGenerator:
+def iter_records(res: Source) -> RecordGenerator:
     if res.mimetype in TABULAR:
         kwargs = {**{"dtype": str}, **res.extract_kwargs}
         if res.is_stream:
             # yield pandas chunks to be able to apply extract_kwargs
             # doesn't work for excel here
             lines = []
-            for ix, line in enumerate(res.response.iter_lines()):
+            for ix, line in enumerate(res.iter_lines()):
                 lines.append(line)
                 if ix and ix % 10_000 == 0:
-                    content = b"\n".join(lines)
+                    content = b"\r".join(lines)
                     df = read_pandas(res.mimetype, content, **kwargs)
                     lines = []
                     if ix == 10_000:  # first chunk
@@ -49,11 +49,11 @@ def iter_records(res: SourceResponse) -> RecordGenerator:
                         kwargs.pop("skiprows")  # FIXME what else?
                     yield from yield_pandas(df)
             if lines:
-                content = b"\n".join(lines)
+                content = b"\r".join(lines)
                 df = read_pandas(res.mimetype, content, **kwargs)
                 yield from yield_pandas(df)
         else:
-            df = read_pandas(res.mimetype, res.response.content, **kwargs)
+            df = read_pandas(res.mimetype, res.content, **kwargs)
             yield from yield_pandas(df)
         return
 

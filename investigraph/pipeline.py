@@ -2,7 +2,7 @@
 The main entrypoint for the prefect flow
 """
 
-from typing import Any
+from typing import Any, Literal
 
 from prefect import flow, get_run_logger, task
 from prefect.task_runners import ConcurrentTaskRunner
@@ -11,7 +11,13 @@ from investigraph import __version__, settings
 from investigraph.logic.aggregate import in_memory
 from investigraph.logic.extract import iter_records
 from investigraph.logic.fetch import fetch_source, get_cache_key
-from investigraph.model import Context, Flow, FlowOptions, SourceResponse
+from investigraph.model import (
+    Context,
+    Flow,
+    FlowOptions,
+    HttpSourceResponse,
+    SmartSourceResponse,
+)
 from investigraph.model.context import init_context
 from investigraph.util import get_func
 
@@ -61,9 +67,9 @@ def transform(ctx: Context, ckey: str) -> str:
     retry_delay_seconds=settings.FETCH_RETRY_DELAY,
     cache_key_fn=get_cache_key,
 )
-def fetch(ctx: Context) -> SourceResponse:
+def fetch(ctx: Context) -> Literal[HttpSourceResponse, SmartSourceResponse]:
     logger = get_run_logger()
-    logger.info("FETCH %s", ctx.source.uri)
+    logger.info("OPEN %s", ctx.source.uri)
     return fetch_source(ctx.source)
 
 

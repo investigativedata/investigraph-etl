@@ -8,3 +8,6 @@ RecordGenerator: TypeAlias = Generator[SDict, None, None]
 
 # composite entity generator
 CEGenerator: TypeAlias = Generator[CE, None, None]
+
+StrGenerator: TypeAlias = Generator[str, None, None]
+BytesGenerator: TypeAlias = Generator[bytes, None, None]
