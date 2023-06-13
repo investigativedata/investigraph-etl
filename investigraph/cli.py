@@ -81,6 +81,7 @@ def cli_inspect(
     config_path: Annotated[Path, typer.Argument()],
     extract: Annotated[Optional[bool], typer.Option()] = False,
     transform: Annotated[Optional[bool], typer.Option()] = False,
+    to_json: Annotated[Optional[bool], typer.Option()] = False,
 ):
     config = inspect_config(config_path)
     print(f"[bold green]OK[/bold green] `{config_path}`")
@@ -88,9 +89,17 @@ def cli_inspect(
     print(f"[bold]title:[/bold] {config.metadata.get('title')}")
 
     if extract:
-        for name, data in inspect_extract(config):
+        for name, df in inspect_extract(config):
             print(f"[bold green]OK[/bold green] {name}")
-            print(data)
+            if to_json:
+                for _, row in df.iterrows():
+                    print(
+                        orjson.dumps(
+                            row.to_dict(), option=orjson.OPT_APPEND_NEWLINE
+                        ).decode()
+                    )
+            else:
+                print(df.to_markdown(index=False))
 
     if transform:
         for name, proxies in inspect_transform(config):

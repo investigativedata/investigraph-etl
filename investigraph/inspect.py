@@ -24,6 +24,7 @@ def print_error(msg: str):
 
 def get_records(source: Source) -> list[dict[str, Any]]:
     records: list[dict[str, Any]] = []
+    print("Fetching `%s` ..." % source.uri)
     res = fetch_source(source)
     for ix, rec in enumerate(iter_records(res)):
         records.append(rec)
@@ -44,13 +45,13 @@ def inspect_config(p: PathLike) -> Config:
     return config
 
 
-def inspect_extract(config: Config) -> Generator[tuple[str, str], None, None]:
+def inspect_extract(config: Config) -> Generator[tuple[str, pd.DataFrame], None, None]:
     """
     Preview fetched & extracted records in tabular format
     """
     for source in config.pipeline.sources:
         df = pd.DataFrame(get_records(source))
-        yield source.name, df.to_markdown(index=False)
+        yield source.name, df
 
 
 def inspect_transform(config: Config) -> Generator[tuple[str, CE], None, None]:
