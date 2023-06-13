@@ -13,21 +13,7 @@ from investigraph.util import slugified_dict
 TSourceHead: TypeAlias = "SourceHead"
 
 
-class Source(BaseModel):
-    name: str
-    uri: str
-    extract_kwargs: dict | None = {}
-
-    def __init__(self, **data):
-        data["name"] = data.get("name", slugify(data["uri"]))
-        super().__init__(**data)
-
-    def head(self) -> TSourceHead:
-        res = requests.head(self.uri)
-        return SourceHead(**self.dict(), **slugified_dict(res.headers))
-
-
-class SourceHead(Source):
+class SourceHead(BaseModel):
     etag: str | None = None
     last_modified: datetime | None = None
     content_type: str | None = None
@@ -40,9 +26,19 @@ class SourceHead(Source):
             **data,
         )
 
-    @property
-    def should_stream(self) -> bool:
-        return self.content_length or 0 > 1024**3 * 5  # 5 MB
+
+class Source(BaseModel):
+    name: str
+    uri: str
+    extract_kwargs: dict | None = {}
+
+    def __init__(self, **data):
+        data["name"] = data.get("name", slugify(data["uri"]))
+        super().__init__(**data)
+
+    def head(self) -> SourceHead:
+        res = requests.head(self.uri)
+        return SourceHead(**slugified_dict(res.headers))
 
 
 class SourceResponse(Source):

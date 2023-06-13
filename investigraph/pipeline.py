@@ -2,7 +2,6 @@
 The main entrypoint for the prefect flow
 """
 
-from datetime import datetime
 from typing import Any
 
 from prefect import flow, get_run_logger, task
@@ -62,9 +61,7 @@ def transform(ctx: Context, ckey: str) -> str:
     retry_delay_seconds=settings.FETCH_RETRY_DELAY,
     cache_key_fn=get_cache_key,
 )
-def fetch(
-    ctx: Context, etag: str | None = None, last_modified: datetime | None = None
-) -> SourceResponse:
+def fetch(ctx: Context) -> SourceResponse:
     logger = get_run_logger()
     logger.info("FETCH %s", ctx.source.uri)
     return fetch_source(ctx.source)
@@ -77,8 +74,7 @@ def fetch(
     task_runner=ConcurrentTaskRunner(),
 )
 def run_pipeline(ctx: Context):
-    head = ctx.source.head()
-    res = fetch.submit(ctx, etag=head.etag, last_modified=head.last_modified)
+    res = fetch.submit(ctx)
     res = res.result()
     ix = 0
     batch = []
