@@ -10,6 +10,7 @@ from normality import slugify
 from prefect import filesystems
 from prefect.blocks.core import Block
 
+from investigraph.exceptions import BlockError
 from investigraph.settings import DATA_ROOT
 from investigraph.util import ensure_path, ensure_pythonpath
 
@@ -22,8 +23,6 @@ class DatasetBlock:
             raise ValueError(f"unsupported block type: `{prefix}`")
         self.prefix = prefix
         self.name = name
-        self.slug = slugify(f"{prefix}_{name}", sep="_")
-        self.path = ensure_path(DATA_ROOT / "blocks" / self.slug)
 
     def __str__(self) -> str:
         return f"{self.prefix}/{self.name}"
@@ -31,6 +30,23 @@ class DatasetBlock:
     @cached_property
     def block(self) -> Block:
         return Block.load(str(self))
+
+    @property
+    def is_registered(self) -> bool:
+        try:
+            self.block
+            return self.get_path().exists()
+        except ValueError:
+            return False
+
+    @property
+    def path(self) -> Path:
+        if not self.is_registered:
+            raise BlockError(f"Block `{self}` not registered yet.")
+        return self.get_path()
+
+    def get_path(self) -> Path:
+        return DATA_ROOT / "blocks" / slugify(self.block._block_document_id, sep="_")
 
     def load_dataset(self, dataset: str) -> None:
         raise NotImplementedError  # subclass
@@ -75,7 +91,7 @@ class LocalFileSystemBlock(DatasetBlock):
 
     def load_dataset(self, dataset: str) -> None:
         remote_path = Path(self.block.basepath) / dataset
-        local_path = ensure_path(self.path / dataset)
+        local_path = ensure_path(self.get_path() / dataset)
         self.block.get_directory(remote_path, local_path)
 
 
@@ -87,7 +103,7 @@ class GitHubBlock(DatasetBlock):
         return {"repository": uri, "include_git_objects": False}
 
     def load_dataset(self, dataset: str) -> None:
-        self.block.get_directory(dataset, self.path)
+        self.block.get_directory(dataset, self.get_path())
 
 
 @cache

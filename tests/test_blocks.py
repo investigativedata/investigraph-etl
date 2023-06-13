@@ -1,6 +1,9 @@
 import shutil
 
-from investigraph.model.block import GitHubBlock, LocalFileSystemBlock, get_block
+import pytest
+
+from investigraph.exceptions import BlockError
+from investigraph.model.block import GitHubBlock, LocalFileSystemBlock  # , get_block
 from investigraph.settings import DATA_ROOT, DATASETS_BLOCK, DATASETS_REPO
 
 
@@ -10,14 +13,31 @@ def test_blocks_github():
     # remove old testdata
     shutil.rmtree(DATA_ROOT / "blocks", ignore_errors=True)
 
-    block = get_block(DATASETS_BLOCK)
-    path = block.path
+    # block = get_block(DATASETS_BLOCK)  # FIXME caching breaks testing here
+    block = GitHubBlock.from_string(DATASETS_BLOCK)
     assert isinstance(block, GitHubBlock)
+
+    with pytest.raises(BlockError) as e:
+        block.path
+    assert "not registered" in str(e)
+
     block.register(DATASETS_REPO, overwrite=True)
     block.load(DATASET)
+    path = block.path
     assert path.exists()
     assert path.is_dir()
     assert "ec_meetings" in [i for p in path.glob("*") for i in p.parts]
+
+    # loaded into pythonpath
+    import sys
+
+    exists = False
+    for p in sys.path:
+        if ".test/data/blocks" in p:
+            exists = True
+            break
+    assert exists
+
     shutil.rmtree(path.parent)
 
 
@@ -28,11 +48,12 @@ def test_blocks_local():
     # remove old testdata
     shutil.rmtree(DATA_ROOT / "blocks", ignore_errors=True)
 
-    block = get_block(DATASETS_BLOCK)
-    path = block.path
+    # block = get_block(DATASETS_BLOCK)  # FIXME caching breaks testing here
+    block = LocalFileSystemBlock.from_string(DATASETS_BLOCK)
     assert isinstance(block, LocalFileSystemBlock)
     block.register("./tests/fixtures", overwrite=True)
     block.load(DATASET)
+    path = block.path
     assert path.exists()
     assert path.is_dir()
     assert "gdho" in [i for p in path.glob("*") for i in p.parts]

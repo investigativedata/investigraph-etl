@@ -46,7 +46,7 @@ def configure_logging(
 
     logger = logging.getLogger("investigraph")
     logger.setLevel(level)
-    logger.addHandler(handler)
+    logger.handlers = [handler]
 
 
 def get_logger(name: str) -> structlog.stdlib.BoundLogger:

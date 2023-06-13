@@ -14,9 +14,9 @@ def test_model_config(ec_meetings: Config, local_block: DatasetBlock):
     config = get_config("ec_meetings", block="local-file-system/testdata")
     assert config.dataset == "ec_meetings"
     assert len(config.pipeline.sources) == 3
-    assert (
-        config.parse_module_path == "local_file_system_testdata.ec_meetings.parse:parse"
-    )
+    assert config.parse_module_path.endswith("ec_meetings.parse:parse")
+    func = get_func(config.parse_module_path)
+    assert callable(func)
 
     config = get_config(path="./tests/fixtures/ec_meetings/config.yml")
     assert config.dataset == "ec_meetings"

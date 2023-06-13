@@ -1,6 +1,6 @@
 import sys
 from functools import cache
-from importlib import import_module
+from importlib import import_module, invalidate_caches
 from pathlib import Path
 from typing import Any, Callable, Iterable
 
@@ -71,6 +71,7 @@ def ensure_pythonpath(path: Path) -> None:
 
 @cache
 def get_func(parse_module_path: str) -> Callable:
+    invalidate_caches()
     module, func = parse_module_path.split(":")
     module = import_module(module)
     return getattr(module, func)
