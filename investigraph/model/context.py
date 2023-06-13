@@ -56,6 +56,6 @@ def init_context(config: Config, source: Source) -> Context:
         config=config,
         source=source,
         run_id=run_id,
-        fragments_loader=get_loader(config.fragments_uri, config.dataset),
+        fragments_loader=get_loader(config.fragments_uri, config.dataset, parts=True),
         entities_loader=get_loader(config.entities_uri, config.dataset),
     )

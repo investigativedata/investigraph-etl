@@ -40,10 +40,9 @@ def load(ctx: Context, ckey: str):
     if ctx.config.target == "postgres":
         # write directly to entities instead of fragments
         # as aggregation is happening within postgres store on write
-        out = ctx.config.entities_uri
-        ctx.entities_loader.write(proxies)
+        out = ctx.entities_loader.write(proxies)
     else:
-        ctx.fragments_loader.write(proxies, mode="ab")
+        out = ctx.fragments_loader.write(proxies)
     logger.info("LOADED %d proxies", len(proxies))
     logger.info("OUTPUT: %s", out)
     return out

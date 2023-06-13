@@ -38,6 +38,7 @@ def test_pipeline_s3():
     options = FlowOptions(
         dataset="eu_authorities",
         config="./tests/fixtures/eu_authorities/config.yml",
+        fragments_uri="s3://investigraph/eu_authorities/fragments.ftm.json",
         entities_uri="s3://investigraph/eu_authorities/entities.ftm.json",
     )
     run(options)
