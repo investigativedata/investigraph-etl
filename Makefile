@@ -10,6 +10,10 @@ lint:
 	poetry run flake8 investigraph --count --select=E9,F63,F7,F82 --show-source --statistics
 	poetry run flake8 investigraph --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
 
+pre-commit:
+	poetry run pre-commit install
+	poetry run pre-commit run -a
+
 test:
 	rm -rf .test
 	poetry run pytest tests -s --cov=investigraph --cov-report term-missing
