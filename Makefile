@@ -1,28 +1,26 @@
 all: clean install test
 
 agent:
-	prefect agent start -q "default"
+	poetry run prefect agent start -q "default"
 
 server:
-	prefect server start
+	poetry run prefect server start
 
-install:
-	pip install -e .
-	pip install twine coverage nose moto pytest pytest-cov black flake8 isort bump2version mypy ipdb
+lint:
+	poetry run flake8 investigraph --count --select=E9,F63,F7,F82 --show-source --statistics
+	poetry run flake8 investigraph --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+
+pre-commit:
+	poetry run pre-commit install
+	poetry run pre-commit run -a
 
 test:
 	rm -rf .test
-	pytest tests -s --cov=investigraph --cov-report term-missing
+	poetry run pytest tests -v -s --cov=investigraph --cov-report term-missing
 	rm -rf .test
 
 typecheck:
-	mypy --strict investigraph
-
-build:
-	python setup.py sdist bdist_wheel
-
-release: clean build
-	twine upload dist/*
+	poetry run mypy --strict investigraph
 
 clean:
 	rm -fr build/

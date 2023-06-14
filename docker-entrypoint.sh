@@ -18,4 +18,3 @@ if [[ "$@" == *"prefect server start"* ]]; then
 fi
 
 exec $@
-

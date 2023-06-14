@@ -59,7 +59,7 @@ class Config(BaseModel):
         base_path = Path(fp).parent
         ensure_pythonpath(base_path.parent.parent)
         catalog = DataCatalog(Dataset, {})
-        with open(fp, "r") as fh:
+        with open(fp) as fh:
             data = yaml.safe_load(fh)
         data["title"] = data.get("title", data["name"].title())
         dataset: Dataset = catalog.make_dataset(data)

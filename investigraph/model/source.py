@@ -88,8 +88,7 @@ class SmartSourceResponse(Source):
 
     def iter_lines(self) -> BytesGenerator:
         with open(self.uri, "rb") as fh:
-            for line in fh:
-                yield line
+            yield from fh
 
     @property
     def mimetype(self) -> str:

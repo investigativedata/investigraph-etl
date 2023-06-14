@@ -1,4 +1,6 @@
-# investigraph-prefect
+[![Python test and package](https://github.com/investigativedata/investigraph-etl/actions/workflows/python.yml/badge.svg)](https://github.com/investigativedata/investigraph-etl/actions/workflows/python.yml) [![Build docker container](https://github.com/investigativedata/investigraph-etl/actions/workflows/build-docker.yml/badge.svg)](https://github.com/investigativedata/investigraph-etl/actions/workflows/build-docker.yml) [![pre-commit](https://img.shields.io/badge/pre--commit-enabled-brightgreen?logo=pre-commit)](https://github.com/pre-commit/pre-commit) [![Coverage Status](https://coveralls.io/repos/github/investigativedata/investigraph-etl/badge.svg?branch=main)](https://coveralls.io/github/investigativedata/investigraph-etl?branch=main)
+
+# investigraph
 
 **Research and implementation of an ETL process for a curated and up-to-date public and open-source data catalog of frequently used datasets in investigative journalism.**
 
@@ -7,6 +9,10 @@ Using [prefect.io](https://www.prefect.io/) for ftm pipeline processing
 [Documentation](https://investigativedata.github.io/investigraph/)
 
 [Tutorial](https://investigativedata.github.io/investigraph/tutorial/)
+
+## installation
+
+    pip install investigraph
 
 ## example datasets
 
@@ -50,9 +56,24 @@ View prefect dashboard:
 
     make server
 
-## test
+## development
 
-    make install
+This package is using [poetry](https://python-poetry.org/) for packaging and dependencies management, so first [install it](https://python-poetry.org/docs/#installation).
+
+Clone investigraph repository to a local destination.
+
+Within the root directory, run
+
+    poetry install --with dev
+
+This installs a few development dependencies, including [pre-commit](https://pre-commit.com/) which needs to be registered:
+
+    poetry run pre-commit install
+
+Before creating a commit, this checks for correct code formatting (isort, black) and some other useful stuff (see: `.pre-commit-config.yaml`)
+
+### test
+
     make test
 
 ## supported by

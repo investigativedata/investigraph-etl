@@ -50,7 +50,7 @@ def build_catalog(catalog_in: PathLike) -> DataCatalog:
     """
     log.info("building catalog", catalog=str(catalog_in))
     seen = set()
-    with open(catalog_in, "r") as fh:
+    with open(catalog_in) as fh:
         catalog_in_data = yaml.safe_load(fh)
     catalog_in = str(catalog_in)  # for logging
     catalog = DataCatalog(ZavodDataset, {})

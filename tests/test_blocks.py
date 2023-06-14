@@ -1,9 +1,12 @@
+from __future__ import annotations
+
 import shutil
 
 import pytest
 
 from investigraph.exceptions import BlockError
-from investigraph.model.block import GitHubBlock, LocalFileSystemBlock  # , get_block
+from investigraph.model.block import GitHubBlock  # , get_block
+from investigraph.model.block import LocalFileSystemBlock
 from investigraph.settings import DATA_ROOT, DATASETS_BLOCK, DATASETS_REPO
 
 
