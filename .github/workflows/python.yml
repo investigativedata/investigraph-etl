@@ -23,7 +23,21 @@ jobs:
       uses: actions/setup-python@v4
       with:
         python-version: ${{ matrix.python-version }}
-    - uses: Gr1N/setup-poetry@v8
+    - name: Install poetry
+      run: |
+        curl -sSL https://install.python-poetry.org | python3 -
+        echo "::set-env name=PATH::$HOME/.poetry/bin:$PATH"
+    - name: Configure poetry
+      run: poetry config virtualenvs.in-project true
+    - name: Set up cache
+      uses: actions/cache@v1
+      id: cache
+      with:
+        path: .venv
+        key: venv-${{ runner.os }}-${{ steps.full-python-version.outputs.version }}-${{ hashFiles('**/poetry.lock') }}
+    - name: Ensure cache is healthy
+      if: steps.cache.outputs.cache-hit == 'true'
+      run: poetry run pip --version >/dev/null 2>&1 || rm -rf .venv
     - name: Install dependencies
       run: poetry install --with dev
     - name: Lint with flake8
