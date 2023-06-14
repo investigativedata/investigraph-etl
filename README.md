@@ -54,9 +54,24 @@ View prefect dashboard:
 
     make server
 
-## test
+## development
 
-    make install
+This package is using [poetry](https://python-poetry.org/) for packaging and dependencies management, so first [install it](https://python-poetry.org/docs/#installation).
+
+Clone investigraph repository to a local destination.
+
+Within the root directory, run
+
+    poetry install --with dev
+
+This installs a few development dependencies, including [pre-commit](https://pre-commit.com/) which needs to be registered:
+
+    poetry run pre-commit install
+
+Before creating a commit, this checks for correct code formatting (isort, black) and some other useful stuff (see: `.pre-commit-config.yaml`)
+
+### test
+
     make test
 
 ## supported by
