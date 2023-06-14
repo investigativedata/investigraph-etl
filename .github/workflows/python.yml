@@ -24,9 +24,7 @@ jobs:
       with:
         python-version: ${{ matrix.python-version }}
     - name: Install poetry
-      run: |
-        curl -sSL https://install.python-poetry.org | python3 -
-        echo "::set-env name=PATH::$HOME/.poetry/bin:$PATH"
+      run: curl -sSL https://install.python-poetry.org | python3 -
     - name: Configure poetry
       run: poetry config virtualenvs.in-project true
     - name: Set up cache
