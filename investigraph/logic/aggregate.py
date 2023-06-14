@@ -5,12 +5,12 @@ aggregate fragments
 import logging
 from uuid import uuid4
 
+from ftmq.io import smart_read_proxies
 from ftmstore import get_dataset
 
 from investigraph.cache import get_cache
 from investigraph.model import Context
 from investigraph.types import CEGenerator
-from investigraph.util import smart_iter_proxies
 
 log = logging.getLogger(__name__)
 
@@ -24,10 +24,10 @@ def get_smart_proxies(uri: str) -> CEGenerator:
     uris = cache.smembers(uri)
     if uris:
         for uri in uris:
-            yield from smart_iter_proxies(uri)
+            yield from smart_read_proxies(uri)
         return
 
-    yield from smart_iter_proxies(uri)
+    yield from smart_read_proxies(uri)
 
 
 def in_memory(ctx: Context, in_uri: str) -> tuple[int, int]:

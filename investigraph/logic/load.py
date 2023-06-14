@@ -8,11 +8,11 @@ from typing import Iterable, TypeAlias
 from urllib.parse import urlparse
 
 import shortuuid
+from ftmq.io import smart_write_proxies
 from ftmstore import get_dataset
 
 from investigraph.cache import get_cache
 from investigraph.types import SDict
-from investigraph.util import smart_write_proxies
 
 Proxies: TypeAlias = Iterable[SDict]
 
