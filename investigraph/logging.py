@@ -3,6 +3,7 @@ import sys
 from typing import List
 
 import structlog
+from banal import ensure_list
 from structlog.contextvars import merge_contextvars
 from structlog.stdlib import get_logger as get_raw_logger
 from structlog.types import Processor
@@ -10,7 +11,7 @@ from structlog.types import Processor
 
 def configure_logging(
     level: int = logging.INFO,
-    extra_processors: List[Processor] = [],
+    extra_processors: List[Processor] = None,
 ) -> None:
     """Configure log levels and structured logging."""
     processors: List[Processor] = [
@@ -23,7 +24,7 @@ def configure_logging(
         structlog.processors.UnicodeDecoder(),
         merge_contextvars,
     ]
-    processors.extend(extra_processors)
+    processors.extend(ensure_list(extra_processors))
     renderer = structlog.dev.ConsoleRenderer(
         exception_formatter=structlog.dev.plain_traceback
     )
