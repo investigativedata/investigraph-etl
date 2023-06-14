@@ -1,10 +1,14 @@
 all: clean install test
 
 agent:
-	prefect agent start -q "default"
+	poetry run prefect agent start -q "default"
 
 server:
-	prefect server start
+	poetry run prefect server start
+
+lint:
+	poetry run flake8 investigraph --count --select=E9,F63,F7,F82 --show-source --statistics
+	poetry run flake8 investigraph --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
 
 test:
 	rm -rf .test
