@@ -7,7 +7,6 @@ from typing import Any, Callable
 from banal import ensure_dict
 from followthemoney import model
 from followthemoney.proxy import E
-from ftmq.io import load_proxy
 from nomenklatura.entity import CE, CompositeEntity
 from normality import slugify
 
@@ -24,12 +23,6 @@ def make_proxy(schema: str) -> CE:
 
 def uplevel_proxy(proxy: E) -> CE:
     return CompositeEntity.from_dict(model, proxy.to_dict())
-
-
-def ensure_proxy(data: SDict | CE) -> CE:
-    if isinstance(data, CE):
-        return data
-    return load_proxy(data)
 
 
 @cache
