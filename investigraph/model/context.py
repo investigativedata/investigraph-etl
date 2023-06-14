@@ -2,15 +2,18 @@ from datetime import datetime
 
 import orjson
 import shortuuid
+from followthemoney.util import make_entity_id
+from nomenklatura.entity import CE
 from nomenklatura.util import datetime_iso
 from prefect.runtime import flow_run
 from pydantic import BaseModel
 from smart_open import open
+from zavod.util import join_slug
 
 from investigraph.cache import Cache, get_cache
 from investigraph.logic.load import Loader, get_loader
 from investigraph.settings import DATA_ROOT
-from investigraph.util import ensure_path
+from investigraph.util import ensure_path, make_proxy
 
 from .config import Config
 from .source import Source
@@ -38,6 +41,17 @@ class Context(BaseModel):
         data = orjson.dumps(data)
         with open(self.config.index_uri, "wb") as fh:
             fh.write(data)
+
+    def make_proxy(self, *args, **kwargs) -> CE:
+        return make_proxy(*args, **kwargs)
+
+    def make_slug(self, *args, **kwargs) -> str:
+        prefix = kwargs.pop("prefix", self.prefix)
+        return join_slug(*args, prefix=prefix, **kwargs)
+
+    def make_id(self, *args, **kwargs) -> str:
+        prefix = kwargs.pop("prefix", self.prefix)
+        return join_slug(make_entity_id(*args), prefix=prefix)
 
 
 def init_context(config: Config, source: Source) -> Context:

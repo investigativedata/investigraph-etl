@@ -14,7 +14,7 @@ def test_pipeline_from_block(local_block: DatasetBlock):
 
 def test_pipeline_from_config():
     options = FlowOptions(
-        dataset="eu_authorities", config="./tests/fixtures/eu_authorities/config.yml"
+        dataset="ec_meetings", config="./tests/fixtures/ec_meetings/config.yml"
     )
     run(options)
 
