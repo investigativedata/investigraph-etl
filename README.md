@@ -1,4 +1,4 @@
-# investigraph-prefect
+# investigraph
 
 **Research and implementation of an ETL process for a curated and up-to-date public and open-source data catalog of frequently used datasets in investigative journalism.**
 
@@ -7,6 +7,10 @@ Using [prefect.io](https://www.prefect.io/) for ftm pipeline processing
 [Documentation](https://investigativedata.github.io/investigraph/)
 
 [Tutorial](https://investigativedata.github.io/investigraph/tutorial/)
+
+## installation
+
+    pip install investigraph
 
 ## example datasets
 

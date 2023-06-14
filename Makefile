@@ -6,23 +6,13 @@ agent:
 server:
 	prefect server start
 
-install:
-	pip install -e .
-	pip install twine coverage nose moto pytest pytest-cov black flake8 isort bump2version mypy ipdb
-
 test:
 	rm -rf .test
-	pytest tests -s --cov=investigraph --cov-report term-missing
+	poetry run pytest tests -s --cov=investigraph --cov-report term-missing
 	rm -rf .test
 
 typecheck:
-	mypy --strict investigraph
-
-build:
-	python setup.py sdist bdist_wheel
-
-release: clean build
-	twine upload dist/*
+	poetry run mypy --strict investigraph
 
 clean:
 	rm -fr build/
