@@ -1,4 +1,5 @@
 from datetime import datetime
+from typing import Iterable
 
 import orjson
 import shortuuid
@@ -25,11 +26,14 @@ class Context(BaseModel):
     config: Config
     source: Source
     run_id: str
-    entities_loader: Loader
-    fragments_loader: Loader
+    entities_loader: Loader | None = None
+    fragments_loader: Loader | None = None
 
     class Config:
         arbitrary_types_allowed = True
+
+    def __hash__(self) -> int:
+        return hash((self.dataset, self.run_id))
 
     @property
     def cache(self) -> Cache:
@@ -53,9 +57,12 @@ class Context(BaseModel):
         prefix = kwargs.pop("prefix", self.prefix)
         return join_slug(make_entity_id(*args), prefix=prefix)
 
+    def make_cache_key(self, *args: Iterable[str]) -> str:
+        return join_slug(self.run_id, *args, sep="#")
+
 
 def init_context(config: Config, source: Source) -> Context:
-    run_id = flow_run.get_id() or f"dummy-{shortuuid.uuid()}"
+    run_id = flow_run.get_id() or f"DUMMY-RUN-{shortuuid.uuid()}"
     path = ensure_path(DATA_ROOT / config.dataset)
     if config.index_uri is None:
         config.index_uri = (path / "index.json").as_uri()
@@ -64,12 +71,18 @@ def init_context(config: Config, source: Source) -> Context:
     if config.entities_uri is None:
         config.entities_uri = (path / "entities.ftm.json").as_uri()
 
-    return Context(
+    # FIXME
+    # this is a bit weird. But avoiding recursions.
+    ctx_data = dict(
         dataset=config.dataset,
         prefix=config.metadata.get("prefix", config.dataset),
         config=config,
         source=source,
         run_id=run_id,
-        fragments_loader=get_loader(config.fragments_uri, config.dataset, parts=True),
-        entities_loader=get_loader(config.entities_uri, config.dataset),
     )
+    ctx = Context(**ctx_data)
+    ctx.fragments_loader = get_loader(
+        Context(**ctx_data), config.fragments_uri, parts=True
+    )
+    ctx.entities_loader = get_loader(Context(**ctx_data), config.entities_uri)
+    return ctx

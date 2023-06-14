@@ -15,13 +15,13 @@ from investigraph.types import CEGenerator
 log = logging.getLogger(__name__)
 
 
-def get_smart_proxies(uri: str) -> CEGenerator:
+def get_smart_proxies(ctx: Context, uri: str) -> CEGenerator:
     """
     see if we have parts in cache during run time
     (mimics efficient globbing for remote sources)
     """
     cache = get_cache()
-    uris = cache.smembers(uri)
+    uris = cache.smembers(ctx.make_cache_key(uri))
     if uris:
         for uri in uris:
             yield from smart_read_proxies(uri)
@@ -40,7 +40,7 @@ def in_memory(ctx: Context, in_uri: str) -> tuple[int, int]:
     """
     fragments = 0
     buffer = {}
-    for proxy in get_smart_proxies(in_uri):
+    for proxy in get_smart_proxies(ctx, in_uri):
         fragments += 1
         if proxy.id in buffer:
             buffer[proxy.id].merge(proxy)
@@ -58,15 +58,15 @@ def in_db(ctx: Context, in_uri: str) -> tuple[int, int]:
     """
     dataset = get_dataset("aggregate_%s" % uuid4().hex)
     bulk = dataset.bulk()
-    for ix, proxy in enumerate(get_smart_proxies(in_uri)):
-        if ix % 10000 == 0:
+    for ix, proxy in enumerate(get_smart_proxies(ctx, in_uri)):
+        if ix % 10_000 == 0:
             log.info("Write [%s]: %s entities", dataset.name, ix)
         bulk.put(proxy, fragment=str(ix))
     bulk.flush()
     proxies = []
     for ox, proxy in enumerate(dataset.iterate()):
         proxies.append(proxy)
-        if ox % 10000 == 0:
+        if ox % 10_000 == 0:
             ctx.entities_loader.write(proxies, serialize=True)
             proxies = []
     ctx.entities_loader.write(proxies, serialize=True)
