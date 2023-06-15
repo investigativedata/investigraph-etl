@@ -4436,13 +4436,13 @@ files = [
 
 [[package]]
 name = "zavod"
-version = "0.6.1"
+version = "0.6.3"
 description = "Data factory for followthemoney data."
 optional = false
 python-versions = "*"
 files = [
-    {file = "zavod-0.6.1-py3-none-any.whl", hash = "sha256:592fd46903f13e8ceaa91babc762a5da607fa18ac1ce5a883d256f285766bcb8"},
-    {file = "zavod-0.6.1.tar.gz", hash = "sha256:0e0676e95dc49143443ad0255a2de8ddc876b99c2e19c89d20f402cd8a22271d"},
+    {file = "zavod-0.6.3-py3-none-any.whl", hash = "sha256:61694712cd7ab2251c5c1f0387ef215638b9fdd9cb23cc6925a6660d47c60a7a"},
+    {file = "zavod-0.6.3.tar.gz", hash = "sha256:afb02ef8796445e49ae0c0d059a097acaa1dcca29f5cefd6c6c66b51f6895d4e"},
 ]
 
 [package.dependencies]
@@ -4487,4 +4487,4 @@ testing = ["big-O", "flake8 (<5)", "jaraco.functools", "jaraco.itertools", "more
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10"
-content-hash = "362fa6504f58c6a3d0bf5d30fae276c7ca17afd9cff5600060ca2719cbb19d08"
+content-hash = "23ef6460542f30e268158c32626d897a8c14bf591b9c29f84f98e3c180229963"
