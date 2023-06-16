@@ -2832,13 +2832,13 @@ virtualenv = ">=20.10.0"
 
 [[package]]
 name = "prefect"
-version = "2.10.11"
+version = "2.10.14"
 description = "Workflow orchestration and management."
 optional = false
 python-versions = ">=3.7"
 files = [
-    {file = "prefect-2.10.11-py3-none-any.whl", hash = "sha256:b68ebe495e10e40a9e8c4e8f04df0ef5cecc35a4b9d0017b5d96f0a854214e48"},
-    {file = "prefect-2.10.11.tar.gz", hash = "sha256:e77fd5403b79c77e3d4ec9bd5154aee1f2a45acbfbcee374c5fb6d9ff2560653"},
+    {file = "prefect-2.10.14-py3-none-any.whl", hash = "sha256:d553f6f41d1f381e450e8a9f5fa0913ddc7750accd192c0334df7b17613900eb"},
+    {file = "prefect-2.10.14.tar.gz", hash = "sha256:a29426ce340f5e4c761cf2d20ef348bfab610901a22ad1ecdd03e362a23ef3d2"},
 ]
 
 [package.dependencies]
@@ -4487,4 +4487,4 @@ testing = ["big-O", "flake8 (<5)", "jaraco.functools", "jaraco.itertools", "more
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10"
-content-hash = "0631dfa11ff2fc393a7ed814758f36796daffd7c1540c4631271efc98704aaee"
+content-hash = "7a566d59b624d9582d3cc190cde6740c043e65c2190c2ac68449095f9ad5028c"
