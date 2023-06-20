@@ -47,7 +47,7 @@ zavod = "0.6.3"
 ftmq = "^0.1.0"
 
 [tool.poetry.group.dev.dependencies]
-pytest-env = "0.8.1"
+pytest-env = "0.8.2"
 moto = "4.1.11"
 pytest = "^7.3.2"
 pytest-cov = "^4.1.0"
