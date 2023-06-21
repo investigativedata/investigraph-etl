@@ -1,6 +1,8 @@
 from banal import clean_dict
 from pydantic import BaseModel
 
+from investigraph.settings import CHUNK_SIZE
+
 from .config import Config, get_config
 
 
@@ -12,6 +14,7 @@ class FlowOptions(BaseModel):
     fragments_uri: str | None = None
     entities_uri: str | None = None
     aggregate: bool | None = True
+    chunk_size: int | None = CHUNK_SIZE
 
 
 class Flow(BaseModel):
@@ -20,7 +23,7 @@ class Flow(BaseModel):
 
     def __init__(self, **data):
         # override base config with runtime options
-        options = data.get("options")
+        options = data.pop("options", None)
         if options is not None:
             options = dict(options)
         config = get_config(

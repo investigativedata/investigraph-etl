@@ -14,7 +14,7 @@ from smart_open import open
 
 from investigraph.exceptions import ImproperlyConfigured
 from investigraph.logging import get_logger
-from investigraph.settings import DATASETS_BLOCK, DEFAULT_TRANSFORMER
+from investigraph.settings import CHUNK_SIZE, DATASETS_BLOCK, DEFAULT_TRANSFORMER
 from investigraph.util import ensure_pythonpath
 
 from .block import get_block
@@ -37,6 +37,7 @@ class Config(BaseModel):
     fragments_uri: str | None = None
     entities_uri: str | None = None
     aggregate: bool | None = True
+    chunk_size: int | None = CHUNK_SIZE
 
     class Config:
         arbitrary_types_allowed = True
