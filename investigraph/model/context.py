@@ -26,8 +26,6 @@ class Context(BaseModel):
     config: Config
     source: Source
     run_id: str
-    entities_loader: Loader | None = None
-    fragments_loader: Loader | None = None
 
     class Config:
         arbitrary_types_allowed = True
@@ -38,6 +36,14 @@ class Context(BaseModel):
     @property
     def cache(self) -> Cache:
         return get_cache()
+
+    @property
+    def fragments_loader(self) -> Loader:
+        return get_loader(self, self.config.fragments_uri, parts=True)
+
+    @property
+    def entities_loader(self) -> Loader:
+        return get_loader(self, self.config.entities_uri)
 
     def export_metadata(self) -> None:
         data = self.config.metadata
@@ -71,18 +77,10 @@ def init_context(config: Config, source: Source) -> Context:
     if config.entities_uri is None:
         config.entities_uri = (path / "entities.ftm.json").as_uri()
 
-    # FIXME
-    # this is a bit weird. But avoiding recursions.
-    ctx_data = dict(
+    return Context(
         dataset=config.dataset,
         prefix=config.metadata.get("prefix", config.dataset),
         config=config,
         source=source,
         run_id=run_id,
     )
-    ctx = Context(**ctx_data)
-    ctx.fragments_loader = get_loader(
-        Context(**ctx_data), config.fragments_uri, parts=True
-    )
-    ctx.entities_loader = get_loader(Context(**ctx_data), config.entities_uri)
-    return ctx

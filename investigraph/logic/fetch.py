@@ -14,14 +14,13 @@ from investigraph.util import slugified_dict
 def fetch_source(source: Source) -> Literal[HttpSourceResponse, SmartSourceResponse]:
     if source.is_http:
         head = source.head()
-        stream = head.should_stream()
-        res = requests.get(source.uri, stream=stream)
+        source.stream = head.should_stream()
+        res = requests.get(source.uri, stream=source.stream)
         assert res.ok
         return HttpSourceResponse(
             **source.dict(),
             header=slugified_dict(res.headers),
             response=res,
-            is_stream=stream,
         )
     return SmartSourceResponse(**source.dict())
 
@@ -38,4 +37,4 @@ def get_cache_key(_, params) -> str:
             return f"{url}-{head.etag}"
         if head.last_modified:
             return f"{url}-{head.last_modified}"
-    return f"{url}-{datetime.now()}"  # actually don't cache
+    return datetime.now().isoformat()  # actually don't cache

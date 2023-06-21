@@ -4,6 +4,7 @@ Extract sources to iterate objects to dict records
 
 from io import BytesIO, StringIO
 
+import orjson
 import pandas as pd
 from pantomime import types
 
@@ -32,7 +33,7 @@ def yield_pandas(df: pd.DataFrame) -> RecordGenerator:
 def iter_records(res: Source) -> RecordGenerator:
     if res.mimetype in TABULAR:
         kwargs = {**{"dtype": str}, **res.extract_kwargs}
-        if res.is_stream:
+        if res.stream:
             # yield pandas chunks to be able to apply extract_kwargs
             # doesn't work for excel here
             lines = []
@@ -55,6 +56,12 @@ def iter_records(res: Source) -> RecordGenerator:
         else:
             df = read_pandas(res.mimetype, res.content, **kwargs)
             yield from yield_pandas(df)
+        return
+
+    if res.mimetype == types.JSON:
+        if res.stream:
+            for line in res.iter_lines():
+                yield orjson.loads(line)
         return
 
     raise NotImplementedError("unsupported mimetype: `%s`" % res.mimetype)
