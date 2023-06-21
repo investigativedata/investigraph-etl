@@ -6,6 +6,8 @@ from typing import Any, Literal
 
 from prefect import flow, get_run_logger, task
 from prefect.task_runners import ConcurrentTaskRunner
+from prefect_dask import DaskTaskRunner
+from prefect_ray import RayTaskRunner
 
 from investigraph import __version__, settings
 from investigraph.logic.aggregate import in_memory
@@ -20,6 +22,16 @@ from investigraph.model import (
 )
 from investigraph.model.context import init_context
 from investigraph.util import get_func
+
+
+def get_runner_from_env() -> (
+    Literal[ConcurrentTaskRunner, DaskTaskRunner, RayTaskRunner]
+):
+    if settings.TASK_RUNNER == "dask":
+        return DaskTaskRunner()
+    if settings.TASK_RUNNER == "ray":
+        return RayTaskRunner()
+    return ConcurrentTaskRunner()
 
 
 @task
@@ -77,7 +89,7 @@ def fetch(ctx: Context) -> Literal[HttpSourceResponse, SmartSourceResponse]:
     name="investigraph-pipeline",
     version=__version__,
     flow_run_name="{ctx.dataset}-{ctx.source.name}",
-    task_runner=ConcurrentTaskRunner(),
+    task_runner=get_runner_from_env(),
 )
 def run_pipeline(ctx: Context):
     res = fetch.submit(ctx)

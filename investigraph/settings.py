@@ -27,3 +27,7 @@ CACHE_PREFIX = get_env("CACHE_PREFIX", f"investigraph:{__version__}")
 
 FETCH_RETRIES = int(get_env("FETCH_RETRIES", 3))
 FETCH_RETRY_DELAY = int(get_env("FETCH_RETRY_DELAY", 5))
+
+TASK_RUNNER = get_env("PREFECT_TASK_RUNNER", "").lower()
+
+CHUNK_SIZE = int(get_env("CHUNK_SIZE", 1000))
