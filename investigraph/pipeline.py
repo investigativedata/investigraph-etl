@@ -84,16 +84,16 @@ def run_pipeline(ctx: Context):
     ix = 0
     batch = []
     results = []
-    for ix, rec in enumerate(iter_records(res)):
+    for ix, rec in enumerate(iter_records(res), 1):
         batch.append(rec)
-        if ix and ix % 1000 == 0:
+        if ix and ix % ctx.config.chunk_size == 0:
             results.append(transform.submit(ctx, ctx.cache.set(batch)))
             batch = []
     if batch:
         results.append(transform.submit(ctx, ctx.cache.set(batch)))
 
     logger = get_run_logger()
-    logger.info("EXTRACTED %d records", ix + 1)
+    logger.info("EXTRACTED %d records", ix)
 
     # write
     for res in results:
