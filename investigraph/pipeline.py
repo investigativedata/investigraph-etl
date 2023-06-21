@@ -56,6 +56,7 @@ def transform(ctx: Context, ckey: str) -> str:
     records = ctx.cache.get(ckey)
     for rec in records:
         for proxy in parse_record(ctx, rec):
+            proxy.datasets = {ctx.dataset}
             proxies.append(proxy.to_dict())
     logger.info("TRANSFORMED %d records", len(records))
     return ctx.cache.set(proxies)
