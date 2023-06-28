@@ -1057,13 +1057,13 @@ pyflakes = ">=3.0.0,<3.1.0"
 
 [[package]]
 name = "followthemoney"
-version = "3.4.0"
+version = "3.4.3"
 description = ""
 optional = false
 python-versions = "*"
 files = [
-    {file = "followthemoney-3.4.0-py2.py3-none-any.whl", hash = "sha256:9ecde78d776bd4eb0c8f3da9a6b42f456722d6d275e8250a236a989cc9603c83"},
-    {file = "followthemoney-3.4.0.tar.gz", hash = "sha256:7be67b5b1a5c6bdcb1faf77b3497606c3610ed48655b95fce68239c308372fb2"},
+    {file = "followthemoney-3.4.3-py2.py3-none-any.whl", hash = "sha256:95925a4597d1d7127eb4b8bfab3f37cad63ad330e7097f34a6a6524f553b9b88"},
+    {file = "followthemoney-3.4.3.tar.gz", hash = "sha256:e752710efce189a6bd17b81b08372404fd479de75dee07567e1466fffc93a466"},
 ]
 
 [package.dependencies]
@@ -3815,6 +3815,8 @@ files = [
     {file = "ray-2.5.1-cp310-cp310-macosx_11_0_arm64.whl", hash = "sha256:bd47d617fcfc969d8f22814ebe283f2e7d3de63b3d4d34b968d905b7055f85cd"},
     {file = "ray-2.5.1-cp310-cp310-manylinux2014_x86_64.whl", hash = "sha256:75f2f91c80cf2cbfee630175bd0fff6ba109bcc054e378229134dd2736083dd7"},
     {file = "ray-2.5.1-cp310-cp310-win_amd64.whl", hash = "sha256:03bc24f865da7ad94b142c5c12b3827a95505cc1968366c825990b183d54a797"},
+    {file = "ray-2.5.1-cp311-cp311-macosx_10_15_x86_64.whl", hash = "sha256:2ff4569953bc7b1909cc0d81699c3ac5559a1d63dd1926a79c997f779d61f152"},
+    {file = "ray-2.5.1-cp311-cp311-macosx_11_0_arm64.whl", hash = "sha256:f4ba31463b55934fb8b8e0fc7a06c1dc9b5e2fc40357e36416e831fa194ddbe3"},
     {file = "ray-2.5.1-cp311-cp311-manylinux2014_x86_64.whl", hash = "sha256:8f561bb6067e5c10af4eb0f8c9185dedda5a0214fae4b187675632220dab5b69"},
     {file = "ray-2.5.1-cp37-cp37m-macosx_10_15_x86_64.whl", hash = "sha256:2f3a3667b5f40ed984ddab9854f3a0e9d88e12b8c078dd1b7964a7276693570d"},
     {file = "ray-2.5.1-cp37-cp37m-manylinux2014_x86_64.whl", hash = "sha256:9c4ede34d265fe52da74c8966e45c5d2f4c27a2d5fb68d4828bc3b428050ca39"},
