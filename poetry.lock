@@ -3129,13 +3129,13 @@ virtualenv = ">=20.10.0"
 
 [[package]]
 name = "prefect"
-version = "2.10.15"
+version = "2.10.18"
 description = "Workflow orchestration and management."
 optional = false
 python-versions = ">=3.7"
 files = [
-    {file = "prefect-2.10.15-py3-none-any.whl", hash = "sha256:e6e3d3943306f5161aedeb7b7b6eb4a3e9f21baca5ca55f8d3b1818e826b7c86"},
-    {file = "prefect-2.10.15.tar.gz", hash = "sha256:e5c22a149630b10baedc791a03b3f45fc7b5704290c63919c17c75392ed945ab"},
+    {file = "prefect-2.10.18-py3-none-any.whl", hash = "sha256:5a512f0a0ac4eb9e88099266b01341fd970fa58ac9adcc3612cbbe237bc00813"},
+    {file = "prefect-2.10.18.tar.gz", hash = "sha256:6ef2ec2d8c4ec85341deead6317e3e7c057860cf02f692b090fc60aea95e239c"},
 ]
 
 [package.dependencies]
@@ -3815,6 +3815,8 @@ files = [
     {file = "ray-2.5.1-cp310-cp310-macosx_11_0_arm64.whl", hash = "sha256:bd47d617fcfc969d8f22814ebe283f2e7d3de63b3d4d34b968d905b7055f85cd"},
     {file = "ray-2.5.1-cp310-cp310-manylinux2014_x86_64.whl", hash = "sha256:75f2f91c80cf2cbfee630175bd0fff6ba109bcc054e378229134dd2736083dd7"},
     {file = "ray-2.5.1-cp310-cp310-win_amd64.whl", hash = "sha256:03bc24f865da7ad94b142c5c12b3827a95505cc1968366c825990b183d54a797"},
+    {file = "ray-2.5.1-cp311-cp311-macosx_10_15_x86_64.whl", hash = "sha256:2ff4569953bc7b1909cc0d81699c3ac5559a1d63dd1926a79c997f779d61f152"},
+    {file = "ray-2.5.1-cp311-cp311-macosx_11_0_arm64.whl", hash = "sha256:f4ba31463b55934fb8b8e0fc7a06c1dc9b5e2fc40357e36416e831fa194ddbe3"},
     {file = "ray-2.5.1-cp311-cp311-manylinux2014_x86_64.whl", hash = "sha256:8f561bb6067e5c10af4eb0f8c9185dedda5a0214fae4b187675632220dab5b69"},
     {file = "ray-2.5.1-cp37-cp37m-macosx_10_15_x86_64.whl", hash = "sha256:2f3a3667b5f40ed984ddab9854f3a0e9d88e12b8c078dd1b7964a7276693570d"},
     {file = "ray-2.5.1-cp37-cp37m-manylinux2014_x86_64.whl", hash = "sha256:9c4ede34d265fe52da74c8966e45c5d2f4c27a2d5fb68d4828bc3b428050ca39"},
@@ -4922,4 +4924,4 @@ testing = ["big-O", "flake8 (<5)", "jaraco.functools", "jaraco.itertools", "more
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10"
-content-hash = "c107da63506dcdc8425513ca6b421ed525e8c9638d6190e356cf7667a401a532"
+content-hash = "fa481b56b78c255f4d48a7f13faf71907ca2b2b29501946eee010dadf2cd457e"
