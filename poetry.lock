@@ -635,6 +635,19 @@ files = [
 colorama = {version = "*", markers = "platform_system == \"Windows\""}
 
 [[package]]
+name = "click-default-group"
+version = "1.2.2"
+description = "Extends click.Group to invoke a command without explicit subcommand name"
+optional = false
+python-versions = "*"
+files = [
+    {file = "click-default-group-1.2.2.tar.gz", hash = "sha256:d9560e8e8dfa44b3562fbc9425042a0fd6d21956fcc2db0077f63f34253ab904"},
+]
+
+[package.dependencies]
+click = "*"
+
+[[package]]
 name = "cloudpickle"
 version = "2.2.1"
 description = "Extended pickling support for Python objects"
@@ -1242,23 +1255,24 @@ tqdm = ["tqdm"]
 
 [[package]]
 name = "ftmq"
-version = "0.1.2"
+version = "0.1.3"
 description = "followthemoney query dsl and io helpers"
 optional = false
 python-versions = ">=3.10,<4.0"
 files = [
-    {file = "ftmq-0.1.2-py3-none-any.whl", hash = "sha256:4227b951c01903f80dbf8252f2cc6b247ed938083910f10051dc55632db80ad1"},
-    {file = "ftmq-0.1.2.tar.gz", hash = "sha256:0c1ff82b0b840f492b2182f3832dfa884055545de8dd0a43cb98728691f5c096"},
+    {file = "ftmq-0.1.3-py3-none-any.whl", hash = "sha256:1b61e405d354f70651992fa182e9d66420edc37d2d64869995cf70210c71e92c"},
+    {file = "ftmq-0.1.3.tar.gz", hash = "sha256:842e0461e1338933fd8bc3f2220be586bd674384ad12229445ae34e3040f4c46"},
 ]
 
 [package.dependencies]
 banal = ">=1.0.6,<2.0.0"
+click = ">=8.1.3,<9.0.0"
+click-default-group = ">=1.2.2,<2.0.0"
 followthemoney = ">=3.4.0,<4.0.0"
 nomenklatura = ">=2.14.0,<3.0.0"
 orjson = ">=3.9.1,<4.0.0"
 PyICU = ">=2.11,<3.0"
 smart-open = {version = "6.3.0", extras = ["all"]}
-typer = ">=0.9.0,<0.10.0"
 
 [[package]]
 name = "google-api-core"
@@ -2532,13 +2546,13 @@ files = [
 
 [[package]]
 name = "moto"
-version = "4.1.11"
+version = "4.1.12"
 description = ""
 optional = false
 python-versions = ">=3.7"
 files = [
-    {file = "moto-4.1.11-py2.py3-none-any.whl", hash = "sha256:5003126c46ce70fe351ff1cb67dc8d9a5983f403fae13b7628b0fb503d19039e"},
-    {file = "moto-4.1.11.tar.gz", hash = "sha256:f3e966ba1460751e19eab5356545813b29c05478b47eb0da445d688949339be2"},
+    {file = "moto-4.1.12-py2.py3-none-any.whl", hash = "sha256:6f40141ff2f3a309c19faa169433afdf48d28733d328b08a843021ae36f005d9"},
+    {file = "moto-4.1.12.tar.gz", hash = "sha256:25577e4cf55f05235f4efe78bcfeb5a7704fb75c16b426a5de2fc1e6b7b8545b"},
 ]
 
 [package.dependencies]

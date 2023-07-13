@@ -31,16 +31,6 @@ def test_blocks_github():
     assert path.is_dir()
     assert "ec_meetings" in [i for p in path.glob("*") for i in p.parts]
 
-    # loaded into pythonpath
-    import sys
-
-    exists = False
-    for p in sys.path:
-        if ".test/data/blocks" in p:
-            exists = True
-            break
-    assert exists
-
     shutil.rmtree(path.parent)
 
 

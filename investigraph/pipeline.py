@@ -11,7 +11,6 @@ from prefect_ray import RayTaskRunner
 
 from investigraph import __version__, settings
 from investigraph.logic.aggregate import in_memory
-from investigraph.logic.extract import iter_records
 from investigraph.logic.fetch import fetch_source, get_cache_key
 from investigraph.model import (
     Context,
@@ -84,12 +83,17 @@ def fetch(ctx: Context) -> Literal[HttpSourceResponse, SmartSourceResponse]:
     task_runner=get_runner_from_env(),
 )
 def run_pipeline(ctx: Context):
-    res = fetch.submit(ctx)
-    res = res.result()
+    if ctx.config.extract.fetch:
+        res = fetch.submit(ctx)
+        res = res.result()
+        enumerator = enumerate(ctx.config.extract.handle(ctx, res), 1)
+    else:
+        enumerator = enumerate(ctx.config.extract.handle(ctx), 1)
+
     ix = 0
     batch = []
     results = []
-    for ix, rec in enumerate(iter_records(res), 1):
+    for ix, rec in enumerator:
         batch.append((rec, ix))
         if ix and ix % ctx.config.transform.chunk_size == 0:
             results.append(transform.submit(ctx, ctx.cache.set(batch)))

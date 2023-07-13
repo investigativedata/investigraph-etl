@@ -10,7 +10,7 @@ class FlowOptions(BaseModel):
     dataset: str
     block: str | None = None
     config: str | None = None
-    aggregate: bool | None = True
+    aggregate: bool | None = None
     chunk_size: int | None = CHUNK_SIZE
 
     index_uri: str | None = None
@@ -42,8 +42,10 @@ class Flow(BaseModel):
             config.load.entities_uri = options["entities_uri"]
         if "fragments_uri" in options:
             config.load.fragments_uri = options["fragments_uri"]
-        if "aggregate" in options:
-            config.load.aggregate = as_bool(options["aggregate"])
+
+        config.load.aggregate = (
+            as_bool(options.get("aggregate")) or config.load.aggregate
+        )
 
         super().__init__(config=config, **data)
 

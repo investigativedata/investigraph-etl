@@ -84,3 +84,12 @@ def test_pipeline_local_s3():
     out = run(options)
     proxies = [p for p in smart_read_proxies(out)]
     assert len(proxies) == 151
+
+
+def test_pipeline_local_customized():
+    options = FlowOptions(
+        dataset="eu_authorities", config="./tests/fixtures/eu_authorities.custom.yml"
+    )
+    out = run(options)
+    proxies = [p for p in smart_read_proxies(out)]
+    assert len(proxies) == 151
