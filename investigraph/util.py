@@ -1,3 +1,4 @@
+import os
 import re
 from functools import cache
 from importlib import import_module
@@ -29,6 +30,7 @@ def uplevel_proxy(proxy: E) -> CE:
 
 @cache
 def ensure_path(path: Path) -> Path:
+    path = Path(os.path.normpath(path))
     path.mkdir(parents=True, exist_ok=True)
     return path.absolute()
 
