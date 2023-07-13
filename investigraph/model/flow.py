@@ -1,4 +1,4 @@
-from banal import clean_dict
+from banal import as_bool
 from pydantic import BaseModel
 
 from investigraph.settings import CHUNK_SIZE
@@ -10,11 +10,12 @@ class FlowOptions(BaseModel):
     dataset: str
     block: str | None = None
     config: str | None = None
+    aggregate: bool | None = True
+    chunk_size: int | None = CHUNK_SIZE
+
     index_uri: str | None = None
     fragments_uri: str | None = None
     entities_uri: str | None = None
-    aggregate: bool | None = True
-    chunk_size: int | None = CHUNK_SIZE
 
 
 class Flow(BaseModel):
@@ -29,14 +30,27 @@ class Flow(BaseModel):
         config = get_config(
             data["dataset"], options.get("block"), options.get("config")
         )
-        data["config"] = {**clean_dict(config.dict()), **clean_dict(options)}
-        super().__init__(**data)
+        if "chunk_size" in options:
+            chunk_size = options["chunk_size"]
+            config.extract.chunk_size = chunk_size
+            config.transform.chunk_size = chunk_size
+            config.load.chunk_size = chunk_size
+        if "index_uri" in options:
+            config.load.index_uri = options["index_uri"]
+        if "entities_uri" in options:
+            config.load.entities_uri = options["entities_uri"]
+        if "fragments_uri" in options:
+            config.load.fragments_uri = options["fragments_uri"]
+        if "aggregate" in options:
+            config.load.aggregate = as_bool(options["aggregate"])
+
+        super().__init__(config=config, **data)
 
     @property
     def should_aggregate(self) -> bool:
-        if self.config.entities_uri.startswith("postg"):
+        if self.config.load.entities_uri.startswith("postg"):
             return False
-        return self.config.aggregate
+        return self.config.load.aggregate
 
     @classmethod
     def from_options(cls, options: FlowOptions) -> "Flow":

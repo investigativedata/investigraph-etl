@@ -17,14 +17,14 @@ from investigraph.types import SDict
 if TYPE_CHECKING:
     from investigraph.model import Context
 
-Proxies: TypeAlias = Iterable[SDict]
+TProxies: TypeAlias = Iterable[SDict]
 
 
-def to_uri(uri: str, proxies: Proxies, **kwargs):
+def to_uri(uri: str, proxies: TProxies, **kwargs):
     smart_write_proxies(uri, proxies, **kwargs)
 
 
-def to_store(uri: str, dataset: str, proxies: Proxies):
+def to_store(uri: str, dataset: str, proxies: TProxies):
     dataset = get_dataset(dataset, database_uri=uri)
     bulk = dataset.bulk()
     for ix, proxy in enumerate(proxies):
@@ -45,7 +45,7 @@ class Loader:
         self.cache = get_cache()
         self.parts = parts
 
-    def write(self, proxies: Proxies, **kwargs) -> None:
+    def write(self, proxies: TProxies, **kwargs) -> None:
         if self.is_store:
             to_store(self.uri, self.ctx.dataset, proxies)
             return self.uri
@@ -65,7 +65,7 @@ def get_loader(ctx: "Context", uri: str, parts: bool | None = False) -> Loader:
 
 
 def load_proxies(
-    ctx: "Context", proxies: Proxies, uri: str, parts: bool | None = False, **kwargs
+    ctx: "Context", proxies: TProxies, uri: str, parts: bool | None = False, **kwargs
 ) -> str:
     loader = get_loader(ctx, uri, parts)
     return loader.write(proxies, **kwargs)

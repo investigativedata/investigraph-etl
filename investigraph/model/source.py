@@ -53,6 +53,10 @@ class Source(BaseModel):
     def is_http(self) -> bool:
         return self.scheme.startswith("http")
 
+    @property
+    def is_local(self) -> bool:
+        return self.scheme.startswith("file")
+
     def head(self) -> SourceHead:
         if self.is_http:
             res = requests.head(self.uri)

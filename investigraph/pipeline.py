@@ -21,7 +21,6 @@ from investigraph.model import (
     SmartSourceResponse,
 )
 from investigraph.model.context import init_context
-from investigraph.util import get_func
 
 
 def get_runner_from_env() -> (
@@ -37,9 +36,9 @@ def get_runner_from_env() -> (
 @task
 def aggregate(ctx: Context):
     logger = get_run_logger()
-    fragments, proxies = in_memory(ctx, ctx.config.fragments_uri)
+    fragments, proxies = in_memory(ctx, ctx.config.load.fragments_uri)
     logger.info("AGGREGATED %d fragments to %d proxies", fragments, proxies)
-    out = ctx.config.entities_uri
+    out = ctx.config.load.entities_uri
     logger.info("OUTPUT: %s", out)
     return out
 
@@ -48,13 +47,7 @@ def aggregate(ctx: Context):
 def load(ctx: Context, ckey: str):
     logger = get_run_logger()
     proxies = ctx.cache.get(ckey)
-    out = ctx.config.fragments_uri
-    if ctx.config.target == "postgres":
-        # write directly to entities instead of fragments
-        # as aggregation is happening within postgres store on write
-        out = ctx.entities_loader.write(proxies)
-    else:
-        out = ctx.fragments_loader.write(proxies)
+    out = ctx.config.load.handle(ctx, proxies)
     logger.info("LOADED %d proxies", len(proxies))
     logger.info("OUTPUT: %s", out)
     return out
@@ -63,11 +56,10 @@ def load(ctx: Context, ckey: str):
 @task
 def transform(ctx: Context, ckey: str) -> str:
     logger = get_run_logger()
-    parse_record = get_func(ctx.config.parse_module_path)
     proxies: list[dict[str, Any]] = []
     records = ctx.cache.get(ckey)
     for rec, ix in records:
-        for proxy in parse_record(ctx, rec, ix):
+        for proxy in ctx.config.transform.handle(ctx, rec, ix):
             proxy.datasets = {ctx.dataset}
             proxies.append(proxy.to_dict())
     logger.info("TRANSFORMED %d records", len(records))
@@ -99,7 +91,7 @@ def run_pipeline(ctx: Context):
     results = []
     for ix, rec in enumerate(iter_records(res), 1):
         batch.append((rec, ix))
-        if ix and ix % ctx.config.chunk_size == 0:
+        if ix and ix % ctx.config.transform.chunk_size == 0:
             results.append(transform.submit(ctx, ctx.cache.set(batch)))
             batch = []
     if batch:
@@ -119,12 +111,15 @@ def run_pipeline(ctx: Context):
     version=__version__,
     flow_run_name="{options.dataset}",
 )
-def run(options: FlowOptions):
+def run(options: FlowOptions) -> str:
     flow = Flow.from_options(options)
-    for source in flow.config.pipeline.sources:
+    for ix, source in enumerate(flow.config.extract.sources):
         ctx = init_context(config=flow.config, source=source)
-        ctx.export_metadata()
+        if ix == 0:  # only on first time
+            ctx.export_metadata()
         run_pipeline(ctx)
 
     if flow.should_aggregate:
         aggregate(ctx)
+
+    return flow.config.load.entities_uri

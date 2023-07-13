@@ -11,7 +11,7 @@ from smart_open import open
 
 from investigraph.exceptions import ImproperlyConfigured
 from investigraph.logging import get_logger
-from investigraph.settings import DATASETS_BLOCK, DEFAULT_TRANSFORMER
+from investigraph.settings import DATASETS_BLOCK
 
 from .block import get_block
 from .stage import ExtractStage, LoadStage, TransformStage
@@ -31,11 +31,12 @@ class Config(BaseModel):
     class Config:
         arbitrary_types_allowed = True
 
-    @property
-    def parse_module_path(self) -> str:
-        if len(self.mappings):
-            return DEFAULT_TRANSFORMER
-        return f"{self.base_path.parent.name}.{self.dataset}.parse:parse"
+    def __init__(self, **data):
+        # ensure absolute file paths for local sources
+        super().__init__(**data)
+        for source in self.extract.sources:
+            if source.is_local and source.uri.startswith("."):
+                source.uri = (self.base_path / source.uri).absolute()
 
     @classmethod
     def from_path(cls, fp: PathLike) -> "Config":

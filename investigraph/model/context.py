@@ -39,17 +39,17 @@ class Context(BaseModel):
 
     @property
     def fragments_loader(self) -> Loader:
-        return get_loader(self, self.config.fragments_uri, parts=True)
+        return get_loader(self, self.config.load.fragments_uri, parts=True)
 
     @property
     def entities_loader(self) -> Loader:
-        return get_loader(self, self.config.entities_uri)
+        return get_loader(self, self.config.load.entities_uri)
 
     def export_metadata(self) -> None:
         data = self.config.metadata
         data["updated_at"] = data.get("updated_at", datetime_iso(datetime.utcnow()))
         data = orjson.dumps(data)
-        with open(self.config.index_uri, "wb") as fh:
+        with open(self.config.load.index_uri, "wb") as fh:
             fh.write(data)
 
     def make_proxy(self, *args, **kwargs) -> CE:
@@ -70,12 +70,12 @@ class Context(BaseModel):
 def init_context(config: Config, source: Source) -> Context:
     run_id = flow_run.get_id() or f"DUMMY-RUN-{shortuuid.uuid()}"
     path = ensure_path(DATA_ROOT / config.dataset)
-    if config.index_uri is None:
-        config.index_uri = (path / "index.json").as_uri()
-    if config.fragments_uri is None:
-        config.fragments_uri = (path / f"fragments.{run_id}.json").as_uri()
-    if config.entities_uri is None:
-        config.entities_uri = (path / "entities.ftm.json").as_uri()
+    if config.load.index_uri is None:
+        config.load.index_uri = (path / "index.json").as_uri()
+    if config.load.fragments_uri is None:
+        config.load.fragments_uri = (path / f"fragments.{run_id}.json").as_uri()
+    if config.load.entities_uri is None:
+        config.load.entities_uri = (path / "entities.ftm.json").as_uri()
 
     return Context(
         dataset=config.dataset,

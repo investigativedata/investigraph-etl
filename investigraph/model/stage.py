@@ -4,6 +4,7 @@ from banal import keys_values
 from followthemoney.mapping import QueryMapping
 from pydantic import BaseModel
 
+from investigraph.logic.load import TProxies
 from investigraph.logic.transform import load_mappings
 from investigraph.settings import (
     CHUNK_SIZE,
@@ -33,8 +34,9 @@ class Stage(BaseModel):
     def get_handler(self) -> Callable:
         return get_func(self.handler)
 
-    def handle_task(self, ctx: "Context", **payload) -> TaskResult:
-        yield from self.handler(ctx, **payload)
+    def handle(self, ctx: "Context", *args, **kwargs) -> TaskResult:
+        handler = self.get_handler()
+        yield from handler(ctx, *args, **kwargs)
 
 
 class ExtractStage(Stage):
@@ -72,3 +74,11 @@ class LoadStage(Stage):
             if self.entities_uri.startswith("postg"):
                 return "postgres"
         return "json"
+
+    def handle(self, ctx: "Context", proxies: TProxies) -> str:
+        handler = self.get_handler()
+        if self.target == "postgres":
+            # write directly to entities instead of fragments
+            # as aggregation is happening within postgres store on write
+            return handler(ctx, proxies, self.entities_uri)
+        return handler(ctx, proxies, self.fragments_uri)
