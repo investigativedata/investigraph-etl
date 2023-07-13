@@ -77,9 +77,9 @@ class HttpSourceResponse(Source):
     class Config:
         arbitrary_types_allowed = True
 
-    @property
-    def mimetype(self) -> str:
-        return normalize_mimetype(self.header["content_type"])
+    def __init__(self, **data):
+        data["mimetype"] = normalize_mimetype(data["header"]["content_type"])
+        super().__init__(**data)
 
     @property
     def content(self) -> bytes:
