@@ -22,6 +22,10 @@ def test_cli_run(fixtures_path: Path):
     result = runner.invoke(cli, ["run"])
     assert result.exit_code == 1
 
+    # no dataset for block
+    result = runner.invoke(cli, ["run", "-b", "local-file-system/datasets"])
+    assert result.exit_code == 1
+
 
 def test_cli_add_block():
     result = runner.invoke(
