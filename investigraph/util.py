@@ -7,6 +7,7 @@ from typing import Any, Callable
 from banal import ensure_dict
 from followthemoney import model
 from followthemoney.proxy import E
+from followthemoney.util import sanitize_text
 from nomenklatura.entity import CE, CompositeEntity
 from normality import slugify
 
@@ -44,3 +45,13 @@ def get_func(parse_module_path: str) -> Callable:
     module, func = parse_module_path.split(":")
     module = import_module(module)
     return getattr(module, func)
+
+
+def clean_string(value: Any) -> str | None:
+    """
+    Convert a value to None or a sanitized string without linebreaks
+    """
+    value = sanitize_text(value)
+    if value is None:
+        return
+    return " ".join(value.split())
