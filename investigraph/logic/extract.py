@@ -48,7 +48,7 @@ def iter_records(res: Source) -> RecordGenerator:
                         # fix initial kwargs for next chunk
                         kwargs["names"] = df.columns
                         kwargs["header"] = 0
-                        kwargs.pop("skiprows")  # FIXME what else?
+                        kwargs.pop("skiprows", None)
                     yield from yield_pandas(df)
             if lines:
                 content = b"\r".join(lines)
