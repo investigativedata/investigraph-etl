@@ -27,7 +27,8 @@ def read_pandas(mimetype: str, content: str | bytes, **kwargs) -> pd.DataFrame:
 
 def yield_pandas(df: pd.DataFrame) -> RecordGenerator:
     for _, row in df.iterrows():
-        yield dict(row)
+        row = {k: v if not pd.isna(v) else None for k, v in row.items()}
+        yield row
 
 
 def iter_records(res: Source) -> RecordGenerator:
