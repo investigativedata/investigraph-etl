@@ -2,7 +2,7 @@
 
 ## CHANGELOG
 
-### 0.1.0 (2023-07.13)
+### 0.1.0 (2023-07-13)
 - breaking changes in:
     - cli invocation for `investigraph run`
     - `config.yaml` structure
