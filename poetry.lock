@@ -996,18 +996,18 @@ testing = ["hatch", "pre-commit", "pytest", "tox"]
 
 [[package]]
 name = "fakeredis"
-version = "2.15.0"
+version = "2.16.0"
 description = "Python implementation of redis API, can be used for testing purposes."
 optional = false
 python-versions = ">=3.7,<4.0"
 files = [
-    {file = "fakeredis-2.15.0-py3-none-any.whl", hash = "sha256:221edb25c0a38d0fb7c7b91f52c4e2beb6fbd3369899a8ab59328c3e432b062a"},
-    {file = "fakeredis-2.15.0.tar.gz", hash = "sha256:519ab3585ac0c652f04836209b9d835f33879560c7451c2abfc59a663cfaffbc"},
+    {file = "fakeredis-2.16.0-py3-none-any.whl", hash = "sha256:188514cbd7120ff28c88f2a31e2fddd18fb1b28504478dfa3669c683134c4d82"},
+    {file = "fakeredis-2.16.0.tar.gz", hash = "sha256:5abdd734de4ead9d6c7acbd3add1c4aa9b3ab35219339530472d9dd2bdf13057"},
 ]
 
 [package.dependencies]
 redis = ">=4"
-sortedcontainers = ">=2.4,<3.0"
+sortedcontainers = ">=2,<3"
 
 [package.extras]
 json = ["jsonpath-ng (>=1.5,<2.0)"]
@@ -3861,6 +3861,8 @@ files = [
     {file = "ray-2.5.1-cp310-cp310-macosx_11_0_arm64.whl", hash = "sha256:bd47d617fcfc969d8f22814ebe283f2e7d3de63b3d4d34b968d905b7055f85cd"},
     {file = "ray-2.5.1-cp310-cp310-manylinux2014_x86_64.whl", hash = "sha256:75f2f91c80cf2cbfee630175bd0fff6ba109bcc054e378229134dd2736083dd7"},
     {file = "ray-2.5.1-cp310-cp310-win_amd64.whl", hash = "sha256:03bc24f865da7ad94b142c5c12b3827a95505cc1968366c825990b183d54a797"},
+    {file = "ray-2.5.1-cp311-cp311-macosx_10_15_x86_64.whl", hash = "sha256:2ff4569953bc7b1909cc0d81699c3ac5559a1d63dd1926a79c997f779d61f152"},
+    {file = "ray-2.5.1-cp311-cp311-macosx_11_0_arm64.whl", hash = "sha256:f4ba31463b55934fb8b8e0fc7a06c1dc9b5e2fc40357e36416e831fa194ddbe3"},
     {file = "ray-2.5.1-cp311-cp311-manylinux2014_x86_64.whl", hash = "sha256:8f561bb6067e5c10af4eb0f8c9185dedda5a0214fae4b187675632220dab5b69"},
     {file = "ray-2.5.1-cp37-cp37m-macosx_10_15_x86_64.whl", hash = "sha256:2f3a3667b5f40ed984ddab9854f3a0e9d88e12b8c078dd1b7964a7276693570d"},
     {file = "ray-2.5.1-cp37-cp37m-manylinux2014_x86_64.whl", hash = "sha256:9c4ede34d265fe52da74c8966e45c5d2f4c27a2d5fb68d4828bc3b428050ca39"},
@@ -4968,4 +4970,4 @@ testing = ["big-O", "flake8 (<5)", "jaraco.functools", "jaraco.itertools", "more
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10"
-content-hash = "edc730ebf5d88c32d2d826347f21c2098203ea132c8e6b830645c0e0b764ea42"
+content-hash = "62f1248100b7114d0db380a39f3abbdf622f095dbb94a3b56148d8ad13476a5a"
