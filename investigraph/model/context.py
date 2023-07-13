@@ -38,10 +38,12 @@ class Context(BaseModel):
 
     def load_fragments(self, *args, **kwargs) -> str:
         kwargs["uri"] = kwargs.pop("uri", self.config.load.fragments_uri)
+        kwargs["parts"] = True
         return self.config.load.handle(self, *args, **kwargs)
 
     def load_entities(self, *args, **kwargs) -> str:
         kwargs["uri"] = kwargs.pop("uri", self.config.load.entities_uri)
+        kwargs["parts"] = False
         return self.config.load.handle(self, *args, **kwargs)
 
     def export_metadata(self) -> None:
