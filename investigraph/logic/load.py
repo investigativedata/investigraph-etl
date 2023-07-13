@@ -62,3 +62,10 @@ class Loader:
 @cache
 def get_loader(ctx: "Context", uri: str, parts: bool | None = False) -> Loader:
     return Loader(ctx, uri, parts)
+
+
+def load_proxies(
+    ctx: "Context", proxies: Proxies, uri: str, parts: bool | None = False, **kwargs
+) -> str:
+    loader = get_loader(ctx, uri, parts)
+    return loader.write(proxies, **kwargs)

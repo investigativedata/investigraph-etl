@@ -20,14 +20,14 @@ publisher:
     governments.
   url: https://www.humanitarianoutcomes.org
 
-pipeline:
+extract:
   sources:
     - uri: https://www.humanitarianoutcomes.org/gdho/search/results?format=csv
       extract_kwargs:
         encoding: latin
         skiprows: 1
 
-mapping:
+transform:
   queries:
     - entities:
         org:

@@ -18,6 +18,6 @@ publisher:
   url: https://www.asktheeu.org/
 
 
-pipeline:
+extract:
   sources:
     - uri: https://www.asktheeu.org/en/body/all-authorities.csv

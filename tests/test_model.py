@@ -1,42 +1,6 @@
 from pantomime.types import CSV, XLSX
 
-from investigraph.model import Config, DatasetBlock, SourceHead
-from investigraph.model.config import get_config
-from investigraph.util import get_func
-
-
-def test_model_config(ec_meetings: Config, local_block: DatasetBlock):
-    config = ec_meetings
-    assert config.dataset == "ec_meetings"
-    assert len(config.pipeline.sources) == 3
-    assert config.parse_module_path == "fixtures.ec_meetings.parse:parse"
-
-    config = get_config("ec_meetings", block="local-file-system/testdata")
-    assert config.dataset == "ec_meetings"
-    assert len(config.pipeline.sources) == 3
-    assert config.parse_module_path.endswith("ec_meetings.parse:parse")
-    func = get_func(config.parse_module_path)
-    assert callable(func)
-
-    config = get_config(path="./tests/fixtures/ec_meetings/config.yml")
-    assert config.dataset == "ec_meetings"
-    assert len(config.pipeline.sources) == 3
-    assert config.parse_module_path == "fixtures.ec_meetings.parse:parse"
-
-    func = get_func(config.parse_module_path)
-    assert callable(func)
-
-
-def test_model_gdho_config(gdho: Config):
-    config = gdho
-    assert config.dataset == "gdho"
-    assert len(config.pipeline.sources) == 1
-    assert isinstance(config.mappings, list)
-    assert len(config.mappings) == 1
-    assert config.parse_module_path == "investigraph.logic.transform:map_ftm"
-
-    func = get_func(config.parse_module_path)
-    assert callable(func)
+from investigraph.model import Config, SourceHead
 
 
 def test_model_source(gdho: Config, ec_meetings: Config):

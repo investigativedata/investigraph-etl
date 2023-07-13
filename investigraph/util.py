@@ -40,11 +40,14 @@ def ensure_pythonpath(path: Path) -> None:
 
 
 @cache
-def get_func(parse_module_path: str) -> Callable:
-    invalidate_caches()
-    module, func = parse_module_path.split(":")
-    module = import_module(module)
-    return getattr(module, func)
+def get_func(path: str) -> Callable:
+    # FIXME regex
+    if "/" not in path:
+        invalidate_caches()
+        module, func = path.split(":")
+        module = import_module(module)
+        return getattr(module, func)
+    raise NotImplementedError(path)
 
 
 def clean_string(value: Any) -> str | None:

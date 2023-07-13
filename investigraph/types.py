@@ -11,3 +11,5 @@ CEGenerator: TypeAlias = Generator[CE, None, None]
 
 StrGenerator: TypeAlias = Generator[str, None, None]
 BytesGenerator: TypeAlias = Generator[bytes, None, None]
+
+TaskResult: TypeAlias = Generator[Any, None, None]

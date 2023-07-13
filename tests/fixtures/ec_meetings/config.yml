@@ -24,7 +24,7 @@ publisher:
   url: https://commission.europa.eu/about-european-commission/departments-and-executive-agencies/secretariat-general_en
 
 
-pipeline:
+extract:
   sources:
     - name: ec_juncker
       uri: https://ec.europa.eu/transparencyinitiative/meetings/dataxlsx.do?name=meetingscommissionrepresentatives1419
