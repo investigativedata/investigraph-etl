@@ -26,7 +26,7 @@ cli = typer.Typer()
 
 @cli.command("run")
 def cli_run(
-    dataset: str,
+    dataset: Annotated[Optional[str], typer.Option("-d")] = None,
     block: Annotated[Optional[str], typer.Option("-b")] = None,
     config: Annotated[Optional[str], typer.Option("-c")] = None,
     index_uri: Annotated[Optional[str], typer.Option(...)] = None,

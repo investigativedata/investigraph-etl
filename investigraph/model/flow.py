@@ -1,5 +1,5 @@
 from banal import as_bool
-from pydantic import BaseModel
+from pydantic import BaseModel, root_validator
 
 from investigraph.settings import CHUNK_SIZE
 
@@ -7,7 +7,7 @@ from .config import Config, get_config
 
 
 class FlowOptions(BaseModel):
-    dataset: str
+    dataset: str | None = None
     block: str | None = None
     config: str | None = None
     aggregate: bool | None = None
@@ -16,6 +16,14 @@ class FlowOptions(BaseModel):
     index_uri: str | None = None
     fragments_uri: str | None = None
     entities_uri: str | None = None
+
+    @root_validator
+    def validate_options(cls, values):
+        block = values.get("dataset") and values.get("block")
+        config = values.get("config")
+        if not block and not config:
+            raise ValueError("Specify at least a config file or a block and dataset")
+        return values
 
 
 class Flow(BaseModel):
@@ -28,7 +36,7 @@ class Flow(BaseModel):
         if options is not None:
             options = dict(options)
         config = get_config(
-            data["dataset"], options.get("block"), options.get("config")
+            data.pop("dataset", None), options.get("block"), options.get("config")
         )
         if "chunk_size" in options:
             chunk_size = options["chunk_size"]
@@ -47,7 +55,7 @@ class Flow(BaseModel):
             as_bool(options.get("aggregate")) or config.load.aggregate
         )
 
-        super().__init__(config=config, **data)
+        super().__init__(dataset=config.dataset, config=config, **data)
 
     @property
     def should_aggregate(self) -> bool:

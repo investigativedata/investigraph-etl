@@ -26,11 +26,13 @@ There is a dedicated [repo](https://github.com/investigativedata/investigraph-da
 
 ## run locally
 
-Clone repo first.
-
 Install app and dependencies (use a virtualenv):
 
-    pip install -e .
+    pip install investigraph
+
+Or, e.g. when using [poetry](https://python-poetry.org/):
+
+    poetry add investigraph
 
 After installation, `investigraph` as a command should be available:
 
@@ -38,7 +40,7 @@ After installation, `investigraph` as a command should be available:
 
 Quick run a local dataset definition:
 
-    investigraph run <dataset_name> -c ./path/to/config.yml
+    investigraph run -c ./path/to/config.yml
 
 Register a local datasets block:
 
@@ -50,7 +52,7 @@ Register github datasets block:
 
 Run a dataset pipeline from a dataset defined in a registered block:
 
-    investigraph run ec_meetings
+    investigraph run -d ec_meetings -b github/investigraph-datasets
 
 View prefect dashboard:
 

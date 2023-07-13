@@ -15,8 +15,12 @@ def test_cli_base():
 
 def test_cli_run(fixtures_path: Path):
     config = str(fixtures_path / "gdho" / "config.local.yml")
-    result = runner.invoke(cli, ["run", "gdho", "-c", config])
+    result = runner.invoke(cli, ["run", "-c", config])
     assert result.exit_code == 0
+
+    # no arguments
+    result = runner.invoke(cli, ["run"])
+    assert result.exit_code == 1
 
 
 def test_cli_add_block():
