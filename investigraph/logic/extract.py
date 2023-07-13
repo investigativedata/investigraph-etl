@@ -8,7 +8,7 @@ import orjson
 import pandas as pd
 from pantomime import types
 
-from investigraph.model import Source
+from investigraph.model.source import TResponse
 from investigraph.types import RecordGenerator
 
 TABULAR = [types.CSV, types.EXCEL, types.XLS, types.XLSX]
@@ -31,7 +31,7 @@ def yield_pandas(df: pd.DataFrame) -> RecordGenerator:
         yield row
 
 
-def iter_records(res: Source) -> RecordGenerator:
+def iter_records(res: TResponse) -> RecordGenerator:
     if res.mimetype in TABULAR:
         kwargs = {**{"dtype": str}, **res.extract_kwargs}
         if res.stream:

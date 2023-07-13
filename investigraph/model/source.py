@@ -1,5 +1,6 @@
 import mimetypes
 from datetime import datetime
+from typing import Literal, TypeAlias
 
 import requests
 from dateparser import parse as parse_date
@@ -102,3 +103,6 @@ class SmartSourceResponse(Source):
     def iter_lines(self) -> BytesGenerator:
         with open(self.uri, "rb") as fh:
             yield from fh
+
+
+TResponse: TypeAlias = Literal[HttpSourceResponse, SmartSourceResponse]

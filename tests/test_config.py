@@ -2,7 +2,7 @@ from investigraph.model import Config, DatasetBlock
 from investigraph.model.config import get_config
 
 
-def test_model_config(ec_meetings: Config, local_block: DatasetBlock):
+def test_config(ec_meetings: Config, local_block: DatasetBlock):
     config = ec_meetings
     assert config.dataset == "ec_meetings"
     assert len(config.extract.sources) == 3
@@ -24,7 +24,7 @@ def test_model_config(ec_meetings: Config, local_block: DatasetBlock):
     assert callable(func)
 
 
-def test_model_gdho_config(gdho: Config):
+def test_config_gdho(gdho: Config):
     config = gdho
     assert config.dataset == "gdho"
     assert len(config.extract.sources) == 1

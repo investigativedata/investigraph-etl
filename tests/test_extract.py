@@ -8,10 +8,11 @@ from tests.util import setup_s3_bucket
 
 
 def test_extract_http_tabular():
-    base_uri = "https://s3.investigativedata.org/investigraph/testdata/%s"
+    base_uri = "http://localhost:8000/%s"
 
     source = Source(uri=base_uri % "all-authorities.csv")
     assert source.is_http
+    assert source.stream
 
     head = source.head()
     assert head.should_stream()
@@ -26,6 +27,7 @@ def test_extract_http_tabular():
     source = Source(uri=base_uri % "ec-meetings.xlsx")
     source.extract_kwargs = {"skiprows": 1}
     assert source.is_http
+    assert not source.stream
 
     head = source.head()
     assert not head.should_stream()
@@ -76,6 +78,7 @@ def test_extract_smart_tabular(fixtures_path):
     # from local file
     source = Source(uri=fixtures_path / "all-authorities.csv")
     assert not source.is_http
+    assert source.is_local
 
     with pytest.raises(NotImplementedError):
         source.head()
@@ -91,6 +94,7 @@ def test_extract_smart_tabular(fixtures_path):
     source = Source(uri=fixtures_path / "ec-meetings.xlsx")
     source.extract_kwargs = {"skiprows": 1}
     assert not source.is_http
+    assert source.is_local
 
     with pytest.raises(NotImplementedError):
         source.head()
@@ -104,8 +108,8 @@ def test_extract_smart_tabular(fixtures_path):
         break
 
 
-def test_extract_from_config(ec_meetings: Config, gdho: Config):
-    for source in ec_meetings.pipeline.sources:
+def test_extract_from_config(ec_meetings_local: Config, gdho: Config):
+    for source in ec_meetings_local.extract.sources:
         res = fetch_source(source)
         records = [r for r in iter_records(res)]
         assert len(records)
@@ -114,7 +118,7 @@ def test_extract_from_config(ec_meetings: Config, gdho: Config):
             assert "Location" in rec.keys()
             break
 
-    for source in gdho.pipeline.sources:
+    for source in gdho.extract.sources:
         res = fetch_source(source)
         records = [r for r in iter_records(res)]
         assert len(records)
