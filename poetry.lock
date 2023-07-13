@@ -635,6 +635,19 @@ files = [
 colorama = {version = "*", markers = "platform_system == \"Windows\""}
 
 [[package]]
+name = "click-default-group"
+version = "1.2.2"
+description = "Extends click.Group to invoke a command without explicit subcommand name"
+optional = false
+python-versions = "*"
+files = [
+    {file = "click-default-group-1.2.2.tar.gz", hash = "sha256:d9560e8e8dfa44b3562fbc9425042a0fd6d21956fcc2db0077f63f34253ab904"},
+]
+
+[package.dependencies]
+click = "*"
+
+[[package]]
 name = "cloudpickle"
 version = "2.2.1"
 description = "Extended pickling support for Python objects"
@@ -1242,23 +1255,24 @@ tqdm = ["tqdm"]
 
 [[package]]
 name = "ftmq"
-version = "0.1.2"
+version = "0.1.3"
 description = "followthemoney query dsl and io helpers"
 optional = false
 python-versions = ">=3.10,<4.0"
 files = [
-    {file = "ftmq-0.1.2-py3-none-any.whl", hash = "sha256:4227b951c01903f80dbf8252f2cc6b247ed938083910f10051dc55632db80ad1"},
-    {file = "ftmq-0.1.2.tar.gz", hash = "sha256:0c1ff82b0b840f492b2182f3832dfa884055545de8dd0a43cb98728691f5c096"},
+    {file = "ftmq-0.1.3-py3-none-any.whl", hash = "sha256:1b61e405d354f70651992fa182e9d66420edc37d2d64869995cf70210c71e92c"},
+    {file = "ftmq-0.1.3.tar.gz", hash = "sha256:842e0461e1338933fd8bc3f2220be586bd674384ad12229445ae34e3040f4c46"},
 ]
 
 [package.dependencies]
 banal = ">=1.0.6,<2.0.0"
+click = ">=8.1.3,<9.0.0"
+click-default-group = ">=1.2.2,<2.0.0"
 followthemoney = ">=3.4.0,<4.0.0"
 nomenklatura = ">=2.14.0,<3.0.0"
 orjson = ">=3.9.1,<4.0.0"
 PyICU = ">=2.11,<3.0"
 smart-open = {version = "6.3.0", extras = ["all"]}
-typer = ">=0.9.0,<0.10.0"
 
 [[package]]
 name = "google-api-core"
@@ -3849,6 +3863,8 @@ files = [
     {file = "ray-2.5.1-cp310-cp310-macosx_11_0_arm64.whl", hash = "sha256:bd47d617fcfc969d8f22814ebe283f2e7d3de63b3d4d34b968d905b7055f85cd"},
     {file = "ray-2.5.1-cp310-cp310-manylinux2014_x86_64.whl", hash = "sha256:75f2f91c80cf2cbfee630175bd0fff6ba109bcc054e378229134dd2736083dd7"},
     {file = "ray-2.5.1-cp310-cp310-win_amd64.whl", hash = "sha256:03bc24f865da7ad94b142c5c12b3827a95505cc1968366c825990b183d54a797"},
+    {file = "ray-2.5.1-cp311-cp311-macosx_10_15_x86_64.whl", hash = "sha256:2ff4569953bc7b1909cc0d81699c3ac5559a1d63dd1926a79c997f779d61f152"},
+    {file = "ray-2.5.1-cp311-cp311-macosx_11_0_arm64.whl", hash = "sha256:f4ba31463b55934fb8b8e0fc7a06c1dc9b5e2fc40357e36416e831fa194ddbe3"},
     {file = "ray-2.5.1-cp311-cp311-manylinux2014_x86_64.whl", hash = "sha256:8f561bb6067e5c10af4eb0f8c9185dedda5a0214fae4b187675632220dab5b69"},
     {file = "ray-2.5.1-cp37-cp37m-macosx_10_15_x86_64.whl", hash = "sha256:2f3a3667b5f40ed984ddab9854f3a0e9d88e12b8c078dd1b7964a7276693570d"},
     {file = "ray-2.5.1-cp37-cp37m-manylinux2014_x86_64.whl", hash = "sha256:9c4ede34d265fe52da74c8966e45c5d2f4c27a2d5fb68d4828bc3b428050ca39"},
