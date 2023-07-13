@@ -26,13 +26,14 @@ cli = typer.Typer()
 
 @cli.command("run")
 def cli_run(
-    dataset: str,
+    dataset: Annotated[Optional[str], typer.Option("-d")] = None,
     block: Annotated[Optional[str], typer.Option("-b")] = None,
     config: Annotated[Optional[str], typer.Option("-c")] = None,
     index_uri: Annotated[Optional[str], typer.Option(...)] = None,
     fragments_uri: Annotated[Optional[str], typer.Option(...)] = None,
     entities_uri: Annotated[Optional[str], typer.Option(...)] = None,
     aggregate: Annotated[Optional[bool], typer.Option(...)] = True,
+    chunk_size: Annotated[Optional[int], typer.Option(...)] = None,
 ):
     """
     Execute a dataset pipeline
@@ -45,6 +46,7 @@ def cli_run(
         fragments_uri=fragments_uri,
         entities_uri=entities_uri,
         aggregate=aggregate,
+        chunk_size=chunk_size,
     )
     run(options)
 

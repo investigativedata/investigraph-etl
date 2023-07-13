@@ -14,9 +14,17 @@ def test_cli_base():
 
 
 def test_cli_run(fixtures_path: Path):
-    config = str(fixtures_path / "gdho" / "config.yml")
-    result = runner.invoke(cli, ["run", "gdho", "-c", config])
+    config = str(fixtures_path / "gdho" / "config.local.yml")
+    result = runner.invoke(cli, ["run", "-c", config])
     assert result.exit_code == 0
+
+    # no arguments
+    result = runner.invoke(cli, ["run"])
+    assert result.exit_code == 1
+
+    # no dataset for block
+    result = runner.invoke(cli, ["run", "-b", "local-file-system/datasets"])
+    assert result.exit_code == 1
 
 
 def test_cli_add_block():
@@ -31,7 +39,7 @@ def test_cli_add_block():
 
 
 def test_cli_inspect(fixtures_path: Path):
-    config = str(fixtures_path / "gdho" / "config.yml")
+    config = str(fixtures_path / "gdho" / "config.local.yml")
     result = runner.invoke(cli, ["inspect", config])
     assert result.exit_code == 0
     result = runner.invoke(cli, ["inspect", config, "--extract"])

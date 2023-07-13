@@ -14,8 +14,9 @@ RUN pip install -q asyncpg
 
 COPY investigraph /investigraph/investigraph
 COPY setup.py /investigraph/
-COPY setup.cfg /investigraph/
+COPY pyproject.toml /investigraph/
 COPY VERSION /investigraph/
+COPY README.md /investigraph/
 
 RUN pip install -q /investigraph
 

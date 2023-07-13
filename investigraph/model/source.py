@@ -1,5 +1,6 @@
 import mimetypes
 from datetime import datetime
+from typing import Literal, TypeAlias
 
 import requests
 from dateparser import parse as parse_date
@@ -34,17 +35,28 @@ class Source(BaseModel):
     name: str
     uri: str
     scheme: str
+    mimetype: str | None = None
     extract_kwargs: dict | None = {}
+    stream: bool | None = False
+    ijson_path: str | None = "item"
 
     def __init__(self, **data):
         data["uri"] = str(data["uri"])
         data["name"] = data.get("name", slugify(data["uri"]))
         data["scheme"] = data.get("scheme", parse_uri(data["uri"]).scheme)
+        if "mimetype" not in data:
+            mtype, _ = mimetypes.guess_type(data["uri"])
+            data["mimetype"] = normalize_mimetype(mtype)
+        data["stream"] = data.get("stream", data["mimetype"] == types.CSV)
         super().__init__(**data)
 
     @property
     def is_http(self) -> bool:
         return self.scheme.startswith("http")
+
+    @property
+    def is_local(self) -> bool:
+        return self.scheme.startswith("file")
 
     def head(self) -> SourceHead:
         if self.is_http:
@@ -55,22 +67,24 @@ class Source(BaseModel):
     def iter_lines(self) -> BytesGenerator:
         raise NotImplementedError
 
+    def open(self):
+        return open(self.uri)
+
 
 class HttpSourceResponse(Source):
-    is_stream: bool | None = False
     response: requests.Response
     header: SDict
 
     class Config:
         arbitrary_types_allowed = True
 
-    @property
-    def mimetype(self) -> str:
-        return normalize_mimetype(self.header["content_type"])
+    def __init__(self, **data):
+        data["mimetype"] = normalize_mimetype(data["header"]["content_type"])
+        super().__init__(**data)
 
     @property
     def content(self) -> bytes:
-        if self.is_stream:
+        if self.stream:
             raise ImproperlyConfigured("%s is a stream" % self.uri)
         return self.response.content
 
@@ -81,7 +95,7 @@ class HttpSourceResponse(Source):
 class SmartSourceResponse(Source):
     @property
     def content(self) -> bytes:
-        if self.is_stream:
+        if self.stream:
             raise ImproperlyConfigured("%s is a stream" % self.uri)
         with open(self.uri, "rb") as fh:
             return fh.read()
@@ -90,11 +104,5 @@ class SmartSourceResponse(Source):
         with open(self.uri, "rb") as fh:
             yield from fh
 
-    @property
-    def mimetype(self) -> str:
-        mtype, _ = mimetypes.guess_type(self.uri)
-        return normalize_mimetype(mtype)
 
-    @property
-    def is_stream(self) -> bool:
-        return self.mimetype in (types.CSV, types.JSON)
+TResponse: TypeAlias = Literal[HttpSourceResponse, SmartSourceResponse]

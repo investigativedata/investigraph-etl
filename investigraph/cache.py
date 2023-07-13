@@ -14,7 +14,7 @@ log = get_logger(__name__)
 
 class Cache:
     """
-    This is an extremly simple cache interface for sharing tasks data
+    This is an extremely simple cache interface for sharing tasks data
     efficiently via redis (or fakeredis during development)
 
     it creates (prefixed) random keys during data set to cache.

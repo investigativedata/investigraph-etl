@@ -22,7 +22,7 @@ publisher:
 
 extract:
   sources:
-    - uri: https://www.humanitarianoutcomes.org/gdho/search/results?format=csv
+    - uri: http://localhost:8000/gdho/organizations.csv
       extract_kwargs:
         encoding: latin
         skiprows: 1

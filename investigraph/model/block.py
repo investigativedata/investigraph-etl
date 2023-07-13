@@ -12,7 +12,7 @@ from prefect.blocks.core import Block
 
 from investigraph.exceptions import BlockError
 from investigraph.settings import DATA_ROOT
-from investigraph.util import ensure_path, ensure_pythonpath
+from investigraph.util import ensure_path
 
 BLOCK_TYPES = ("github", "local-file-system")
 
@@ -79,7 +79,6 @@ class DatasetBlock:
         Load dataset from block and add path to python path
         """
         self.load_dataset(dataset)
-        ensure_pythonpath(self.path.parent)
 
 
 class LocalFileSystemBlock(DatasetBlock):

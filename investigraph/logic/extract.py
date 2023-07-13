@@ -4,10 +4,12 @@ Extract sources to iterate objects to dict records
 
 from io import BytesIO, StringIO
 
+import orjson
 import pandas as pd
 from pantomime import types
 
-from investigraph.model import Source
+from investigraph.model.context import Context
+from investigraph.model.source import TResponse
 from investigraph.types import RecordGenerator
 
 TABULAR = [types.CSV, types.EXCEL, types.XLS, types.XLSX]
@@ -26,13 +28,14 @@ def read_pandas(mimetype: str, content: str | bytes, **kwargs) -> pd.DataFrame:
 
 def yield_pandas(df: pd.DataFrame) -> RecordGenerator:
     for _, row in df.iterrows():
-        yield dict(row)
+        row = {k: v if not pd.isna(v) else None for k, v in row.items()}
+        yield row
 
 
-def iter_records(res: Source) -> RecordGenerator:
+def iter_records(res: TResponse) -> RecordGenerator:
     if res.mimetype in TABULAR:
         kwargs = {**{"dtype": str}, **res.extract_kwargs}
-        if res.is_stream:
+        if res.stream:
             # yield pandas chunks to be able to apply extract_kwargs
             # doesn't work for excel here
             lines = []
@@ -46,7 +49,7 @@ def iter_records(res: Source) -> RecordGenerator:
                         # fix initial kwargs for next chunk
                         kwargs["names"] = df.columns
                         kwargs["header"] = 0
-                        kwargs.pop("skiprows")  # FIXME what else?
+                        kwargs.pop("skiprows", None)
                     yield from yield_pandas(df)
             if lines:
                 content = b"\r".join(lines)
@@ -57,4 +60,15 @@ def iter_records(res: Source) -> RecordGenerator:
             yield from yield_pandas(df)
         return
 
+    if res.mimetype == types.JSON:
+        if res.stream:
+            for line in res.iter_lines():
+                yield orjson.loads(line)
+        return
+
     raise NotImplementedError("unsupported mimetype: `%s`" % res.mimetype)
+
+
+# entrypoint
+def handle(ctx: Context, *args, **kwargs) -> RecordGenerator:
+    yield from iter_records(*args, **kwargs)

@@ -19,5 +19,14 @@ publisher:
 
 
 extract:
+  fetch: false
+  handler: ./custom.py:extract
   sources:
-    - uri: https://www.asktheeu.org/en/body/all-authorities.csv
+    - uri: ./all-authorities.csv
+
+transform:
+  handler: ./eu_authorities/custom.py:parse_record
+
+load:
+  aggregate: false
+  handler: ./custom.py:load
