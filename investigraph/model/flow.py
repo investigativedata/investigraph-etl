@@ -32,9 +32,10 @@ class Flow(BaseModel):
         )
         if "chunk_size" in options:
             chunk_size = options["chunk_size"]
-            config.extract.chunk_size = chunk_size
-            config.transform.chunk_size = chunk_size
-            config.load.chunk_size = chunk_size
+            if chunk_size is not None:
+                config.extract.chunk_size = chunk_size
+                config.transform.chunk_size = chunk_size
+                config.load.chunk_size = chunk_size
         if "index_uri" in options:
             config.load.index_uri = options["index_uri"]
         if "entities_uri" in options:
