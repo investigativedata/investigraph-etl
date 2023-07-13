@@ -57,7 +57,7 @@ class Config(BaseModel):
 
     @classmethod
     def from_path(cls, fp: PathLike) -> "Config":
-        base_path = Path(fp).parent
+        base_path = Path(fp).parent.absolute()
         ensure_pythonpath(base_path.parent.parent)
         catalog = DataCatalog(Dataset, {})
         with open(fp) as fh:
