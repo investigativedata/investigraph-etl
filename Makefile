@@ -14,9 +14,6 @@ pre-commit:
 	poetry run pre-commit install
 	poetry run pre-commit run -a
 
-testserver:
-	cd ./tests/fixtures && python -m http.server
-
 test:
 	rm -rf .test
 	poetry run pytest tests -v --capture=sys --cov=investigraph --cov-report term-missing
