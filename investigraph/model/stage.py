@@ -75,10 +75,10 @@ class LoadStage(Stage):
                 return "postgres"
         return "json"
 
-    def handle(self, ctx: "Context", proxies: TProxies) -> str:
+    def handle(self, ctx: "Context", proxies: TProxies, *args, **kwargs) -> str:
         handler = self.get_handler()
         if self.target == "postgres":
             # write directly to entities instead of fragments
             # as aggregation is happening within postgres store on write
-            return handler(ctx, proxies, self.entities_uri)
-        return handler(ctx, proxies, self.fragments_uri)
+            kwargs["uri"] = kwargs.pop("uri", self.entities_uri)
+        return handler(ctx, proxies, *args, **kwargs)

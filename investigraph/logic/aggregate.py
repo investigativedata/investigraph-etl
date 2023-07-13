@@ -47,7 +47,7 @@ def in_memory(ctx: Context, in_uri: str) -> tuple[int, int]:
         else:
             buffer[proxy.id] = proxy
 
-    ctx.entities_loader.write(buffer.values(), serialize=True)
+    ctx.load_entities(buffer.values(), serialize=True)
     return fragments, len(buffer.values())
 
 
@@ -67,8 +67,8 @@ def in_db(ctx: Context, in_uri: str) -> tuple[int, int]:
     for ox, proxy in enumerate(dataset.iterate()):
         proxies.append(proxy)
         if ox % 10_000 == 0:
-            ctx.entities_loader.write(proxies, serialize=True)
+            ctx.load_entities(proxies, serialize=True)
             proxies = []
-    ctx.entities_loader.write(proxies, serialize=True)
+    ctx.load_entities(proxies, serialize=True)
     dataset.drop()
     return ix, ox

@@ -47,7 +47,7 @@ def aggregate(ctx: Context):
 def load(ctx: Context, ckey: str):
     logger = get_run_logger()
     proxies = ctx.cache.get(ckey)
-    out = ctx.config.load.handle(ctx, proxies)
+    out = ctx.load_fragments(proxies)
     logger.info("LOADED %d proxies", len(proxies))
     logger.info("OUTPUT: %s", out)
     return out

@@ -12,7 +12,6 @@ from smart_open import open
 from zavod.util import join_slug
 
 from investigraph.cache import Cache, get_cache
-from investigraph.logic.load import Loader, get_loader
 from investigraph.settings import DATA_ROOT
 from investigraph.util import ensure_path, make_proxy
 
@@ -37,13 +36,13 @@ class Context(BaseModel):
     def cache(self) -> Cache:
         return get_cache()
 
-    @property
-    def fragments_loader(self) -> Loader:
-        return get_loader(self, self.config.load.fragments_uri, parts=True)
+    def load_fragments(self, *args, **kwargs) -> str:
+        kwargs["uri"] = kwargs.pop("uri", self.config.load.fragments_uri)
+        return self.config.load.handle(self, *args, **kwargs)
 
-    @property
-    def entities_loader(self) -> Loader:
-        return get_loader(self, self.config.load.entities_uri)
+    def load_entities(self, *args, **kwargs) -> str:
+        kwargs["uri"] = kwargs.pop("uri", self.config.load.entities_uri)
+        return self.config.load.handle(self, *args, **kwargs)
 
     def export_metadata(self) -> None:
         data = self.config.metadata
