@@ -1,4 +1,4 @@
-import sys
+import re
 from functools import cache
 from importlib import import_module
 from importlib.util import module_from_spec, spec_from_file_location
@@ -33,18 +33,13 @@ def ensure_path(path: Path) -> Path:
     return path.absolute()
 
 
-@cache
-def ensure_pythonpath(path: Path) -> None:
-    path = str(path)
-    if path not in sys.path:
-        sys.path.append(path)
+module_re = re.compile(r"^[\w\.]+:[\w]+")
 
 
 @cache
 def get_func(path: str) -> Callable:
-    module, func = path.split(":")
-    # FIXME regex
-    if "/" not in module:
+    module, func = path.rsplit(":", 1)
+    if module_re.match(path):
         module = import_module(module)
     else:
         path = Path(module)
