@@ -36,13 +36,13 @@ class Flow(BaseModel):
                 config.extract.chunk_size = chunk_size
                 config.transform.chunk_size = chunk_size
                 config.load.chunk_size = chunk_size
-        if "index_uri" in options:
-            config.load.index_uri = options["index_uri"]
-        if "entities_uri" in options:
-            config.load.entities_uri = options["entities_uri"]
-        if "fragments_uri" in options:
-            config.load.fragments_uri = options["fragments_uri"]
-
+        config.load.index_uri = options.get("index_uri") or config.load.index_uri
+        config.load.fragments_uri = (
+            options.get("fragments_uri") or config.load.fragments_uri
+        )
+        config.load.entities_uri = (
+            options.get("entities_uri") or config.load.entities_uri
+        )
         config.load.aggregate = (
             as_bool(options.get("aggregate")) or config.load.aggregate
         )

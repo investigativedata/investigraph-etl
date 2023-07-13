@@ -121,6 +121,8 @@ def run(options: FlowOptions) -> str:
         ctx = init_context(config=flow.config, source=source)
         if ix == 0:  # only on first time
             ctx.export_metadata()
+            logger = get_run_logger()
+            logger.info("INDEX: %s" % ctx.config.load.index_uri)
         run_pipeline(ctx)
 
     if flow.should_aggregate:
