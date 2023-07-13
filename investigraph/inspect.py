@@ -15,7 +15,6 @@ from investigraph.logic.fetch import fetch_source
 from investigraph.model.config import Config, get_config
 from investigraph.model.context import init_context
 from investigraph.model.source import Source
-from investigraph.util import get_func
 
 
 def print_error(msg: str):
@@ -35,13 +34,22 @@ def get_records(source: Source) -> list[dict[str, Any]]:
 def inspect_config(p: PathLike) -> Config:
     config = get_config(path=p)
     try:
-        func = get_func(config.parse_module_path)
-        if not callable(func):
+        if not callable(config.extract.get_handler()):
+            print_error(f"module not found or not callable: `{config.extract.handler}`")
+    except ModuleNotFoundError:
+        print_error(f"no custom extract module: `{config.extract.handler}`")
+    try:
+        if not callable(config.transform.get_handler()):
             print_error(
-                f"module not found or not callable: `{config.parse_module_path}`"
+                f"module not found or not callable: `{config.transform.handler}`"
             )
     except ModuleNotFoundError:
-        print_error(f"no parsing function: `{config.parse_module_path}`")
+        print_error(f"no custom transform module: `{config.transform.handler}`")
+    try:
+        if not callable(config.load.get_handler()):
+            print_error(f"module not found or not callable: `{config.load.handler}`")
+    except ModuleNotFoundError:
+        print_error(f"no custom load module: `{config.load.handler}`")
     return config
 
 
@@ -49,7 +57,7 @@ def inspect_extract(config: Config) -> Generator[tuple[str, pd.DataFrame], None,
     """
     Preview fetched & extracted records in tabular format
     """
-    for source in config.pipeline.sources:
+    for source in config.extract.sources:
         df = pd.DataFrame(get_records(source))
         yield source.name, df
 
@@ -58,11 +66,10 @@ def inspect_transform(config: Config) -> Generator[tuple[str, CE], None, None]:
     """
     Preview first proxies
     """
-    func = get_func(config.parse_module_path)
-    for source in config.pipeline.sources:
+    for source in config.extract.sources:
         ctx = init_context(config, source)
         proxies: list[CE] = []
         for ix, rec in enumerate(get_records(source)):
-            for proxy in func(ctx, rec, ix):
+            for proxy in ctx.config.transform.handle(ctx, rec, ix):
                 proxies.append(proxy)
         yield source.name, proxies

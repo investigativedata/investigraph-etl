@@ -146,7 +146,7 @@ def parse_record_dg(ctx: Context, data: SDict):
     yield from parse_record(ctx, data, body)
 
 
-def parse(ctx: Context, data: SDict):
+def handle(ctx: Context, data: SDict, ix: int):
     if ctx.source.name.startswith("ec"):
         handler = parse_record_ec
     else:

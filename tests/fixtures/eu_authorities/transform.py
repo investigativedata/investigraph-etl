@@ -7,7 +7,7 @@ from investigraph.model import Context
 from investigraph.util import make_proxy
 
 
-def parse(ctx: Context, data: dict[str, Any]):
+def handle(ctx: Context, data: dict[str, Any], ix: int):
     body = make_proxy("PublicBody")
     slug = data.pop("URL name")
     body.id = join_slug(ctx.prefix, slug)

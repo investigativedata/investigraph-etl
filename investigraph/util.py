@@ -1,6 +1,7 @@
 import sys
 from functools import cache
-from importlib import import_module, invalidate_caches
+from importlib import import_module
+from importlib.util import module_from_spec, spec_from_file_location
 from pathlib import Path
 from typing import Any, Callable
 
@@ -41,13 +42,16 @@ def ensure_pythonpath(path: Path) -> None:
 
 @cache
 def get_func(path: str) -> Callable:
+    module, func = path.split(":")
     # FIXME regex
-    if "/" not in path:
-        invalidate_caches()
-        module, func = path.split(":")
+    if "/" not in module:
         module = import_module(module)
-        return getattr(module, func)
-    raise NotImplementedError(path)
+    else:
+        path = Path(module)
+        spec = spec_from_file_location(path.stem, module)
+        module = module_from_spec(spec)
+        spec.loader.exec_module(module)
+    return getattr(module, func)
 
 
 def clean_string(value: Any) -> str | None:

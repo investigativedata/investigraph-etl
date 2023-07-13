@@ -6,19 +6,19 @@ def test_config(ec_meetings: Config, local_block: DatasetBlock):
     config = ec_meetings
     assert config.dataset == "ec_meetings"
     assert len(config.extract.sources) == 3
-    assert config.transform.handler.endswith("ec_meetings/transform.py")
+    assert config.transform.handler.endswith("ec_meetings/transform.py:handle")
 
     config = get_config("ec_meetings", block="local-file-system/testdata")
     assert config.dataset == "ec_meetings"
     assert len(config.extract.sources) == 3
-    assert config.transform.handler.endswith("ec_meetings/transform.py")
+    assert config.transform.handler.endswith("ec_meetings/transform.py:handle")
     func = config.transform.get_handler()
     assert callable(func)
 
     config = get_config(path="./tests/fixtures/ec_meetings/config.yml")
     assert config.dataset == "ec_meetings"
     assert len(config.extract.sources) == 3
-    assert config.transform.handler.endswith("ec_meetings/transform.py")
+    assert config.transform.handler.endswith("ec_meetings/transform.py:handle")
 
     func = config.transform.get_handler()
     assert callable(func)

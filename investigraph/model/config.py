@@ -64,11 +64,11 @@ class Config(BaseModel):
         transform_py = base_path / "transform.py"
         load_py = base_path / "load.py"
         if extract_py.exists():
-            config.extract.handler = str(extract_py)
+            config.extract.handler = f"{extract_py}:handle"
         if transform_py.exists():
-            config.transform.handler = str(transform_py)
+            config.transform.handler = f"{transform_py}:handle"
         if load_py.exists():
-            config.load.handler = str(load_py)
+            config.load.handler = f"{load_py}:handle"
 
         return config
 
