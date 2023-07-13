@@ -17,6 +17,6 @@ def map_record(record: SDict, mapping: QueryMapping) -> CEGenerator:
             yield proxy
 
 
-def map_ftm(ctx: Context, data: SDict) -> CEGenerator:
+def map_ftm(ctx: Context, data: SDict, ix: int) -> CEGenerator:
     for mapping in ctx.config.mappings:
         yield from map_record(data, mapping)

@@ -26,7 +26,7 @@ def get_records(source: Source) -> list[dict[str, Any]]:
     records: list[dict[str, Any]] = []
     print("Fetching `%s` ..." % source.uri)
     res = fetch_source(source)
-    for ix, rec in enumerate(iter_records(res)):
+    for ix, rec in enumerate(iter_records(res), 1):
         records.append(rec)
         if ix == 5:
             return records
@@ -62,7 +62,7 @@ def inspect_transform(config: Config) -> Generator[tuple[str, CE], None, None]:
     for source in config.pipeline.sources:
         ctx = init_context(config, source)
         proxies: list[CE] = []
-        for rec in get_records(source):
-            for proxy in func(ctx, rec):
+        for ix, rec in enumerate(get_records(source)):
+            for proxy in func(ctx, rec, ix):
                 proxies.append(proxy)
         yield source.name, proxies

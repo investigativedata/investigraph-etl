@@ -66,8 +66,8 @@ def transform(ctx: Context, ckey: str) -> str:
     parse_record = get_func(ctx.config.parse_module_path)
     proxies: list[dict[str, Any]] = []
     records = ctx.cache.get(ckey)
-    for rec in records:
-        for proxy in parse_record(ctx, rec):
+    for rec, ix in records:
+        for proxy in parse_record(ctx, rec, ix):
             proxy.datasets = {ctx.dataset}
             proxies.append(proxy.to_dict())
     logger.info("TRANSFORMED %d records", len(records))
@@ -98,7 +98,7 @@ def run_pipeline(ctx: Context):
     batch = []
     results = []
     for ix, rec in enumerate(iter_records(res), 1):
-        batch.append(rec)
+        batch.append((rec, ix))
         if ix and ix % ctx.config.chunk_size == 0:
             results.append(transform.submit(ctx, ctx.cache.set(batch)))
             batch = []
