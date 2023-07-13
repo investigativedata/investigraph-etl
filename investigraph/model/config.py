@@ -1,3 +1,4 @@
+import os
 from functools import cache
 from pathlib import Path
 from typing import Any
@@ -12,11 +13,16 @@ from smart_open import open
 from investigraph.exceptions import ImproperlyConfigured
 from investigraph.logging import get_logger
 from investigraph.settings import DATASETS_BLOCK
+from investigraph.util import is_module
 
 from .block import get_block
 from .stage import ExtractStage, LoadStage, TransformStage
 
 log = get_logger(__name__)
+
+
+def abs(base: Path, path: str) -> str:
+    return os.path.normpath(str(Path(base / path).absolute()))
 
 
 class Config(BaseModel):
@@ -60,15 +66,12 @@ class Config(BaseModel):
         config = cls(**config)
 
         # custom user code
-        extract_py = base_path / "extract.py"
-        transform_py = base_path / "transform.py"
-        load_py = base_path / "load.py"
-        if extract_py.exists():
-            config.extract.handler = f"{extract_py}:handle"
-        if transform_py.exists():
-            config.transform.handler = f"{transform_py}:handle"
-        if load_py.exists():
-            config.load.handler = f"{load_py}:handle"
+        if not is_module(config.extract.handler):
+            config.extract.handler = abs(config.base_path, config.extract.handler)
+        if not is_module(config.transform.handler):
+            config.transform.handler = abs(config.base_path, config.transform.handler)
+        if not is_module(config.load.handler):
+            config.load.handler = abs(config.base_path, config.load.handler)
 
         return config
 

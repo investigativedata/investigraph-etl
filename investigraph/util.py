@@ -39,9 +39,14 @@ module_re = re.compile(r"^[\w\.]+:[\w]+")
 
 
 @cache
+def is_module(path: str) -> bool:
+    return bool(module_re.match(path))
+
+
+@cache
 def get_func(path: str) -> Callable:
     module, func = path.rsplit(":", 1)
-    if module_re.match(path):
+    if is_module(path):
         module = import_module(module)
     else:
         path = Path(module)

@@ -8,6 +8,7 @@ import orjson
 import pandas as pd
 from pantomime import types
 
+from investigraph.model.context import Context
 from investigraph.model.source import TResponse
 from investigraph.types import RecordGenerator
 
@@ -66,3 +67,8 @@ def iter_records(res: TResponse) -> RecordGenerator:
         return
 
     raise NotImplementedError("unsupported mimetype: `%s`" % res.mimetype)
+
+
+# entrypoint
+def handle(ctx: Context, *args, **kwargs) -> RecordGenerator:
+    yield from iter_records(*args, **kwargs)

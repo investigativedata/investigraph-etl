@@ -42,6 +42,7 @@ class Stage(BaseModel):
 class ExtractStage(Stage):
     _default_handler = DEFAULT_EXTRACTOR
 
+    fetch: bool | None = True
     sources: list[Source]
 
 

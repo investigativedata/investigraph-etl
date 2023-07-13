@@ -38,3 +38,6 @@ extract:
       uri: https://ec.europa.eu/transparencyinitiative/meetings/dataxlsx.do?name=meetingsdirectorgenerals
       extract_kwargs:
         skiprows: 1
+
+transform:
+  handler: ./transform.py:handle
