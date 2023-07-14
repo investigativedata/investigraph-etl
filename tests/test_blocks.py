@@ -7,7 +7,10 @@ import pytest
 from investigraph.exceptions import BlockError
 from investigraph.model.block import GitHubBlock  # , get_block
 from investigraph.model.block import LocalFileSystemBlock
-from investigraph.settings import DATA_ROOT, DATASETS_BLOCK, DATASETS_REPO
+from investigraph.settings import DATA_ROOT
+
+DATASETS_BLOCK = "github/investigraph-datasets"
+DATASETS_REPO = "https://github.com/investigativedata/investigraph-datasets.git"
 
 
 def test_blocks_github():

@@ -86,11 +86,10 @@ def get_config(
     if path is not None:
         return Config.from_path(path)
     if dataset is not None:
+        block = block or DATASETS_BLOCK
         if block is not None:
             block = get_block(block)
-        else:
-            block = get_block(DATASETS_BLOCK)
-        log.info("Using block `%s`" % block)
-        block.load(dataset)
-        return Config.from_path(block.path / dataset / "config.yml")
+            log.info("Using block `%s`" % block)
+            block.load(dataset)
+            return Config.from_path(block.path / dataset / "config.yml")
     raise ImproperlyConfigured("Specify `dataset` and `block` or `path` to config.")
