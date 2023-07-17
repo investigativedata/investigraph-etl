@@ -52,7 +52,7 @@ pydantic = "<2"
 
 [tool.poetry.group.dev.dependencies]
 pytest-env = "0.8.2"
-moto = "4.1.12"
+moto = "4.1.13"
 pytest = "^7.3.2"
 pytest-cov = "^4.1.0"
 black = "^23.3.0"
