@@ -3861,8 +3861,6 @@ files = [
     {file = "ray-2.5.1-cp310-cp310-macosx_11_0_arm64.whl", hash = "sha256:bd47d617fcfc969d8f22814ebe283f2e7d3de63b3d4d34b968d905b7055f85cd"},
     {file = "ray-2.5.1-cp310-cp310-manylinux2014_x86_64.whl", hash = "sha256:75f2f91c80cf2cbfee630175bd0fff6ba109bcc054e378229134dd2736083dd7"},
     {file = "ray-2.5.1-cp310-cp310-win_amd64.whl", hash = "sha256:03bc24f865da7ad94b142c5c12b3827a95505cc1968366c825990b183d54a797"},
-    {file = "ray-2.5.1-cp311-cp311-macosx_10_15_x86_64.whl", hash = "sha256:2ff4569953bc7b1909cc0d81699c3ac5559a1d63dd1926a79c997f779d61f152"},
-    {file = "ray-2.5.1-cp311-cp311-macosx_11_0_arm64.whl", hash = "sha256:f4ba31463b55934fb8b8e0fc7a06c1dc9b5e2fc40357e36416e831fa194ddbe3"},
     {file = "ray-2.5.1-cp311-cp311-manylinux2014_x86_64.whl", hash = "sha256:8f561bb6067e5c10af4eb0f8c9185dedda5a0214fae4b187675632220dab5b69"},
     {file = "ray-2.5.1-cp37-cp37m-macosx_10_15_x86_64.whl", hash = "sha256:2f3a3667b5f40ed984ddab9854f3a0e9d88e12b8c078dd1b7964a7276693570d"},
     {file = "ray-2.5.1-cp37-cp37m-manylinux2014_x86_64.whl", hash = "sha256:9c4ede34d265fe52da74c8966e45c5d2f4c27a2d5fb68d4828bc3b428050ca39"},
