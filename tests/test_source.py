@@ -2,10 +2,11 @@ from datetime import datetime
 
 from pantomime.types import CSV, XLSX
 
-from investigraph.model import Config, SourceHead
+from investigraph.model import Config
+from investigraph.model.source import SourceHead
 
 
-def test_model_source(eu_authorities: Config, ec_meetings_local: Config):
+def test_source(eu_authorities: Config, ec_meetings_local: Config):
     for source in ec_meetings_local.extract.sources:
         head = source.head()
         assert isinstance(head, SourceHead)

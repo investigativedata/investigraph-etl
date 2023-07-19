@@ -2,7 +2,7 @@
 The main entrypoint for the prefect flow
 """
 
-from typing import Any, Literal
+from typing import Any
 
 from prefect import flow, get_run_logger, task
 from prefect.task_runners import ConcurrentTaskRunner
@@ -11,20 +11,12 @@ from prefect_ray import RayTaskRunner
 
 from investigraph import __version__, settings
 from investigraph.logic.aggregate import in_memory
-from investigraph.logic.fetch import fetch_source, get_cache_key
-from investigraph.model import (
-    Context,
-    Flow,
-    FlowOptions,
-    HttpSourceResponse,
-    SmartSourceResponse,
-)
+from investigraph.model import Context, Flow, FlowOptions, Resolver
 from investigraph.model.context import init_context
+from investigraph.model.resolver import get_resolver_cache_key
 
 
-def get_runner_from_env() -> (
-    Literal[ConcurrentTaskRunner, DaskTaskRunner, RayTaskRunner]
-):
+def get_runner_from_env() -> ConcurrentTaskRunner | DaskTaskRunner | RayTaskRunner:
     if settings.TASK_RUNNER == "dask":
         return DaskTaskRunner()
     if settings.TASK_RUNNER == "ray":
@@ -68,12 +60,12 @@ def transform(ctx: Context, ckey: str) -> str:
 @task(
     retries=settings.FETCH_RETRIES,
     retry_delay_seconds=settings.FETCH_RETRY_DELAY,
-    cache_key_fn=get_cache_key,
+    cache_key_fn=get_resolver_cache_key,
 )
-def fetch(ctx: Context) -> Literal[HttpSourceResponse, SmartSourceResponse]:
+def resolve(ctx: Context) -> Resolver:
     logger = get_run_logger()
-    logger.info("OPEN %s", ctx.source.uri)
-    return fetch_source(ctx.source)
+    logger.info("RESOLVE %s", ctx.source.uri)
+    return Resolver(source=ctx.source)
 
 
 @flow(
@@ -83,19 +75,20 @@ def fetch(ctx: Context) -> Literal[HttpSourceResponse, SmartSourceResponse]:
     task_runner=get_runner_from_env(),
 )
 def run_pipeline(ctx: Context):
+    # extract
     if ctx.config.extract.fetch:
-        res = fetch.submit(ctx)
-        res = res.result()
+        res = resolve(ctx)
         enumerator = enumerate(ctx.config.extract.handle(ctx, res), 1)
     else:
         enumerator = enumerate(ctx.config.extract.handle(ctx), 1)
 
-    ix = 0
+    # transform
     batch = []
     results = []
+    ix = 0
     for ix, rec in enumerator:
         batch.append((rec, ix))
-        if ix and ix % ctx.config.transform.chunk_size == 0:
+        if ix % ctx.config.transform.chunk_size == 0:
             results.append(transform.submit(ctx, ctx.cache.set(batch)))
             batch = []
     if batch:
@@ -104,7 +97,7 @@ def run_pipeline(ctx: Context):
     logger = get_run_logger()
     logger.info("EXTRACTED %d records", ix)
 
-    # write
+    # load
     for res in results:
         res = res.result()
         load.submit(ctx, res)

@@ -1,4 +1,3 @@
-import os
 from functools import cache
 from pathlib import Path
 from typing import Any
@@ -6,14 +5,15 @@ from typing import Any
 import yaml
 from nomenklatura.dataset.catalog import DataCatalog
 from nomenklatura.dataset.dataset import Dataset
-from nomenklatura.util import PathLike
 from pydantic import BaseModel
+from runpandarun.util import absolute_path
 from smart_open import open
 
 from investigraph.exceptions import ImproperlyConfigured
 from investigraph.logging import get_logger
 from investigraph.settings import DATASETS_BLOCK
-from investigraph.util import is_module
+from investigraph.types import SDict
+from investigraph.util import PathLike, is_module
 
 from .block import get_block
 from .stage import ExtractStage, LoadStage, TransformStage
@@ -21,16 +21,21 @@ from .stage import ExtractStage, LoadStage, TransformStage
 log = get_logger(__name__)
 
 
-def abs(base: Path, path: str) -> str:
-    return os.path.normpath(str(Path(base / path).absolute()))
+def make_dataset(data: dict[str, Any]) -> Dataset:
+    # erf
+    catalog = DataCatalog(Dataset, {})
+    if "name" not in data and "dataset" in data:
+        data["name"] = data["dataset"]
+    data["title"] = data.get("title", data["name"].title())
+    return catalog.make_dataset(data)
 
 
 class Config(BaseModel):
     dataset: str
-    base_path: Path
-    metadata: dict[str, Any]
+    base_path: Path | None = Path()
+    metadata: SDict
 
-    extract: ExtractStage
+    extract: ExtractStage | None = ExtractStage()
     transform: TransformStage | None = TransformStage()
     load: LoadStage | None = LoadStage()
 
@@ -38,42 +43,43 @@ class Config(BaseModel):
         arbitrary_types_allowed = True
 
     def __init__(self, **data):
-        # ensure absolute file paths for local sources
+        if "metadata" not in data:
+            dataset = make_dataset(data)
+            data["dataset"] = dataset.name
+            data["metadata"] = dataset.to_dict()
         super().__init__(**data)
+        # ensure absolute file paths for local sources
+        self.base_path = Path(self.base_path).absolute()
         for source in self.extract.sources:
-            if source.is_local and source.uri.startswith("."):
-                source.uri = (self.base_path / source.uri).absolute()
+            source.ensure_uri(self.base_path)
 
     @classmethod
-    def from_path(cls, fp: PathLike) -> "Config":
-        base_path = Path(fp).parent.absolute()
-        catalog = DataCatalog(Dataset, {})
-        with open(fp) as fh:
-            data = yaml.safe_load(fh)
-        data["title"] = data.get("title", data["name"].title())
-        dataset: Dataset = catalog.make_dataset(data)
-
-        config = {
-            "dataset": dataset.name,
-            "base_path": base_path,
-            "metadata": dataset.to_dict(),
-        }
-
-        for key in cls.__fields__:
-            if key not in config and key in data:
-                config[key] = data[key]
-
-        config = cls(**config)
+    def from_string(cls, data: str, base_path: PathLike | None = ".") -> "Config":
+        data = yaml.safe_load(data)
+        data["base_path"] = Path(base_path)
+        config = cls(**data)
 
         # custom user code
         if not is_module(config.extract.handler):
-            config.extract.handler = abs(config.base_path, config.extract.handler)
+            config.extract.handler = str(
+                absolute_path(config.extract.handler, config.base_path)
+            )
         if not is_module(config.transform.handler):
-            config.transform.handler = abs(config.base_path, config.transform.handler)
+            config.transform.handler = str(
+                absolute_path(config.transform.handler, config.base_path)
+            )
         if not is_module(config.load.handler):
-            config.load.handler = abs(config.base_path, config.load.handler)
+            config.load.handler = str(
+                absolute_path(config.load.handler, config.base_path)
+            )
 
         return config
+
+    @classmethod
+    def from_path(cls, fp: PathLike) -> "Config":
+        with open(fp) as fh:
+            data = fh.read()
+        return cls.from_string(data, base_path=Path(fp).parent)
 
 
 @cache
