@@ -50,6 +50,7 @@ prefect-ray = "^0.2.5"
 ray = "^2.5.0"
 pydantic = "<2"
 runpandarun = ">=0.2.4"
+cryptography = ">=41.0.2"
 
 [tool.poetry.group.dev.dependencies]
 pytest-env = "0.8.2"
