@@ -5,9 +5,9 @@ description = "etl pipeline for investigations with follow the money data"
 authors = ["Simon Wörpel <simon@investigativedata.org>"]
 license = "MIT"
 readme = "README.md"
-homepage = "https://investigraph.vercel.app"
+homepage = "https://investigraph.dev"
 repository = "https://github.com/investigativedata/investigraph-etl"
-documentation = "https://investigativedata.github.io/investigraph/"
+documentation = "https://docs.investigraph.dev"
 classifiers = [
     "Intended Audience :: Developers",
     "Operating System :: OS Independent",
@@ -49,6 +49,7 @@ ijson = "^3.2.1"
 prefect-ray = "^0.2.5"
 ray = "^2.5.0"
 pydantic = "<2"
+runpandarun = ">=0.2.4"
 
 [tool.poetry.group.dev.dependencies]
 pytest-env = "0.8.2"
