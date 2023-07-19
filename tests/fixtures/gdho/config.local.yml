@@ -23,9 +23,11 @@ publisher:
 extract:
   sources:
     - uri: http://localhost:8000/gdho/organizations.csv
-      extract_kwargs:
-        encoding: latin
-        skiprows: 1
+      pandas:
+        read:
+          options:
+            encoding: latin
+            skiprows: 1
 
 transform:
   queries:

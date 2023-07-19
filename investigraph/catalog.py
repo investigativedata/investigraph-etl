@@ -4,8 +4,10 @@ from typing import Any, Dict, Generator, Optional, Union
 import requests
 import yaml
 from nomenklatura.dataset import DataCatalog
-from nomenklatura.util import PathLike, datetime_iso
+from nomenklatura.util import datetime_iso
 from zavod.dataset import ZavodDataset
+
+from investigraph.util import PathLike
 
 from .logging import get_logger
 

@@ -1,7 +1,7 @@
 from banal import as_bool
 from pydantic import BaseModel, root_validator
 
-from investigraph.settings import CHUNK_SIZE
+from investigraph.settings import CHUNK_SIZE, DATASETS_BLOCK
 
 from .config import Config, get_config
 
@@ -19,7 +19,7 @@ class FlowOptions(BaseModel):
 
     @root_validator
     def validate_options(cls, values):
-        block = values.get("dataset") and values.get("block")
+        block = values.get("dataset") and (values.get("block") or DATASETS_BLOCK)
         config = values.get("config")
         if not block and not config:
             raise ValueError("Specify at least a config file or a block and dataset")
