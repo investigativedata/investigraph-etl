@@ -2,6 +2,9 @@
 
 ## CHANGELOG
 
+### 0.2.0 (2023-07-19)
+- integrate [runpandarun](https://github.com/simonwoerpel/runpandarun) into extract stage
+
 ### 0.1.0 (2023-07-13)
 - breaking changes in:
     - cli invocation for `investigraph run`
