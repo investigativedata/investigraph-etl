@@ -2,7 +2,8 @@ from .block import DatasetBlock
 from .config import Config
 from .context import Context
 from .flow import Flow, FlowOptions
-from .source import HttpSourceResponse, SmartSourceResponse, Source, SourceHead
+from .resolver import Resolver
+from .source import Source
 
 __all__ = [
     DatasetBlock,
@@ -10,8 +11,6 @@ __all__ = [
     Context,
     Flow,
     FlowOptions,
-    HttpSourceResponse,
-    SmartSourceResponse,
+    Resolver,
     Source,
-    SourceHead,
 ]

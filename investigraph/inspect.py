@@ -7,14 +7,13 @@ from typing import Any, Generator
 
 import pandas as pd
 from nomenklatura.entity import CE
-from nomenklatura.util import PathLike
 from rich import print
 
-from investigraph.logic.extract import iter_records
-from investigraph.logic.fetch import fetch_source
+from investigraph.logic.extract import extract_pandas
+from investigraph.model import Resolver, Source
 from investigraph.model.config import Config, get_config
 from investigraph.model.context import init_context
-from investigraph.model.source import Source
+from investigraph.util import PathLike
 
 
 def print_error(msg: str):
@@ -24,8 +23,8 @@ def print_error(msg: str):
 def get_records(source: Source) -> list[dict[str, Any]]:
     records: list[dict[str, Any]] = []
     print("Fetching `%s` ..." % source.uri)
-    res = fetch_source(source)
-    for ix, rec in enumerate(iter_records(res), 1):
+    res = Resolver(source=source)
+    for ix, rec in enumerate(extract_pandas(res)):
         records.append(rec)
         if ix == 5:
             return records

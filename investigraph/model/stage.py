@@ -3,6 +3,7 @@ from typing import TYPE_CHECKING, Any, Callable
 from banal import keys_values
 from followthemoney.mapping import QueryMapping
 from pydantic import BaseModel
+from runpandarun import Playbook
 
 from investigraph.logic.load import TProxies
 from investigraph.logic.transform import load_mappings
@@ -13,7 +14,7 @@ from investigraph.settings import (
     DEFAULT_TRANSFORMER,
 )
 from investigraph.types import TaskResult
-from investigraph.util import get_func
+from investigraph.util import get_func, pydantic_merge
 
 if TYPE_CHECKING:
     from .context import Context
@@ -43,7 +44,13 @@ class ExtractStage(Stage):
     _default_handler = DEFAULT_EXTRACTOR
 
     fetch: bool | None = True
-    sources: list[Source]
+    sources: list[Source] | None = []
+    pandas: Playbook | None = Playbook()
+
+    def __init__(self, **data):
+        super().__init__(**data)
+        for source in self.sources:
+            source.pandas = pydantic_merge(self.pandas, source.pandas)
 
 
 class TransformStage(Stage):

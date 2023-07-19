@@ -35,3 +35,33 @@ def test_config_gdho(gdho: Config):
 
     func = config.transform.get_handler()
     assert callable(func)
+
+
+def test_config_pandas_merge():
+    config = Config.from_string(
+        """
+name: test
+extract:
+  pandas:
+    read:
+      handler: read_excel
+      options:
+        skiprows: 1
+  sources:
+    - uri: uri1
+      pandas:
+        read:
+          options:
+            skiprows: 2
+    - uri: uri2
+      pandas:
+        read:
+          handler: read_csv
+    """
+    )
+    assert config.extract.pandas.read.handler == "read_excel"
+    assert config.extract.pandas.read.options["skiprows"] == 1
+    assert config.extract.sources[0].pandas.read.handler == "read_excel"
+    assert config.extract.sources[0].pandas.read.options["skiprows"] == 2
+    assert config.extract.sources[1].pandas.read.handler == "read_csv"
+    assert config.extract.sources[1].pandas.read.options["skiprows"] == 1
