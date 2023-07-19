@@ -25,7 +25,6 @@ extract:
     - uri: https://www.humanitarianoutcomes.org/gdho/search/results?format=csv
       pandas:
         read:
-          handler: read_csv
           options:
             encoding: latin
             skiprows: 1

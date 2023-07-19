@@ -4,6 +4,7 @@ Extract sources to iterate objects to dict records
 
 import pandas as pd
 from pantomime import types
+from runpandarun.io import guess_handler_from_mimetype
 
 from investigraph.model.context import Context
 from investigraph.model.resolver import Resolver
@@ -24,6 +25,8 @@ def extract_pandas(
 ) -> RecordGenerator:
     play = resolver.source.pandas
     play.read.uri = resolver.source.uri
+    if play.read.handler is None:
+        play.read.handler = f"read_{guess_handler_from_mimetype(resolver.mimetype)}"
     for ix, chunk in enumerate(resolver.iter(chunk_size)):
         df = play.read.handle(chunk)
         if resolver.mimetype == types.CSV:

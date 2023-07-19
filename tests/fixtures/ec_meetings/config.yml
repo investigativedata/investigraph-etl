@@ -27,7 +27,6 @@ publisher:
 extract:
   pandas:
     read:
-      handler: read_excel
       options:
         skiprows: 1
     operations:
