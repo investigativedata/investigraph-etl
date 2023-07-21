@@ -13,6 +13,7 @@ from zavod.util import join_slug
 
 from investigraph.cache import Cache, get_cache
 from investigraph.settings import DATA_ROOT
+from investigraph.types import CEGenerator
 from investigraph.util import ensure_path, make_proxy
 
 from .config import Config
@@ -56,6 +57,10 @@ class Context(BaseModel):
     def make_proxy(self, *args, **kwargs) -> CE:
         return make_proxy(*args, **kwargs)
 
+    def make(self, *args, **kwargs) -> CE:
+        # align with zavod api for easy migration
+        return self.make_proxy(*args, **kwargs)
+
     def make_slug(self, *args, **kwargs) -> str:
         prefix = kwargs.pop("prefix", self.prefix)
         return join_slug(*args, prefix=prefix, **kwargs)
@@ -66,6 +71,23 @@ class Context(BaseModel):
 
     def make_cache_key(self, *args: Iterable[str]) -> str:
         return join_slug(self.run_id, *args, sep="#")
+
+    def task(self) -> "TaskContext":
+        return TaskContext(**self.dict())
+
+    def emit(self) -> None:
+        raise NotImplementedError
+
+
+class TaskContext(Context):
+    proxies: list[CE] = []
+
+    def __iter__(self) -> CEGenerator:
+        yield from self.proxies
+
+    def emit(self, proxy: CE) -> None:
+        # mimic zavod
+        self.proxies.append(proxy)
 
 
 def init_context(config: Config, source: Source) -> Context:
