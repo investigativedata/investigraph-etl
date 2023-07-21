@@ -82,25 +82,22 @@ def run_pipeline(ctx: Context):
     else:
         enumerator = enumerate(ctx.config.extract.handle(ctx), 1)
 
-    # transform
+    logger = get_run_logger()
+
     batch = []
-    results = []
     ix = 0
     for ix, rec in enumerator:
         batch.append((rec, ix))
         if ix % ctx.config.transform.chunk_size == 0:
-            results.append(transform.submit(ctx, ctx.cache.set(batch)))
+            logger.info("extracting record %d ...", ix)
+            res = transform.submit(ctx, ctx.cache.set(batch))
+            load.submit(ctx, res)
             batch = []
     if batch:
-        results.append(transform.submit(ctx, ctx.cache.set(batch)))
-
-    logger = get_run_logger()
-    logger.info("EXTRACTED %d records", ix)
-
-    # load
-    for res in results:
-        res = res.result()
+        res = transform.submit(ctx, ctx.cache.set(batch))
         load.submit(ctx, res)
+
+    logger.info("EXTRACTED %d records", ix)
 
 
 @flow(
