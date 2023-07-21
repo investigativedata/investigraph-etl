@@ -1,6 +1,6 @@
 from .block import DatasetBlock
 from .config import Config
-from .context import Context
+from .context import Context, TaskContext
 from .flow import Flow, FlowOptions
 from .resolver import Resolver
 from .source import Source
@@ -13,4 +13,5 @@ __all__ = [
     FlowOptions,
     Resolver,
     Source,
+    TaskContext,
 ]

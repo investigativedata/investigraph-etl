@@ -4,12 +4,12 @@ from typing import Any
 
 from banal import as_bool
 
-from investigraph import __version__
-
 
 def get_env(env: str, default: Any | None = None) -> Any | None:
     return os.environ.get(env, default)
 
+
+VERSION = "0.2.0"
 
 DEBUG = as_bool(get_env("DEBUG", 1))
 DATA_ROOT = Path(get_env("DATA_ROOT", Path.cwd() / "data")).absolute()
@@ -23,7 +23,7 @@ DEFAULT_TRANSFORMER = get_env(
 DEFAULT_LOADER = get_env("DEFAULT_LOADER", "investigraph.logic.load:load_proxies")
 
 REDIS_URL = get_env("REDIS_URL", "redis://localhost:6379")
-CACHE_PREFIX = get_env("CACHE_PREFIX", f"investigraph:{__version__}")
+CACHE_PREFIX = get_env("CACHE_PREFIX", f"investigraph:{VERSION}")
 
 FETCH_RETRIES = int(get_env("FETCH_RETRIES", 3))
 FETCH_RETRY_DELAY = int(get_env("FETCH_RETRY_DELAY", 5))
