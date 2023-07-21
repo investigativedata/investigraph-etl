@@ -106,7 +106,7 @@ def run_pipeline(ctx: Context):
 @flow(
     name="investigraph",
     version=__version__,
-    flow_run_name="{options.dataset}",
+    flow_run_name="{options.flow_name}",
 )
 def run(options: FlowOptions) -> str:
     flow = Flow.from_options(options)

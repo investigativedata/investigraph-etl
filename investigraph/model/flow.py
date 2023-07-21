@@ -1,4 +1,5 @@
 from banal import as_bool
+from normality import slugify
 from pydantic import BaseModel, root_validator
 
 from investigraph.settings import CHUNK_SIZE, DATASETS_BLOCK
@@ -16,6 +17,12 @@ class FlowOptions(BaseModel):
     index_uri: str | None = None
     fragments_uri: str | None = None
     entities_uri: str | None = None
+
+    @property
+    def flow_name(self) -> str:
+        if self.dataset is not None:
+            return self.dataset
+        return slugify(self.config)
 
     @root_validator
     def validate_options(cls, values):
