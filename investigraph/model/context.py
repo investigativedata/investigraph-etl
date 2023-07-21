@@ -6,6 +6,8 @@ import shortuuid
 from followthemoney.util import make_entity_id
 from nomenklatura.entity import CE
 from nomenklatura.util import datetime_iso
+from prefect import get_run_logger
+from prefect.logging.loggers import PrefectLogAdapter
 from prefect.runtime import flow_run
 from pydantic import BaseModel
 from smart_open import open
@@ -36,6 +38,10 @@ class Context(BaseModel):
     @property
     def cache(self) -> Cache:
         return get_cache()
+
+    @property
+    def log(self) -> PrefectLogAdapter:
+        return get_run_logger()
 
     def load_fragments(self, *args, **kwargs) -> str:
         kwargs["uri"] = kwargs.pop("uri", self.config.load.fragments_uri)
