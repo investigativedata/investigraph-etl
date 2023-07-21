@@ -80,7 +80,9 @@ def checksum(io: BytesIO, algorithm: str | None = "md5") -> str:
 
 
 def is_empty(value: Any) -> bool:
-    if isinstance(value, bool):
+    if isinstance(value, (bool, int)):
+        return False
+    if value == "":
         return False
     return not value
 
