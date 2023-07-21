@@ -2,6 +2,7 @@
 Extract sources to iterate objects to dict records
 """
 
+import numpy as np
 import pandas as pd
 from pantomime import types
 from runpandarun.io import guess_handler_from_mimetype
@@ -16,8 +17,7 @@ JSON = types.JSON
 
 def yield_pandas(df: pd.DataFrame) -> RecordGenerator:
     for _, row in df.iterrows():
-        row = {k: v if not pd.isna(v) else None for k, v in row.items()}
-        yield row
+        yield dict(row.replace(np.nan, None))
 
 
 def extract_pandas(
