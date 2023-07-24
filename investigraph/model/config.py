@@ -1,4 +1,3 @@
-from functools import cache
 from pathlib import Path
 from typing import Any
 
@@ -82,7 +81,6 @@ class Config(BaseModel):
         return cls.from_string(data, base_path=Path(fp).parent)
 
 
-@cache
 def get_config(
     dataset: str | None = None, block: str | None = None, path: PathLike | None = None
 ) -> Config:
