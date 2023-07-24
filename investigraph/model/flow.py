@@ -1,4 +1,5 @@
-from banal import as_bool
+from typing import Any
+
 from normality import slugify
 from pydantic import BaseModel, root_validator
 
@@ -17,6 +18,10 @@ class FlowOptions(BaseModel):
     index_uri: str | None = None
     fragments_uri: str | None = None
     entities_uri: str | None = None
+
+    enforce_extract: str | None = False
+    enforce_transform: str | None = False
+    enforce_load: str | None = False
 
     @property
     def flow_name(self) -> str:
@@ -39,28 +44,21 @@ class Flow(BaseModel):
 
     def __init__(self, **data):
         # override base config with runtime options
-        options = data.pop("options", None)
-        if options is not None:
-            options = dict(options)
-        config = get_config(
-            data.pop("dataset", None), options.get("block"), options.get("config")
-        )
-        if "chunk_size" in options:
-            chunk_size = options["chunk_size"]
-            if chunk_size is not None:
-                config.extract.chunk_size = chunk_size
-                config.transform.chunk_size = chunk_size
-                config.load.chunk_size = chunk_size
-        config.load.index_uri = options.get("index_uri") or config.load.index_uri
-        config.load.fragments_uri = (
-            options.get("fragments_uri") or config.load.fragments_uri
-        )
-        config.load.entities_uri = (
-            options.get("entities_uri") or config.load.entities_uri
-        )
-        config.load.aggregate = (
-            as_bool(options.get("aggregate")) or config.load.aggregate
-        )
+        options = data.pop("options")
+        config = get_config(data.pop("dataset", None), options.block, options.config)
+
+        self.assign(config.extract, "chunk_size", options.chunk_size)
+        self.assign(config.transform, "chunk_size", options.chunk_size)
+        self.assign(config.load, "chunk_size", options.chunk_size)
+
+        self.assign(config.load, "index_uri", options.index_uri)
+        self.assign(config.load, "fragments_uri", options.fragments_uri)
+        self.assign(config.load, "entities_uri", options.entities_uri)
+        self.assign(config.load, "aggregate", options.aggregate)
+
+        self.assign(config.extract, "enforce", options.enforce_extract)
+        self.assign(config.transform, "enforce", options.enforce_transform)
+        self.assign(config.load, "enforce", options.enforce_load)
 
         super().__init__(dataset=config.dataset, config=config, **data)
 
@@ -73,3 +71,8 @@ class Flow(BaseModel):
     @classmethod
     def from_options(cls, options: FlowOptions) -> "Flow":
         return cls(dataset=options.dataset, options=options)
+
+    @staticmethod
+    def assign(base: Any, attr: str, value: Any) -> None:
+        if value is not None:
+            setattr(base, attr, value)

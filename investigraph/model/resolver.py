@@ -2,16 +2,15 @@
 resolver for `.source.Source`
 """
 
-from datetime import datetime
 from io import BytesIO
 
-import requests
 from normality import slugify
 from pantomime import types
 from pydantic import BaseModel
 from smart_open import open
 
 from investigraph.exceptions import ImproperlyConfigured
+from investigraph.logic import requests
 from investigraph.types import BytesGenerator
 from investigraph.util import checksum
 
@@ -110,15 +109,14 @@ class Resolver(BaseModel):
         return self.content
 
     def get_cache_key(self) -> str:
-        slug = slugify(self.source.uri)
+        slug = f"RESOLVE#{slugify(self.source.uri)}"
         if self.source.is_http:
             self._resolve_head()
             if self.head.etag:
                 return f"{slug}#{self.head.etag}"
             if self.head.last_modified:
                 return f"{slug}#{self.head.last_modified.isoformat()}"
-        now = datetime.now().isoformat()  # don't cache at all
-        return f"{slug}#{now}"
+        return slug  # handle expiration via cache_expiration on @task
 
 
 def get_resolver_cache_key(_, params) -> str:

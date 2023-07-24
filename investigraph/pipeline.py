@@ -5,6 +5,7 @@ The main entrypoint for the prefect flow
 from typing import Any
 
 from prefect import flow, get_run_logger, task
+from prefect.futures import PrefectFuture
 from prefect.task_runners import ConcurrentTaskRunner
 from prefect_dask import DaskTaskRunner
 from prefect_ray import RayTaskRunner
@@ -22,6 +23,15 @@ def get_runner_from_env() -> ConcurrentTaskRunner | DaskTaskRunner | RayTaskRunn
     if settings.TASK_RUNNER == "ray":
         return RayTaskRunner()
     return ConcurrentTaskRunner()
+
+
+def should_continue(res: PrefectFuture, enforce: bool | None = False) -> bool:
+    log = get_run_logger()
+    state = res.wait()
+    should_continue = enforce or state.name != "Cached"
+    if not should_continue:
+        log.info("Completed because of input has not changed.")
+    return should_continue
 
 
 @task
@@ -58,9 +68,12 @@ def transform(ctx: Context, ckey: str) -> str:
 
 
 @task(
-    retries=settings.FETCH_RETRIES,
-    retry_delay_seconds=settings.FETCH_RETRY_DELAY,
+    retries=settings.TASK_RETRIES,
+    retry_delay_seconds=settings.TASK_RETRY_DELAY,
     cache_key_fn=get_resolver_cache_key,
+    persist_result=True,
+    cache_expiration=settings.TASK_CACHE_EXPIRATION,
+    refresh_cache=not settings.TASK_CACHE,
 )
 def resolve(ctx: Context) -> Resolver:
     logger = get_run_logger()
@@ -77,7 +90,11 @@ def resolve(ctx: Context) -> Resolver:
 def run_pipeline(ctx: Context):
     # extract
     if ctx.config.extract.fetch:
-        res = resolve(ctx)
+        res = resolve.submit(ctx)
+        if not should_continue(res, ctx.config.extract.enforce):
+            return "CACHED"
+
+        res = res.result()
         enumerator = enumerate(ctx.config.extract.handle(ctx, res), 1)
     else:
         enumerator = enumerate(ctx.config.extract.handle(ctx), 1)
@@ -107,15 +124,19 @@ def run_pipeline(ctx: Context):
 )
 def run(options: FlowOptions) -> str:
     flow = Flow.from_options(options)
+    results = []
     for ix, source in enumerate(flow.config.extract.sources):
         ctx = init_context(config=flow.config, source=source)
         if ix == 0:  # only on first time
             ctx.export_metadata()
             logger = get_run_logger()
             logger.info("INDEX: %s" % ctx.config.load.index_uri)
-        run_pipeline(ctx)
+        results.append(run_pipeline(ctx))
+
+    if all([r == "CACHED" for r in results]):
+        return "CACHED"
 
     if flow.should_aggregate:
-        aggregate(ctx)
+        return aggregate(ctx)
 
     return flow.config.load.entities_uri

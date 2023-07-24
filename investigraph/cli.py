@@ -34,6 +34,9 @@ def cli_run(
     entities_uri: Annotated[Optional[str], typer.Option(...)] = None,
     aggregate: Annotated[Optional[bool], typer.Option(...)] = True,
     chunk_size: Annotated[Optional[int], typer.Option(...)] = None,
+    enforce_extract: Annotated[Optional[bool], typer.Option(...)] = False,
+    enforce_transform: Annotated[Optional[bool], typer.Option(...)] = False,
+    enforce_load: Annotated[Optional[bool], typer.Option(...)] = False,
 ):
     """
     Execute a dataset pipeline
@@ -47,6 +50,9 @@ def cli_run(
         entities_uri=entities_uri,
         aggregate=aggregate,
         chunk_size=chunk_size,
+        enforce_extract=enforce_extract,
+        enforce_load=enforce_load,
+        enforce_transform=enforce_transform,
     )
     run(options)
 

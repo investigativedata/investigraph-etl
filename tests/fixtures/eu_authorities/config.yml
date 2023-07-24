@@ -21,3 +21,27 @@ publisher:
 extract:
   sources:
     - uri: https://www.asktheeu.org/en/body/all-authorities.csv
+
+transform:
+  queries:
+    - entities:
+        body:
+          schema: PublicBody
+          key: URL name
+          properties:
+            name:
+              column: Name
+            weakAlias:
+              column: Short name
+            description:
+              column: Notes
+            keywords:
+              column: Tags
+              split: " "
+            legalForm:
+              column: Tags
+              split: " "
+            website:
+              column: Home page
+            jurisdiction:
+              literal: "eu"

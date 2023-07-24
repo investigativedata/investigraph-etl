@@ -1,12 +1,12 @@
-# import os
+from importlib import reload
 
 from ftmq.io import smart_read_proxies
 from ftmstore import get_dataset
 from moto import mock_s3
 
+from investigraph import settings
 from investigraph.model import DatasetBlock, FlowOptions
 from investigraph.pipeline import run
-from investigraph.settings import DATA_ROOT
 from tests.util import setup_s3_bucket
 
 
@@ -60,7 +60,7 @@ def test_pipeline_from_config():
 
 
 def test_pipeline_local_ftmstore():
-    store_uri = f"sqlite:///{DATA_ROOT}/store.db"
+    store_uri = f"sqlite:///{settings.DATA_ROOT}/store.db"
     options = FlowOptions(
         dataset="eu_authorities",
         config="./tests/fixtures/eu_authorities.local.yml",
@@ -90,6 +90,26 @@ def test_pipeline_local_customized():
     options = FlowOptions(
         dataset="eu_authorities", config="./tests/fixtures/eu_authorities.custom.yml"
     )
+    assert run(options)
+
+
+def test_pipeline_chunk_size():
+    options = FlowOptions(
+        dataset="eu_authorities",
+        config="./tests/fixtures/eu_authorities.local.yml",
+        chunk_size=100,
+    )
     out = run(options)
     proxies = [p for p in smart_read_proxies(out)]
     assert len(proxies) == 151
+
+
+def test_pipeline_caching(monkeypatch):
+    monkeypatch.setenv("TASK_CACHE", "true")
+    reload(settings)
+    options = FlowOptions(
+        dataset="eu_authorities", config="./tests/fixtures/eu_authorities.local.yml"
+    )
+    # FIXME this doesn't work
+    assert run(options)
+    assert run(options)
