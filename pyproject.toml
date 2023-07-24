@@ -49,7 +49,7 @@ ijson = "^3.2.1"
 prefect-ray = "^0.2.5"
 ray = "^2.5.1"
 pydantic = "<2"
-runpandarun = {git = "https://github.com/simonwoerpel/runpandarun.git", rev = "develop"}
+runpandarun = ">=0.2.5"
 cryptography = ">=41.0.2"
 
 [tool.poetry.group.dev.dependencies]
