@@ -1,4 +1,5 @@
 import os
+from datetime import timedelta
 from pathlib import Path
 from typing import Any
 
@@ -23,10 +24,15 @@ DEFAULT_TRANSFORMER = get_env(
 DEFAULT_LOADER = get_env("DEFAULT_LOADER", "investigraph.logic.load:load_proxies")
 
 REDIS_URL = get_env("REDIS_URL", "redis://localhost:6379")
-CACHE_PREFIX = get_env("CACHE_PREFIX", f"investigraph:{VERSION}")
+REDIS_PREFIX = get_env("REDIS_PREFIX", f"investigraph:{VERSION}")
 
-FETCH_RETRIES = int(get_env("FETCH_RETRIES", 3))
-FETCH_RETRY_DELAY = int(get_env("FETCH_RETRY_DELAY", 5))
+TASK_CACHE = as_bool(get_env("TASK_CACHE", 1))
+TASK_RETRIES = int(get_env("TASK_RETRIES", 3))
+TASK_RETRY_DELAY = int(get_env("TASK_RETRY_DELAY", 5))
+TASK_CACHE_EXPIRATION = int(get_env("TASK_CACHE_EXPIRATION", 0)) or None  # in minutes
+TASK_CACHE_EXPIRATION = (
+    timedelta(TASK_CACHE_EXPIRATION) if TASK_CACHE_EXPIRATION is not None else None
+)
 
 TASK_RUNNER = get_env("PREFECT_TASK_RUNNER", "").lower()
 

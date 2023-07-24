@@ -67,7 +67,7 @@ class Cache:
 
     @staticmethod
     def get_key(key: str) -> str:
-        return f"{settings.CACHE_PREFIX}:{key}"
+        return f"{settings.REDIS_PREFIX}:{key}"
 
 
 @cache
