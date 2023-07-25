@@ -60,7 +60,7 @@ class Flow(BaseModel):
         self.assign(config.transform, "enforce", options.enforce_transform)
         self.assign(config.load, "enforce", options.enforce_load)
 
-        super().__init__(dataset=config.dataset, config=config, **data)
+        super().__init__(dataset=config.dataset.name, config=config, **data)
 
     @property
     def should_aggregate(self) -> bool:

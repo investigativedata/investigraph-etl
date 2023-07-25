@@ -93,8 +93,8 @@ def cli_inspect(
 ):
     config = inspect_config(config_path)
     print(f"[bold green]OK[/bold green] `{config_path}`")
-    print(f"[bold]dataset:[/bold] {config.dataset}")
-    print(f"[bold]title:[/bold] {config.metadata.get('title')}")
+    print(f"[bold]dataset:[/bold] {config.dataset.name}")
+    print(f"[bold]title:[/bold] {config.dataset.title}")
 
     if extract:
         for name, df in inspect_extract(config):

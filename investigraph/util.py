@@ -25,8 +25,10 @@ def slugified_dict(data: dict[Any, Any]) -> SDict:
     return {slugify(k, "_"): v for k, v in ensure_dict(data).items()}
 
 
-def make_proxy(schema: str) -> CE:
-    return CompositeEntity.from_dict(model, {"schema": schema})
+def make_proxy(schema: str, properties: SDict | None = None) -> CE:
+    return CompositeEntity.from_dict(
+        model, {"schema": schema, "properties": properties or {}}
+    )
 
 
 def uplevel_proxy(proxy: E) -> CE:
