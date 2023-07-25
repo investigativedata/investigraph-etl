@@ -134,8 +134,9 @@ def cli_catalog(
     data = orjson.dumps(catalog.to_dict(), option=orjson.OPT_APPEND_NEWLINE)
     if uri == "-":
         sys.stdout.write(data.decode())
-    with open(uri, "wb") as fh:
-        fh.write(data)
+    else:
+        with open(uri, "wb") as fh:
+            fh.write(data)
 
 
 @cli.command("reset")
