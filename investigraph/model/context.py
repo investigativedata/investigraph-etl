@@ -61,7 +61,7 @@ class Context(BaseModel):
             fh.write(data)
 
     def make_proxy(self, *args, **kwargs) -> CE:
-        return make_proxy(*args, **kwargs)
+        return make_proxy(*args, dataset=self.dataset, **kwargs)
 
     def make(self, *args, **kwargs) -> CE:
         # align with zavod api for easy migration
