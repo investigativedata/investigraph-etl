@@ -4,6 +4,7 @@ from nomenklatura.entity import CE
 
 # a string-keyed dict
 SDict: TypeAlias = dict[str, Any]
+Record = SDict
 RecordGenerator: TypeAlias = Generator[SDict, None, None]
 
 # composite entity generator
