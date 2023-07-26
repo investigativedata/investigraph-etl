@@ -10,7 +10,27 @@ from ftmstore import get_dataset
 from investigraph.cache import get_cache
 from investigraph.model import Context
 from investigraph.settings import CHUNK_SIZE
-from investigraph.types import CEGenerator
+from investigraph.types import CE, CEGenerator
+
+COMMON_SCHEMAS = ("Organization", "LegalEntity")
+
+
+def merge(ctx: Context, p1: CE, p2: CE) -> CE:
+    try:
+        p1.merge(p2)
+        return p1
+    except Exception as e:
+        # try common schemata, this will probably "downgrade" entities
+        # as in, losing some schema specific properties
+        for schema in COMMON_SCHEMAS:
+            if p1.schema.is_a(schema) and p2.schema.is_a(schema):
+                p1 = ctx.make(schema, **p1.to_dict()["properties"])
+                p1.id = p2.id
+                p2 = ctx.make(schema, **p2.to_dict()["properties"])
+                p1.merge(p2)
+                return p1
+
+        ctx.log.warn(f"{e}, id: `{p1.id}`")
 
 
 def get_smart_proxies(ctx: Context, uri: str) -> CEGenerator:
@@ -42,7 +62,7 @@ def in_memory(ctx: Context, in_uri: str) -> tuple[int, int]:
         if ix % (CHUNK_SIZE * 10) == 0:
             ctx.log.info("reading in proxy %d ..." % ix)
         if proxy.id in buffer:
-            buffer[proxy.id].merge(proxy)
+            buffer[proxy.id] = merge(ctx, buffer[proxy.id], proxy)
         else:
             buffer[proxy.id] = proxy
 
