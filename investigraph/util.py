@@ -8,6 +8,7 @@ from io import BytesIO
 from pathlib import Path
 from typing import Any, Callable
 
+import orjson
 from banal import clean_dict, ensure_dict
 from followthemoney import model
 from followthemoney.proxy import E
@@ -64,6 +65,7 @@ def get_func(path: str) -> Callable:
     return getattr(module, func)
 
 
+@lru_cache(1024)
 def clean_string(value: Any) -> str | None:
     """
     Convert a value to None or a sanitized string without linebreaks
@@ -114,6 +116,11 @@ def checksum(io: BytesIO, algorithm: str | None = "md5") -> str:
     for chunk in iter(lambda: io.read(128 * hash_.block_size), b""):
         hash_.update(chunk)
     return hash_.hexdigest()
+
+
+def data_checksum(data: Any, algorithm: str | None = "md5") -> str:
+    data = orjson.dumps(data, option=orjson.OPT_SORT_KEYS)
+    return checksum(BytesIO(data), algorithm)
 
 
 def is_empty(value: Any) -> bool:

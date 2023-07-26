@@ -62,3 +62,10 @@ def test_util_cleaning():
     assert util.fingerprint(None) is None
 
     assert util.join_text("A", " ", "b", "-") == "A b"
+
+
+def test_util_data_checksum():
+    assert len(util.data_checksum("a")) == 32
+    assert util.data_checksum(["a", 1]) != util.data_checksum(["a", "1"])
+    assert util.data_checksum([1, 2]) != util.data_checksum([2, 1])
+    assert util.data_checksum({"a": 1, "b": 2}) == util.data_checksum({"b": 2, "a": 1})
