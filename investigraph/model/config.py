@@ -31,6 +31,7 @@ def make_dataset(data: dict[str, Any]) -> Dataset:
 
 class Config(BaseModel):
     dataset: str
+    prefix: str | None = None
     base_path: Path | None = Path()
     metadata: SDict
 

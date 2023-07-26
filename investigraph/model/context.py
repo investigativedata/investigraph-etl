@@ -108,7 +108,7 @@ def init_context(config: Config, source: Source) -> Context:
 
     return Context(
         dataset=config.dataset,
-        prefix=config.metadata.get("prefix", config.dataset),
+        prefix=config.prefix or config.dataset,
         config=config,
         source=source,
         run_id=run_id,
