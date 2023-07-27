@@ -9,7 +9,7 @@ from pathlib import Path
 from typing import Any, Callable
 
 import orjson
-from banal import clean_dict, ensure_dict
+from banal import clean_dict, ensure_dict, is_listish
 from followthemoney import model
 from followthemoney.proxy import E
 from followthemoney.util import join_text as _join_text
@@ -27,7 +27,7 @@ def slugified_dict(data: dict[Any, Any]) -> SDict:
     return {slugify(k, "_"): v for k, v in ensure_dict(data).items()}
 
 
-def make_proxy(schema: str, dataset: str, **properties) -> CE:
+def make_proxy(schema: str, dataset: str | None = "default", **properties) -> CE:
     return CompositeEntity(
         model, {"schema": schema, "properties": properties}, default_dataset=dataset
     )
@@ -107,7 +107,8 @@ def string_id(value: Any) -> str | None:
 
 
 def join_text(*parts: Any, sep: str = " ") -> str | None:
-    return _join_text(*[clean_name(p) for p in parts], sep)
+    parts = [clean_name(p) for p in parts]
+    return _join_text(*parts, sep=sep)
 
 
 def checksum(io: BytesIO, algorithm: str | None = "md5") -> str:
@@ -119,6 +120,8 @@ def checksum(io: BytesIO, algorithm: str | None = "md5") -> str:
 
 
 def data_checksum(data: Any, algorithm: str | None = "md5") -> str:
+    if is_listish(data):
+        data = sorted(data, key=lambda x: repr(x))
     data = orjson.dumps(data, option=orjson.OPT_SORT_KEYS)
     return checksum(BytesIO(data), algorithm)
 

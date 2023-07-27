@@ -7,10 +7,9 @@ from uuid import uuid4
 from ftmq.io import smart_read_proxies
 from ftmstore import get_dataset
 
-from investigraph.cache import get_cache
 from investigraph.model import Context
 from investigraph.settings import CHUNK_SIZE
-from investigraph.types import CE, CEGenerator
+from investigraph.types import CE
 
 COMMON_SCHEMAS = ("Organization", "LegalEntity")
 
@@ -33,22 +32,7 @@ def merge(ctx: Context, p1: CE, p2: CE) -> CE:
         ctx.log.warn(f"{e}, id: `{p1.id}`")
 
 
-def get_smart_proxies(ctx: Context, uri: str) -> CEGenerator:
-    """
-    see if we have parts in cache during run time
-    (mimics efficient globbing for remote sources)
-    """
-    cache = get_cache()
-    uris = cache.smembers(ctx.make_cache_key(uri))
-    if uris:
-        for uri in uris:
-            yield from smart_read_proxies(uri)
-        return
-
-    yield from smart_read_proxies(uri)
-
-
-def in_memory(ctx: Context, in_uri: str) -> tuple[int, int]:
+def in_memory(ctx: Context, *uris: tuple[str]) -> tuple[int, int]:
     """
     aggregate in memory: read fragments from `in_uri` and write aggregated
     proxies to `out_uri`
@@ -58,7 +42,7 @@ def in_memory(ctx: Context, in_uri: str) -> tuple[int, int]:
     """
     ix = 0
     buffer = {}
-    for ix, proxy in enumerate(get_smart_proxies(ctx, in_uri), 1):
+    for ix, proxy in enumerate(smart_read_proxies(uris), 1):
         if ix % (CHUNK_SIZE * 10) == 0:
             ctx.log.info("reading in proxy %d ..." % ix)
         if proxy.id in buffer:
@@ -77,7 +61,7 @@ def in_db(ctx: Context, in_uri: str) -> tuple[int, int]:
     """
     dataset = get_dataset("aggregate_%s" % uuid4().hex)
     bulk = dataset.bulk()
-    for ix, proxy in enumerate(get_smart_proxies(ctx, in_uri)):
+    for ix, proxy in enumerate(smart_read_proxies(in_uri)):
         if ix % 10_000 == 0:
             ctx.log.info("Write [%s]: %s entities", dataset.name, ix)
         bulk.put(proxy, fragment=str(ix))

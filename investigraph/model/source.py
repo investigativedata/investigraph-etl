@@ -21,8 +21,10 @@ class SourceHead(BaseModel):
 
     def __init__(self, **data):
         data = slugified_dict(data)
+        last_modified = data.pop("last_modified", None)
+        if isinstance(last_modified, str):
+            data["last_modified"] = parse_date(last_modified)
         super().__init__(
-            last_modified=parse_date(data.pop("last_modified", "")),
             content_type=normalize_mimetype(data.pop("content_type", None)),
             **data,
         )

@@ -14,7 +14,6 @@ from investigraph.logic import requests
 from investigraph.types import BytesGenerator
 from investigraph.util import checksum
 
-from .context import Context
 from .source import Source, SourceHead
 
 STREAM_TYPES = [types.CSV, types.JSON]
@@ -117,9 +116,3 @@ class Resolver(BaseModel):
             if self.head.last_modified:
                 return f"{slug}#{self.head.last_modified.isoformat()}"
         return slug  # handle expiration via cache_expiration on @task
-
-
-def get_resolver_cache_key(_, params) -> str:
-    ctx: Context = params["ctx"]
-    res = Resolver(source=ctx.source)
-    return res.get_cache_key()

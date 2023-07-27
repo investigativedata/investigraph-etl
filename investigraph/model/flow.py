@@ -19,10 +19,6 @@ class FlowOptions(BaseModel):
     fragments_uri: str | None = None
     entities_uri: str | None = None
 
-    enforce_extract: str | None = False
-    enforce_transform: str | None = False
-    enforce_load: str | None = False
-
     @property
     def flow_name(self) -> str:
         if self.dataset is not None:
@@ -55,10 +51,6 @@ class Flow(BaseModel):
         self.assign(config.load, "fragments_uri", options.fragments_uri)
         self.assign(config.load, "entities_uri", options.entities_uri)
         self.assign(config.load, "aggregate", options.aggregate)
-
-        self.assign(config.extract, "enforce", options.enforce_extract)
-        self.assign(config.transform, "enforce", options.enforce_transform)
-        self.assign(config.load, "enforce", options.enforce_load)
 
         super().__init__(dataset=config.dataset, config=config, **data)
 

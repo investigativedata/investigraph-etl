@@ -2,13 +2,11 @@ from datetime import datetime
 from typing import Iterable
 
 import orjson
-import shortuuid
 from followthemoney.util import make_entity_id
 from nomenklatura.entity import CE
 from nomenklatura.util import datetime_iso
 from prefect import get_run_logger
 from prefect.logging.loggers import PrefectLogAdapter
-from prefect.runtime import flow_run
 from pydantic import BaseModel
 from smart_open import open
 from zavod.util import join_slug
@@ -27,13 +25,12 @@ class Context(BaseModel):
     prefix: str
     config: Config
     source: Source
-    run_id: str
 
     class Config:
         arbitrary_types_allowed = True
 
     def __hash__(self) -> int:
-        return hash((self.dataset, self.run_id))
+        return hash((self.dataset, self.source.uri))
 
     @property
     def cache(self) -> Cache:
@@ -76,7 +73,7 @@ class Context(BaseModel):
         return join_slug(make_entity_id(*args), prefix=prefix)
 
     def make_cache_key(self, *args: Iterable[str]) -> str:
-        return join_slug(self.run_id, *args, sep="#")
+        return join_slug(*args, sep="#")
 
     def task(self) -> "TaskContext":
         return TaskContext(**self.dict())
@@ -97,12 +94,11 @@ class TaskContext(Context):
 
 
 def init_context(config: Config, source: Source) -> Context:
-    run_id = flow_run.get_id() or f"DUMMY-RUN-{shortuuid.uuid()}"
     path = ensure_path(DATA_ROOT / config.dataset)
     if config.load.index_uri is None:
         config.load.index_uri = (path / "index.json").as_uri()
     if config.load.fragments_uri is None:
-        config.load.fragments_uri = (path / f"fragments.{run_id}.json").as_uri()
+        config.load.fragments_uri = (path / "fragments.json").as_uri()
     if config.load.entities_uri is None:
         config.load.entities_uri = (path / "entities.ftm.json").as_uri()
 
@@ -111,5 +107,4 @@ def init_context(config: Config, source: Source) -> Context:
         prefix=config.prefix or config.dataset,
         config=config,
         source=source,
-        run_id=run_id,
     )

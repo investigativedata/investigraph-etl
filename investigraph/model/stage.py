@@ -27,7 +27,6 @@ class Stage(BaseModel):
 
     handler: str
     chunk_size: int | None = CHUNK_SIZE
-    enforce: bool | None = False
 
     def __init__(self, **data):
         data["handler"] = data.pop("handler", self._default_handler)
