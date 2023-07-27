@@ -51,9 +51,9 @@ class Context(BaseModel):
         return self.config.load.handle(self, *args, **kwargs)
 
     def export_metadata(self) -> None:
-        data = self.config.metadata
-        data["updated_at"] = data.get("updated_at", datetime_iso(datetime.utcnow()))
-        data = orjson.dumps(data)
+        data = self.config.dataset
+        data.updated_at = data.updated_at or datetime_iso(datetime.utcnow())
+        data = orjson.dumps(data.dict())
         with open(self.config.load.index_uri, "wb") as fh:
             fh.write(data)
 
@@ -94,7 +94,7 @@ class TaskContext(Context):
 
 
 def init_context(config: Config, source: Source) -> Context:
-    path = ensure_path(DATA_ROOT / config.dataset)
+    path = ensure_path(DATA_ROOT / config.dataset.name)
     if config.load.index_uri is None:
         config.load.index_uri = (path / "index.json").as_uri()
     if config.load.fragments_uri is None:
@@ -103,8 +103,8 @@ def init_context(config: Config, source: Source) -> Context:
         config.load.entities_uri = (path / "entities.ftm.json").as_uri()
 
     return Context(
-        dataset=config.dataset,
-        prefix=config.prefix or config.dataset,
+        dataset=config.dataset.name,
+        prefix=config.dataset.prefix,
         config=config,
         source=source,
     )
