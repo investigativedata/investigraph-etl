@@ -52,7 +52,7 @@ class Flow(BaseModel):
         self.assign(config.load, "entities_uri", options.entities_uri)
         self.assign(config.load, "aggregate", options.aggregate)
 
-        super().__init__(dataset=config.dataset, config=config, **data)
+        super().__init__(dataset=config.dataset.name, config=config, **data)
 
     @property
     def should_aggregate(self) -> bool:
