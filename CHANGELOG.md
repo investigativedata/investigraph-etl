@@ -2,6 +2,9 @@
 
 ## CHANGELOG
 
+### 0.3.0 (2023-07-27)
+- implement incremental task caching
+
 ### 0.2.0 (2023-07-19)
 - integrate [runpandarun](https://github.com/simonwoerpel/runpandarun) into extract stage
 
