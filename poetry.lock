@@ -1162,13 +1162,13 @@ lua = ["lupa (>=1.14,<2.0)"]
 
 [[package]]
 name = "fastapi"
-version = "0.100.0"
+version = "0.100.1"
 description = "FastAPI framework, high performance, easy to learn, fast to code, ready for production"
 optional = false
 python-versions = ">=3.7"
 files = [
-    {file = "fastapi-0.100.0-py3-none-any.whl", hash = "sha256:271662daf986da8fa98dc2b7c7f61c4abdfdccfb4786d79ed8b2878f172c6d5f"},
-    {file = "fastapi-0.100.0.tar.gz", hash = "sha256:acb5f941ea8215663283c10018323ba7ea737c571b67fc7e88e9469c7eb1d12e"},
+    {file = "fastapi-0.100.1-py3-none-any.whl", hash = "sha256:ec6dd52bfc4eff3063cfcd0713b43c87640fefb2687bbbe3d8a08d94049cdf32"},
+    {file = "fastapi-0.100.1.tar.gz", hash = "sha256:522700d7a469e4a973d92321ab93312448fbe20fca9c8da97effc7e7bc56df23"},
 ]
 
 [package.dependencies]
@@ -1387,13 +1387,13 @@ tqdm = ["tqdm"]
 
 [[package]]
 name = "ftmq"
-version = "0.1.4"
+version = "0.1.6"
 description = "followthemoney query dsl and io helpers"
 optional = false
 python-versions = ">=3.10,<3.13"
 files = [
-    {file = "ftmq-0.1.4-py3-none-any.whl", hash = "sha256:10e850f564289ffdd876e91f1393580783962d7a9c7f24507000c7553c7b95a9"},
-    {file = "ftmq-0.1.4.tar.gz", hash = "sha256:18c25d37360e53626bb7bb81197367fa2279fbabd08ba6d45ee316a81611b427"},
+    {file = "ftmq-0.1.6-py3-none-any.whl", hash = "sha256:90cdc81d2000e75076e262d068dbd096d4ec351bcc8fb17d227dd4ca2bede77e"},
+    {file = "ftmq-0.1.6.tar.gz", hash = "sha256:0042f7014351f12b387c746d5cc3542e1abfb02fcc6e2e800a78a19ff8a2a082"},
 ]
 
 [package.dependencies]
@@ -1403,7 +1403,7 @@ click = ">=8.1.3,<9.0.0"
 click-default-group = ">=1.2.2,<2.0.0"
 cryptography = ">=41.0.2"
 followthemoney = ">=3.4.0,<4.0.0"
-nomenklatura = "<3"
+nomenklatura = "2.14.1"
 orjson = ">=3.9.1,<4.0.0"
 PyICU = ">=2.11,<3.0"
 scipy = ">=1.10.0"
@@ -5390,4 +5390,4 @@ testing = ["big-O", "jaraco.functools", "jaraco.itertools", "more-itertools", "p
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.10,<3.13"
-content-hash = "14d9124a73af6ced5c6a55ef8f47955a24338dc3793a9123621c3e37f2937034"
+content-hash = "d16e26dd0604ae5ad2423a40396fdbca85df9c2c1e4d434d683a4dfe5d721923"
