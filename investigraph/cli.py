@@ -10,9 +10,9 @@ from rich import print
 from smart_open import open
 from typing_extensions import Annotated
 
-from investigraph.catalog import build_catalog
 from investigraph.inspect import inspect_config, inspect_extract, inspect_transform
 from investigraph.model.block import get_block
+from investigraph.model.dataset import Catalog
 from investigraph.model.flow import FlowOptions
 from investigraph.pipeline import run
 from investigraph.settings import DATASETS_BLOCK, DATASETS_REPO
@@ -111,8 +111,9 @@ def cli_inspect(
 
 @cli.command("build-catalog")
 def cli_catalog(
-    config: Annotated[Path, typer.Argument()],
+    path: Annotated[Path, typer.Argument()],
     uri: Annotated[str, typer.Option("-o")] = "-",
+    flatten: Annotated[Optional[bool], typer.Option(...)] = False,
 ):
     """
     Build a catalog from datasets metadata and write it to anywhere from stdout
@@ -120,8 +121,18 @@ def cli_catalog(
 
         investigraph build-catalog catalog.yml -u s3://mybucket/catalog.json
     """
-    catalog = build_catalog(config)
-    data = orjson.dumps(catalog.to_dict(), option=orjson.OPT_APPEND_NEWLINE)
+    catalog = Catalog.from_path(path)
+    if uri != "-":
+        catalog.uri = uri
+    if flatten:
+        datasets = [d.dict() for d in catalog.get_datasets()]
+        data = {
+            "datasets": datasets,
+            "catalog": catalog.metadata(),
+        }
+    else:
+        data = catalog.dict()
+    data = orjson.dumps(data, option=orjson.OPT_APPEND_NEWLINE)
     if uri == "-":
         sys.stdout.write(data.decode())
     else:

@@ -1,6 +1,7 @@
 from typing import Any, Generator, TypeAlias
 
 from nomenklatura.entity import CE
+from runpandarun.util import PathLike
 
 # a string-keyed dict
 Record: TypeAlias = dict[str, Any]
@@ -14,3 +15,4 @@ StrGenerator: TypeAlias = Generator[str, None, None]
 BytesGenerator: TypeAlias = Generator[bytes, None, None]
 
 TaskResult: TypeAlias = Generator[Any, None, None]
+PathLike: TypeAlias = PathLike

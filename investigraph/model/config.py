@@ -4,11 +4,11 @@ from pathlib import Path
 import yaml
 from pydantic import BaseModel
 from runpandarun.util import absolute_path
-from smart_open import open
 
 from investigraph.exceptions import ImproperlyConfigured
 from investigraph.model.block import get_block
 from investigraph.model.dataset import Dataset
+from investigraph.model.mixins import RemoteMixin, YamlMixin
 from investigraph.model.stage import ExtractStage, LoadStage, TransformStage
 from investigraph.settings import DATASETS_BLOCK
 from investigraph.util import PathLike, is_module
@@ -16,7 +16,7 @@ from investigraph.util import PathLike, is_module
 log = logging.getLogger(__name__)
 
 
-class Config(BaseModel):
+class Config(BaseModel, YamlMixin, RemoteMixin):
     dataset: Dataset
     base_path: Path | None = Path()
     extract: ExtractStage | None = ExtractStage()
@@ -56,12 +56,6 @@ class Config(BaseModel):
             )
 
         return config
-
-    @classmethod
-    def from_path(cls, fp: PathLike) -> "Config":
-        with open(fp) as fh:
-            data = fh.read()
-        return cls.from_string(data, base_path=Path(fp).parent)
 
 
 def get_config(

@@ -171,3 +171,11 @@ def join_slug(
     if prefix is not None:
         texts = [prefix, *texts]
     return sep.join(texts)[:max_len].strip(sep)
+
+
+def to_dict(obj: Any) -> dict[Any]:
+    if hasattr(obj, "dict"):
+        return obj.dict()
+    if hasattr(obj, "to_dict"):
+        return obj.to_dict()
+    return ensure_dict(obj)

@@ -2,7 +2,6 @@ import pytest
 from pydantic import ValidationError
 
 from investigraph.model.dataset import (
-    DEFAULT_CATALOG,
     Coverage,
     Dataset,
     NKCoverage,
@@ -18,7 +17,7 @@ def test_model_publisher():
     p = Publisher(name="Test", url="https://example.org/")
     assert p.name == NKPublisher(p.dict()).name
     assert p.url == NKPublisher(p.dict()).url
-    assert isinstance(p.nk, NKPublisher)
+    assert isinstance(p.to_nk(), NKPublisher)
 
 
 def test_model_resource():
@@ -26,14 +25,14 @@ def test_model_resource():
     assert r.name == NKResource(r.dict()).name
     assert r.url == NKResource(r.dict()).url
     assert r.size == NKResource(r.dict()).size == 0
-    assert isinstance(r.nk, NKResource)
+    assert isinstance(r.to_nk(), NKResource)
 
 
 def test_model_coverage():
     c = Coverage()
     assert c.frequency == "unknown"
     assert c.frequency == NKCoverage(c.dict()).frequency
-    assert isinstance(c.nk, NKCoverage)
+    assert isinstance(c.to_nk(), NKCoverage)
     c = Coverage(frequency="weekly")
     assert c.frequency == NKCoverage(c.dict()).frequency
     with pytest.raises(ValidationError):
@@ -42,11 +41,11 @@ def test_model_coverage():
 
 def test_model_dataset():
     d = Dataset(name="test-dataset")
-    assert isinstance(d.nk, NKDataset)
+    assert isinstance(d.to_nk(), NKDataset)
     assert d.title == "Test-Dataset"
     assert d.prefix == "test-dataset"
-    assert d.name == NKDataset(DEFAULT_CATALOG, d.dict()).name
-    assert d.title == NKDataset(DEFAULT_CATALOG, d.dict()).title
+    assert d.name == NKDataset(d.catalog.to_nk(), d.dict()).name
+    assert d.title == NKDataset(d.catalog.to_nk(), d.dict()).title
 
     d = Dataset(name="test-dataset", prefix="td")
     assert d.prefix == "td"
@@ -64,6 +63,6 @@ def test_model_dataset():
     }
     d = Dataset(**data)
     assert d.title == "Test"
-    data = d.nk.to_dict()
-    assert data["title"] == "Test"
     assert d.coverage.frequency == "daily"
+    data = d.to_nk().to_dict()
+    assert data["title"] == "Test"

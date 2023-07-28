@@ -1,0 +1,8 @@
+datasets:
+  - uri: https://data.ftm.store/eu_transparency_register/index.json
+  - uri: https://data.ftm.store/ec_meetings/index.json
+  - uri: https://data.ftm.store/eu_fts/index.json
+  - uri: https://data.ftm.store/eu_authorities/index.json
+  - uri: https://data.opensanctions.org/datasets/latest/eu_meps/index.json
+  - uri: https://data.opensanctions.org/datasets/latest/eu_cor_members/index.json
+  - uri: https://data.opensanctions.org/datasets/latest/eu_fsf/index.json
