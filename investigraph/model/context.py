@@ -9,12 +9,11 @@ from prefect import get_run_logger
 from prefect.logging.loggers import PrefectLogAdapter
 from pydantic import BaseModel
 from smart_open import open
-from zavod.util import join_slug
 
 from investigraph.cache import Cache, get_cache
 from investigraph.settings import DATA_ROOT
 from investigraph.types import CEGenerator
-from investigraph.util import ensure_path, make_proxy
+from investigraph.util import ensure_path, join_slug, make_proxy
 
 from .config import Config
 from .source import Source

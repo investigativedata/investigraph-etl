@@ -3,10 +3,10 @@ from typing import Any, Dict, Generator, Optional, Union
 
 import requests
 import yaml
-from nomenklatura.dataset import DataCatalog
 from nomenklatura.util import datetime_iso
-from zavod.dataset import ZavodDataset
 
+from investigraph.model.dataset import DEFAULT_CATALOG
+from investigraph.model.dataset import NKCatalog as DataCatalog
 from investigraph.util import PathLike
 
 from .logging import get_logger
@@ -55,7 +55,7 @@ def build_catalog(catalog_in: PathLike) -> DataCatalog:
     with open(catalog_in) as fh:
         catalog_in_data = yaml.safe_load(fh)
     catalog_in = str(catalog_in)  # for logging
-    catalog = DataCatalog(ZavodDataset, {})
+    catalog = DEFAULT_CATALOG
     catalog.updated_at = datetime_iso(datetime.utcnow())
     for ds_data in catalog_in_data["datasets"]:
         include_url: Optional[str] = ds_data.pop("include", None)

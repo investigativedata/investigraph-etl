@@ -1,5 +1,5 @@
 import os
-from datetime import timedelta
+from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Any
 
@@ -11,6 +11,7 @@ def get_env(env: str, default: Any | None = None) -> Any | None:
 
 
 VERSION = "0.2.0"
+RUN_TIME = datetime.utcnow().replace(microsecond=0)
 
 DEBUG = as_bool(get_env("DEBUG", 1))
 DATA_ROOT = Path(get_env("DATA_ROOT", Path.cwd() / "data")).absolute()
