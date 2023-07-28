@@ -11,7 +11,12 @@ from investigraph.settings import DATASETS_BLOCK
 from investigraph.util import PathLike, is_module
 
 from .block import get_block
-from .dataset import Dataset
+
+try:
+    from .dataset import Dataset
+except ImportError:
+    from investigraph.model.dataset import Dataset
+
 from .stage import ExtractStage, LoadStage, TransformStage
 
 log = logging.getLogger(__name__)
