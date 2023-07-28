@@ -86,7 +86,8 @@ class LocalFileSystemBlock(DatasetBlock):
 
     @staticmethod
     def get_create_kwargs(uri: str) -> dict[str, str]:
-        return {"basepath": uri}
+        path = Path(uri).absolute()
+        return {"basepath": path}
 
     def load_dataset(self, dataset: str) -> None:
         remote_path = Path(self.block.basepath) / dataset

@@ -1,6 +1,6 @@
 .prefect
 .test
-data*
+data
 *.store
 # Byte-compiled / optimized / DLL files
 __pycache__/

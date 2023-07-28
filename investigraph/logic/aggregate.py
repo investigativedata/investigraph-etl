@@ -2,35 +2,37 @@
 aggregate fragments
 """
 
-import logging
 from uuid import uuid4
 
 from ftmq.io import smart_read_proxies
 from ftmstore import get_dataset
 
-from investigraph.cache import get_cache
 from investigraph.model import Context
-from investigraph.types import CEGenerator
+from investigraph.settings import CHUNK_SIZE
+from investigraph.types import CE
 
-log = logging.getLogger(__name__)
-
-
-def get_smart_proxies(ctx: Context, uri: str) -> CEGenerator:
-    """
-    see if we have parts in cache during run time
-    (mimics efficient globbing for remote sources)
-    """
-    cache = get_cache()
-    uris = cache.smembers(ctx.make_cache_key(uri))
-    if uris:
-        for uri in uris:
-            yield from smart_read_proxies(uri)
-        return
-
-    yield from smart_read_proxies(uri)
+COMMON_SCHEMAS = ("Organization", "LegalEntity")
 
 
-def in_memory(ctx: Context, in_uri: str) -> tuple[int, int]:
+def merge(ctx: Context, p1: CE, p2: CE) -> CE:
+    try:
+        p1.merge(p2)
+        return p1
+    except Exception as e:
+        # try common schemata, this will probably "downgrade" entities
+        # as in, losing some schema specific properties
+        for schema in COMMON_SCHEMAS:
+            if p1.schema.is_a(schema) and p2.schema.is_a(schema):
+                p1 = ctx.make(schema, **p1.to_dict()["properties"])
+                p1.id = p2.id
+                p2 = ctx.make(schema, **p2.to_dict()["properties"])
+                p1.merge(p2)
+                return p1
+
+        ctx.log.warn(f"{e}, id: `{p1.id}`")
+
+
+def in_memory(ctx: Context, *uris: tuple[str]) -> tuple[int, int]:
     """
     aggregate in memory: read fragments from `in_uri` and write aggregated
     proxies to `out_uri`
@@ -38,17 +40,18 @@ def in_memory(ctx: Context, in_uri: str) -> tuple[int, int]:
     as `smart_open` is used here, `in_uri` and `out_uri` can be any local or
     remote locations
     """
-    fragments = 0
+    ix = 0
     buffer = {}
-    for proxy in get_smart_proxies(ctx, in_uri):
-        fragments += 1
+    for ix, proxy in enumerate(smart_read_proxies(uris), 1):
+        if ix % (CHUNK_SIZE * 10) == 0:
+            ctx.log.info("reading in proxy %d ..." % ix)
         if proxy.id in buffer:
-            buffer[proxy.id].merge(proxy)
+            buffer[proxy.id] = merge(ctx, buffer[proxy.id], proxy)
         else:
             buffer[proxy.id] = proxy
 
     ctx.load_entities(buffer.values(), serialize=True)
-    return fragments, len(buffer.values())
+    return ix, len(buffer.values())
 
 
 def in_db(ctx: Context, in_uri: str) -> tuple[int, int]:
@@ -58,9 +61,9 @@ def in_db(ctx: Context, in_uri: str) -> tuple[int, int]:
     """
     dataset = get_dataset("aggregate_%s" % uuid4().hex)
     bulk = dataset.bulk()
-    for ix, proxy in enumerate(get_smart_proxies(ctx, in_uri)):
+    for ix, proxy in enumerate(smart_read_proxies(in_uri)):
         if ix % 10_000 == 0:
-            log.info("Write [%s]: %s entities", dataset.name, ix)
+            ctx.log.info("Write [%s]: %s entities", dataset.name, ix)
         bulk.put(proxy, fragment=str(ix))
     bulk.flush()
     proxies = []

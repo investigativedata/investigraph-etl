@@ -6,6 +6,10 @@ name: Python
 on:
   pull_request:
     branches: [ "main", "develop" ]
+    paths:
+      - investigraph/*.py
+      - tests/*
+      - poetry.lock
 
 jobs:
   test:

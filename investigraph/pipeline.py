@@ -2,9 +2,9 @@
 The main entrypoint for the prefect flow
 """
 
-from typing import Any
+from typing import Any, Generator
 
-from prefect import flow, get_run_logger, task
+from prefect import flow, task
 from prefect.task_runners import ConcurrentTaskRunner
 from prefect_dask import DaskTaskRunner
 from prefect_ray import RayTaskRunner
@@ -13,7 +13,7 @@ from investigraph import __version__, settings
 from investigraph.logic.aggregate import in_memory
 from investigraph.model import Context, Flow, FlowOptions, Resolver
 from investigraph.model.context import init_context
-from investigraph.model.resolver import get_resolver_cache_key
+from investigraph.util import data_checksum
 
 
 def get_runner_from_env() -> ConcurrentTaskRunner | DaskTaskRunner | RayTaskRunner:
@@ -24,48 +24,84 @@ def get_runner_from_env() -> ConcurrentTaskRunner | DaskTaskRunner | RayTaskRunn
     return ConcurrentTaskRunner()
 
 
-@task
-def aggregate(ctx: Context):
-    logger = get_run_logger()
-    fragments, proxies = in_memory(ctx, ctx.config.load.fragments_uri)
-    logger.info("AGGREGATED %d fragments to %d proxies", fragments, proxies)
+def get_task_cache_key(_, params) -> str:
+    return params["ckey"]
+
+
+@task(
+    retries=settings.TASK_RETRIES,
+    retry_delay_seconds=settings.TASK_RETRY_DELAY,
+    cache_key_fn=get_task_cache_key,
+    cache_expiration=settings.TASK_CACHE_EXPIRATION,
+    refresh_cache=not settings.TASK_CACHE,
+)
+def aggregate(ctx: Context, results: list[str], ckey: str):
+    fragments, proxies = in_memory(ctx, *results)
+    ctx.log.info("AGGREGATED %d fragments to %d proxies", fragments, proxies)
     out = ctx.config.load.entities_uri
-    logger.info("OUTPUT: %s", out)
+    ctx.log.info("OUTPUT: %s", out)
     return out
 
 
-@task
+@task(
+    retries=settings.TASK_RETRIES,
+    retry_delay_seconds=settings.TASK_RETRY_DELAY,
+    cache_key_fn=get_task_cache_key,
+    cache_expiration=settings.TASK_CACHE_EXPIRATION,
+    refresh_cache=not settings.TASK_CACHE,
+)
 def load(ctx: Context, ckey: str):
-    logger = get_run_logger()
     proxies = ctx.cache.get(ckey)
-    out = ctx.load_fragments(proxies)
-    logger.info("LOADED %d proxies", len(proxies))
-    logger.info("OUTPUT: %s", out)
+    out = ctx.load_fragments(proxies, ckey=ckey)
+    ctx.log.info("LOADED %d proxies", len(proxies))
+    ctx.log.info("OUTPUT: %s", out)
     return out
 
 
-@task
+@task(
+    retries=settings.TASK_RETRIES,
+    retry_delay_seconds=settings.TASK_RETRY_DELAY,
+    cache_key_fn=get_task_cache_key,
+    cache_expiration=settings.TASK_CACHE_EXPIRATION,
+    refresh_cache=not settings.TASK_CACHE,
+)
 def transform(ctx: Context, ckey: str) -> str:
-    logger = get_run_logger()
     proxies: list[dict[str, Any]] = []
     records = ctx.cache.get(ckey)
     for rec, ix in records:
         for proxy in ctx.config.transform.handle(ctx, rec, ix):
             proxy.datasets = {ctx.dataset}
             proxies.append(proxy.to_dict())
-    logger.info("TRANSFORMED %d records", len(records))
+    ctx.log.info("TRANSFORMED %d records", len(records))
     return ctx.cache.set(proxies)
 
 
 @task(
-    retries=settings.FETCH_RETRIES,
-    retry_delay_seconds=settings.FETCH_RETRY_DELAY,
-    cache_key_fn=get_resolver_cache_key,
+    retries=settings.TASK_RETRIES,
+    retry_delay_seconds=settings.TASK_RETRY_DELAY,
+    cache_key_fn=get_task_cache_key,
+    cache_expiration=settings.TASK_CACHE_EXPIRATION,
+    refresh_cache=not settings.TASK_CACHE,
 )
-def resolve(ctx: Context) -> Resolver:
-    logger = get_run_logger()
-    logger.info("RESOLVE %s", ctx.source.uri)
-    return Resolver(source=ctx.source)
+def extract(
+    ctx: Context, ckey: str, res: Resolver | None = None
+) -> Generator[str, None, None]:
+    ctx.log.info("Starting EXTRACT stage ...")
+    if res is not None:
+        enumerator = enumerate(ctx.config.extract.handle(ctx, res), 1)
+    else:
+        enumerator = enumerate(ctx.config.extract.handle(ctx), 1)
+    batch = []
+    ix = 0
+    for ix, rec in enumerator:
+        batch.append((rec, ix))
+        if ix % ctx.config.transform.chunk_size == 0:
+            ctx.log.info("extracting record %d ...", ix)
+            yield ctx.cache.set(batch)
+            batch = []
+    if batch:
+        yield ctx.cache.set(batch)
+    ctx.log.info("EXTRACTED %d records", ix)
 
 
 @flow(
@@ -75,50 +111,45 @@ def resolve(ctx: Context) -> Resolver:
     task_runner=get_runner_from_env(),
 )
 def run_pipeline(ctx: Context):
-    # extract
+    res = None
     if ctx.config.extract.fetch:
-        res = resolve(ctx)
-        enumerator = enumerate(ctx.config.extract.handle(ctx, res), 1)
+        res = Resolver(source=ctx.source)
+        if res.source.is_http:
+            res._resolve_http()
+        ckey = res.get_cache_key()
     else:
-        enumerator = enumerate(ctx.config.extract.handle(ctx), 1)
+        ckey = ctx.source.uri
 
-    # transform
-    batch = []
     results = []
-    ix = 0
-    for ix, rec in enumerator:
-        batch.append((rec, ix))
-        if ix % ctx.config.transform.chunk_size == 0:
-            results.append(transform.submit(ctx, ctx.cache.set(batch)))
-            batch = []
-    if batch:
-        results.append(transform.submit(ctx, ctx.cache.set(batch)))
+    for key in extract(ctx, f"extract-{ckey}", res):
+        transformed = transform.submit(ctx, key)
+        loaded = load.submit(ctx, transformed)
+        results.append(loaded)
 
-    logger = get_run_logger()
-    logger.info("EXTRACTED %d records", ix)
-
-    # load
-    for res in results:
-        res = res.result()
-        load.submit(ctx, res)
+    return results
 
 
 @flow(
     name="investigraph",
     version=__version__,
-    flow_run_name="{options.dataset}",
+    flow_run_name="{options.flow_name}",
+    task_runner=get_runner_from_env(),
 )
 def run(options: FlowOptions) -> str:
     flow = Flow.from_options(options)
+    results = []
     for ix, source in enumerate(flow.config.extract.sources):
         ctx = init_context(config=flow.config, source=source)
         if ix == 0:  # only on first time
             ctx.export_metadata()
-            logger = get_run_logger()
-            logger.info("INDEX: %s" % ctx.config.load.index_uri)
-        run_pipeline(ctx)
+            ctx.log.info("INDEX: %s" % ctx.config.load.index_uri)
+        results.append(run_pipeline(ctx))
+
+    results = [r.result() for result in results for r in result]
 
     if flow.should_aggregate:
-        aggregate(ctx)
+        results = [aggregate(ctx, results, data_checksum(results))]
 
-    return flow.config.load.entities_uri
+    for uri in results:
+        ctx.log.info(f"LOADED proxies to `{uri}`")
+    return results

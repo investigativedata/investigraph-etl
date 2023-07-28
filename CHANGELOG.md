@@ -2,6 +2,11 @@
 
 ## CHANGELOG
 
+### 0.3.0 (2023-07-28)
+- implement incremental task caching
+- re-model [nomenklatura](https://github.com/opensanctions/nomenklatura) in pydantic
+- improve catalog building
+
 ### 0.2.0 (2023-07-19)
 - integrate [runpandarun](https://github.com/simonwoerpel/runpandarun) into extract stage
 

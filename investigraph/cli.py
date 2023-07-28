@@ -10,16 +10,12 @@ from rich import print
 from smart_open import open
 from typing_extensions import Annotated
 
-from investigraph.catalog import build_catalog
 from investigraph.inspect import inspect_config, inspect_extract, inspect_transform
 from investigraph.model.block import get_block
+from investigraph.model.dataset import Catalog
 from investigraph.model.flow import FlowOptions
 from investigraph.pipeline import run
 from investigraph.settings import DATASETS_BLOCK, DATASETS_REPO
-
-from .logging import configure_logging
-
-configure_logging()
 
 cli = typer.Typer()
 
@@ -87,8 +83,8 @@ def cli_inspect(
 ):
     config = inspect_config(config_path)
     print(f"[bold green]OK[/bold green] `{config_path}`")
-    print(f"[bold]dataset:[/bold] {config.dataset}")
-    print(f"[bold]title:[/bold] {config.metadata.get('title')}")
+    print(f"[bold]dataset:[/bold] {config.dataset.name}")
+    print(f"[bold]title:[/bold] {config.dataset.title}")
 
     if extract:
         for name, df in inspect_extract(config):
@@ -115,8 +111,9 @@ def cli_inspect(
 
 @cli.command("build-catalog")
 def cli_catalog(
-    config: Annotated[Path, typer.Argument()],
+    path: Annotated[Path, typer.Argument()],
     uri: Annotated[str, typer.Option("-o")] = "-",
+    flatten: Annotated[Optional[bool], typer.Option(...)] = False,
 ):
     """
     Build a catalog from datasets metadata and write it to anywhere from stdout
@@ -124,12 +121,23 @@ def cli_catalog(
 
         investigraph build-catalog catalog.yml -u s3://mybucket/catalog.json
     """
-    catalog = build_catalog(config)
-    data = orjson.dumps(catalog.to_dict(), option=orjson.OPT_APPEND_NEWLINE)
+    catalog = Catalog.from_path(path)
+    if uri != "-":
+        catalog.uri = uri
+    if flatten:
+        datasets = [d.dict() for d in catalog.get_datasets()]
+        data = {
+            "datasets": datasets,
+            "catalog": catalog.metadata(),
+        }
+    else:
+        data = catalog.dict()
+    data = orjson.dumps(data, option=orjson.OPT_APPEND_NEWLINE)
     if uri == "-":
         sys.stdout.write(data.decode())
-    with open(uri, "wb") as fh:
-        fh.write(data)
+    else:
+        with open(uri, "wb") as fh:
+            fh.write(data)
 
 
 @cli.command("reset")

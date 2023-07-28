@@ -19,4 +19,4 @@ def extract(ctx: Context, *args, **kwargs):
 def load(ctx, proxies, *args, **kwargs):
     for proxy in proxies:
         sys.stdout.write(orjson.dumps(proxy).decode())
-        break
+        return

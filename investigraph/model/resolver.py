@@ -2,21 +2,18 @@
 resolver for `.source.Source`
 """
 
-from datetime import datetime
 from io import BytesIO
 
-import requests
 from normality import slugify
 from pantomime import types
 from pydantic import BaseModel
 from smart_open import open
 
 from investigraph.exceptions import ImproperlyConfigured
+from investigraph.logic import requests
+from investigraph.model.source import Source, SourceHead
 from investigraph.types import BytesGenerator
 from investigraph.util import checksum
-
-from .context import Context
-from .source import Source, SourceHead
 
 STREAM_TYPES = [types.CSV, types.JSON]
 
@@ -74,13 +71,6 @@ class Resolver(BaseModel):
                     self.content = fh.read()
             self.checksum = checksum(BytesIO(self.content))
 
-    def has_changed(self) -> bool:
-        """
-        check whether source has changed based on request cache headers and/or
-        content checksum
-        """
-        return True
-
     def iter(self, chunk_size: int | None = 10_000) -> BytesGenerator:
         if self.source.stream:
             chunk = b""
@@ -110,18 +100,14 @@ class Resolver(BaseModel):
         return self.content
 
     def get_cache_key(self) -> str:
-        slug = slugify(self.source.uri)
+        slug = f"RESOLVE#{slugify(self.source.uri)}"
         if self.source.is_http:
             self._resolve_head()
             if self.head.etag:
                 return f"{slug}#{self.head.etag}"
             if self.head.last_modified:
                 return f"{slug}#{self.head.last_modified.isoformat()}"
-        now = datetime.now().isoformat()  # don't cache at all
-        return f"{slug}#{now}"
-
-
-def get_resolver_cache_key(_, params) -> str:
-    ctx: Context = params["ctx"]
-    res = Resolver(source=ctx.source)
-    return res.get_cache_key()
+        if not self.source.stream:
+            self._resolve_content()
+            return self.checksum
+        return slug  # handle expiration via cache_expiration on @task

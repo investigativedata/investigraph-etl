@@ -1,40 +1,24 @@
-from functools import cache
+import logging
 from pathlib import Path
-from typing import Any
 
 import yaml
-from nomenklatura.dataset.catalog import DataCatalog
-from nomenklatura.dataset.dataset import Dataset
 from pydantic import BaseModel
 from runpandarun.util import absolute_path
-from smart_open import open
 
 from investigraph.exceptions import ImproperlyConfigured
-from investigraph.logging import get_logger
+from investigraph.model.block import get_block
+from investigraph.model.dataset import Dataset
+from investigraph.model.mixins import RemoteMixin, YamlMixin
+from investigraph.model.stage import ExtractStage, LoadStage, TransformStage
 from investigraph.settings import DATASETS_BLOCK
-from investigraph.types import SDict
 from investigraph.util import PathLike, is_module
 
-from .block import get_block
-from .stage import ExtractStage, LoadStage, TransformStage
-
-log = get_logger(__name__)
+log = logging.getLogger(__name__)
 
 
-def make_dataset(data: dict[str, Any]) -> Dataset:
-    # erf
-    catalog = DataCatalog(Dataset, {})
-    if "name" not in data and "dataset" in data:
-        data["name"] = data["dataset"]
-    data["title"] = data.get("title", data["name"].title())
-    return catalog.make_dataset(data)
-
-
-class Config(BaseModel):
-    dataset: str
+class Config(BaseModel, YamlMixin, RemoteMixin):
+    dataset: Dataset
     base_path: Path | None = Path()
-    metadata: SDict
-
     extract: ExtractStage | None = ExtractStage()
     transform: TransformStage | None = TransformStage()
     load: LoadStage | None = LoadStage()
@@ -43,10 +27,8 @@ class Config(BaseModel):
         arbitrary_types_allowed = True
 
     def __init__(self, **data):
-        if "metadata" not in data:
-            dataset = make_dataset(data)
-            data["dataset"] = dataset.name
-            data["metadata"] = dataset.to_dict()
+        if "dataset" not in data:
+            data["dataset"] = data
         super().__init__(**data)
         # ensure absolute file paths for local sources
         self.base_path = Path(self.base_path).absolute()
@@ -75,14 +57,7 @@ class Config(BaseModel):
 
         return config
 
-    @classmethod
-    def from_path(cls, fp: PathLike) -> "Config":
-        with open(fp) as fh:
-            data = fh.read()
-        return cls.from_string(data, base_path=Path(fp).parent)
 
-
-@cache
 def get_config(
     dataset: str | None = None, block: str | None = None, path: PathLike | None = None
 ) -> Config:
