@@ -1,12 +1,11 @@
-from typing import TYPE_CHECKING, Any, Callable
+from typing import TYPE_CHECKING, Callable
 
-from banal import keys_values
-from followthemoney.mapping import QueryMapping
+from banal import ensure_list, keys_values
 from pydantic import BaseModel
 from runpandarun import Playbook
 
 from investigraph.logic.load import TProxies
-from investigraph.logic.transform import load_mappings
+from investigraph.model.mapping import QueryMapping
 from investigraph.settings import (
     CHUNK_SIZE,
     DEFAULT_EXTRACTOR,
@@ -56,15 +55,10 @@ class ExtractStage(Stage):
 class TransformStage(Stage):
     _default_handler = DEFAULT_TRANSFORMER
 
-    query: list[dict[str, Any]] | None = None
-    mappings: list[QueryMapping] | None = None
-
-    class Config:
-        arbitrary_types_allowed = True
+    queries: list[QueryMapping] | None = None
 
     def __init__(self, **data):
-        data["query"] = keys_values(data, "queries", "query")
-        data["mappings"] = load_mappings(tuple(data["query"]))
+        data["queries"] = ensure_list(keys_values(data, "queries", "query"))
         super().__init__(**data)
 
 

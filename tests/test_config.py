@@ -1,5 +1,6 @@
 from investigraph.model import Config, DatasetBlock
 from investigraph.model.config import get_config
+from investigraph.model.mapping import QueryMapping
 
 
 def test_config(ec_meetings: Config, local_block: DatasetBlock):
@@ -30,9 +31,9 @@ def test_config_gdho(gdho: Config):
     assert config.dataset.name == "gdho"
     assert config.dataset.prefix == "gdho"
     assert len(config.extract.sources) == 1
-    assert isinstance(config.transform.mappings, list)
-    assert len(config.transform.query) == 1
-    assert len(config.transform.mappings) == 1
+    assert isinstance(config.transform.queries, list)
+    assert isinstance(config.transform.queries[0], QueryMapping)
+    assert len(config.transform.queries) == 1
     assert config.transform.handler == "investigraph.logic.transform:map_ftm"
 
     func = config.transform.get_handler()
