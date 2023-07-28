@@ -72,13 +72,6 @@ class Resolver(BaseModel):
                     self.content = fh.read()
             self.checksum = checksum(BytesIO(self.content))
 
-    def has_changed(self) -> bool:
-        """
-        check whether source has changed based on request cache headers and/or
-        content checksum
-        """
-        return True
-
     def iter(self, chunk_size: int | None = 10_000) -> BytesGenerator:
         if self.source.stream:
             chunk = b""
@@ -115,4 +108,7 @@ class Resolver(BaseModel):
                 return f"{slug}#{self.head.etag}"
             if self.head.last_modified:
                 return f"{slug}#{self.head.last_modified.isoformat()}"
+        if not self.source.stream:
+            self._resolve_content()
+            return self.checksum
         return slug  # handle expiration via cache_expiration on @task
