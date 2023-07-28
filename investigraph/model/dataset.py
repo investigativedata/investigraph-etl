@@ -20,6 +20,9 @@ class NKMixin:
     _nk_model = None
 
     def __init__(self, **data):
+        """
+        validate input data against nomenklatura implementation
+        """
         data = self._nk_model(data)
         super().__init__(**data.to_dict())
 
