@@ -133,6 +133,7 @@ def run_pipeline(ctx: Context):
     name="investigraph",
     version=__version__,
     flow_run_name="{options.flow_name}",
+    task_runner=get_runner_from_env(),
 )
 def run(options: FlowOptions) -> str:
     flow = Flow.from_options(options)
