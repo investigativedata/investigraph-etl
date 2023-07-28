@@ -10,7 +10,7 @@ def get_env(env: str, default: Any | None = None) -> Any | None:
     return os.environ.get(env, default)
 
 
-VERSION = "0.2.0"
+VERSION = "0.3.0"
 RUN_TIME = datetime.utcnow().replace(microsecond=0)
 
 DEBUG = as_bool(get_env("DEBUG", 1))

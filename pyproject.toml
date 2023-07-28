@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "investigraph"
-version = "0.2.0"
+version = "0.3.0"
 description = "etl pipeline for investigations with follow the money data"
 authors = ["Simon Wörpel <simon@investigativedata.org>"]
 license = "MIT"
