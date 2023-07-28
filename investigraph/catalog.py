@@ -1,3 +1,4 @@
+import logging
 from datetime import datetime
 from typing import Any, Dict, Generator, Optional, Union
 
@@ -9,9 +10,7 @@ from investigraph.model.dataset import DEFAULT_CATALOG
 from investigraph.model.dataset import NKCatalog as DataCatalog
 from investigraph.util import PathLike
 
-from .logging import get_logger
-
-log = get_logger(__name__)
+log = logging.getLogger(__name__)
 
 
 def flatten_catalog(url: str) -> Generator[Dict[str, Any], None, None]:
@@ -50,7 +49,7 @@ def build_catalog(catalog_in: PathLike) -> DataCatalog:
     ```
 
     """
-    log.info("building catalog", catalog=str(catalog_in))
+    log.info("building catalog: `{catalog_in}`")
     seen = set()
     with open(catalog_in) as fh:
         catalog_in_data = yaml.safe_load(fh)

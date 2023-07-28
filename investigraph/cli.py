@@ -17,10 +17,6 @@ from investigraph.model.flow import FlowOptions
 from investigraph.pipeline import run
 from investigraph.settings import DATASETS_BLOCK, DATASETS_REPO
 
-from .logging import configure_logging
-
-configure_logging()
-
 cli = typer.Typer()
 
 

@@ -1,3 +1,4 @@
+import logging
 from pathlib import Path
 
 import yaml
@@ -6,7 +7,6 @@ from runpandarun.util import absolute_path
 from smart_open import open
 
 from investigraph.exceptions import ImproperlyConfigured
-from investigraph.logging import get_logger
 from investigraph.settings import DATASETS_BLOCK
 from investigraph.util import PathLike, is_module
 
@@ -14,7 +14,7 @@ from .block import get_block
 from .dataset import Dataset
 from .stage import ExtractStage, LoadStage, TransformStage
 
-log = get_logger(__name__)
+log = logging.getLogger(__name__)
 
 
 class Config(BaseModel):

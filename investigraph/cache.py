@@ -1,3 +1,4 @@
+import logging
 from functools import cache
 from typing import Any, Iterable, Set
 
@@ -6,10 +7,9 @@ import redis
 from cachelib.serializers import RedisSerializer
 
 from investigraph import settings
-from investigraph.logging import get_logger
 from investigraph.util import data_checksum
 
-log = get_logger(__name__)
+log = logging.getLogger(__name__)
 
 
 class Cache:
@@ -28,10 +28,12 @@ class Cache:
     def __init__(self):
         if settings.DEBUG:
             con = fakeredis.FakeStrictRedis()
+            con.ping()
+            log.info("Redis connected: `fakeredis`")
         else:
             con = redis.from_url(settings.REDIS_URL)
-        con.ping()
-        log.info("Redis initialized", url=settings.REDIS_URL)
+            con.ping()
+            log.info("Redis connected: `{settings.REDIS_URL}`")
         self.cache = con
 
     def set(self, data: Any, key: str | None = None) -> str:
