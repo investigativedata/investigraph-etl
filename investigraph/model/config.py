@@ -7,17 +7,11 @@ from runpandarun.util import absolute_path
 from smart_open import open
 
 from investigraph.exceptions import ImproperlyConfigured
+from investigraph.model.block import get_block
+from investigraph.model.dataset import Dataset
+from investigraph.model.stage import ExtractStage, LoadStage, TransformStage
 from investigraph.settings import DATASETS_BLOCK
 from investigraph.util import PathLike, is_module
-
-from .block import get_block
-
-try:
-    from .dataset import Dataset
-except ImportError:
-    from investigraph.model.dataset import Dataset
-
-from .stage import ExtractStage, LoadStage, TransformStage
 
 log = logging.getLogger(__name__)
 

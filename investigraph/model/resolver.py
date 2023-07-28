@@ -11,10 +11,9 @@ from smart_open import open
 
 from investigraph.exceptions import ImproperlyConfigured
 from investigraph.logic import requests
+from investigraph.model.source import Source, SourceHead
 from investigraph.types import BytesGenerator
 from investigraph.util import checksum
-
-from .source import Source, SourceHead
 
 STREAM_TYPES = [types.CSV, types.JSON]
 

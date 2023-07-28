@@ -19,8 +19,8 @@ from normality import slugify
 from pydantic import BaseModel
 from runpandarun.util import PathLike
 
-from .exceptions import ImproperlyConfigured
-from .types import SDict
+from investigraph.exceptions import ImproperlyConfigured
+from investigraph.types import SDict
 
 
 def slugified_dict(data: dict[Any, Any]) -> SDict:

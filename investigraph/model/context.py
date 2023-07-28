@@ -11,12 +11,11 @@ from pydantic import BaseModel
 from smart_open import open
 
 from investigraph.cache import Cache, get_cache
+from investigraph.model.config import Config
+from investigraph.model.source import Source
 from investigraph.settings import DATA_ROOT
 from investigraph.types import CEGenerator
 from investigraph.util import ensure_path, join_slug, make_proxy
-
-from .config import Config
-from .source import Source
 
 
 class Context(BaseModel):

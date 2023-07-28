@@ -3,9 +3,8 @@ from typing import Any
 from normality import slugify
 from pydantic import BaseModel, root_validator
 
+from investigraph.model.config import Config, get_config
 from investigraph.settings import CHUNK_SIZE, DATASETS_BLOCK
-
-from .config import Config, get_config
 
 
 class FlowOptions(BaseModel):

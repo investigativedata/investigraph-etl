@@ -16,9 +16,9 @@ from investigraph.types import TaskResult
 from investigraph.util import get_func, pydantic_merge
 
 if TYPE_CHECKING:
-    from .context import Context
+    from investigraph.model.context import Context
 
-from .source import Source
+from investigraph.model.source import Source
 
 
 class Stage(BaseModel):
