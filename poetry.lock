@@ -2699,30 +2699,6 @@ normality = ">=0.5.6"
 dev = ["banal", "black", "coverage (>=4.1)", "flake8 (>=2.6.0)", "mypy", "pytest", "pytest-cov", "twine", "wheel (>=0.29.0)"]
 
 [[package]]
-<<<<<<< HEAD
-name = "paramiko"
-version = "3.3.1"
-description = "SSH2 protocol library"
-optional = false
-python-versions = ">=3.6"
-files = [
-    {file = "paramiko-3.3.1-py3-none-any.whl", hash = "sha256:b7bc5340a43de4287bbe22fe6de728aa2c22468b2a849615498dd944c2f275eb"},
-    {file = "paramiko-3.3.1.tar.gz", hash = "sha256:6a3777a961ac86dbef375c5f5b8d50014a1a96d0fd7f054a43bc880134b0ff77"},
-]
-
-[package.dependencies]
-bcrypt = ">=3.2"
-cryptography = ">=3.3"
-pynacl = ">=1.5"
-
-[package.extras]
-all = ["gssapi (>=1.4.1)", "invoke (>=2.0)", "pyasn1 (>=0.1.7)", "pywin32 (>=2.1.8)"]
-gssapi = ["gssapi (>=1.4.1)", "pyasn1 (>=0.1.7)", "pywin32 (>=2.1.8)"]
-invoke = ["invoke (>=2.0)"]
-
-[[package]]
-=======
->>>>>>> 7aa16a0 (✨➕➖ replace smart_open with fsspec #55)
 name = "partd"
 version = "1.4.0"
 description = "Appendable key-value storage"
@@ -4884,4 +4860,4 @@ testing = ["big-O", "jaraco.functools", "jaraco.itertools", "more-itertools", "p
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.10,<3.13"
-content-hash = "7fd7e232ab1b4360996792bfd46dfa399b311b9c590be9f0921be3b8d1897bb0"
+content-hash = "80bd49c4912dd7618616e3f26329d3cd6795a1fec8f2ba8ad3d7b0d1eee7e86c"
