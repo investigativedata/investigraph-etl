@@ -1,7 +1,7 @@
 import shutil
 import sys
 from pathlib import Path
-from typing import Annotated
+from typing import Annotated, Optional
 
 import orjson
 import typer
@@ -21,14 +21,14 @@ cli = typer.Typer()
 
 @cli.command("run")
 def cli_run(
-    dataset: Annotated[str | None, typer.Option("-d")] = None,
-    block: Annotated[str | None, typer.Option("-b")] = None,
-    config: Annotated[str | None, typer.Option("-c")] = None,
-    index_uri: Annotated[str | None, typer.Option(...)] = None,
-    fragments_uri: Annotated[str | None, typer.Option(...)] = None,
-    entities_uri: Annotated[str | None, typer.Option(...)] = None,
-    aggregate: Annotated[bool | None, typer.Option(...)] = True,
-    chunk_size: Annotated[int | None, typer.Option(...)] = None,
+    dataset: Annotated[Optional[str], typer.Option("-d")] = None,
+    block: Annotated[Optional[str], typer.Option("-b")] = None,
+    config: Annotated[Optional[str], typer.Option("-c")] = None,
+    index_uri: Annotated[Optional[str], typer.Option(...)] = None,
+    fragments_uri: Annotated[Optional[str], typer.Option(...)] = None,
+    entities_uri: Annotated[Optional[str], typer.Option(...)] = None,
+    aggregate: Annotated[Optional[bool], typer.Option(...)] = True,
+    chunk_size: Annotated[Optional[int], typer.Option(...)] = None,
 ):
     """
     Execute a dataset pipeline
@@ -112,7 +112,7 @@ def cli_inspect(
 def cli_catalog(
     path: Annotated[Path, typer.Argument()],
     uri: Annotated[str, typer.Option("-o")] = "-",
-    flatten: Annotated[bool | None, typer.Option(...)] = False,
+    flatten: Annotated[Optional[bool], typer.Option(...)] = False,
 ):
     """
     Build a catalog from datasets metadata and write it to anywhere from stdout
