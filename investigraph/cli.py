@@ -76,9 +76,9 @@ def cli_add_block(
 @cli.command("inspect")
 def cli_inspect(
     config_path: Annotated[Path, typer.Argument()],
-    extract: Annotated[bool | None, typer.Option()] = False,
-    transform: Annotated[bool | None, typer.Option()] = False,
-    to_json: Annotated[bool | None, typer.Option()] = False,
+    extract: Annotated[Optional[bool], typer.Option()] = False,
+    transform: Annotated[Optional[bool], typer.Option()] = False,
+    to_json: Annotated[Optional[bool], typer.Option()] = False,
 ):
     config = inspect_config(config_path)
     print(f"[bold green]OK[/bold green] `{config_path}`")
