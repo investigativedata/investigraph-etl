@@ -28,5 +28,6 @@ transform:
   handler: ./eu_authorities/custom.py:parse_record
 
 load:
-  aggregate: false
   handler: ./custom.py:load
+
+aggregate: false

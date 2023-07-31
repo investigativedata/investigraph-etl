@@ -12,22 +12,23 @@ from investigraph.pipeline import run
 from tests.util import setup_s3_bucket
 
 
-def test_pipeline_local():
-    options = FlowOptions(
-        dataset="eu_authorities", config="./tests/fixtures/eu_authorities.local.yml"
-    )
-    out = run(options)
-    proxies = [p for p in smart_read_proxies(out)]
-    assert len(proxies) == 151
-
-
 def test_pipeline_pickle_ctx(gdho):
+    # this is crucial for the whole thing
     tested = False
     for source in gdho.extract.sources:
         ctx = init_context(gdho, source)
         cloudpickle.dumps(ctx)
         tested = True
     assert tested
+
+
+def test_pipeline_local():
+    options = FlowOptions(
+        dataset="eu_authorities", config="./tests/fixtures/eu_authorities.local.yml"
+    )
+    out = run(options)
+    proxies = [p for p in smart_read_proxies(out.entities_uri)]
+    assert len(proxies) == 151
 
 
 # def test_pipeline_local_ray(monkeypatch):
@@ -89,7 +90,7 @@ def test_pipeline_local_s3():
         entities_uri="s3://investigraph/eu_authorities/entities.ftm.json",
     )
     out = run(options)
-    proxies = [p for p in smart_read_proxies(out)]
+    proxies = [p for p in smart_read_proxies(out.entities_uri)]
     assert len(proxies) == 151
 
 
@@ -107,7 +108,7 @@ def test_pipeline_chunk_size():
         chunk_size=100,
     )
     out = run(options)
-    proxies = [p for p in smart_read_proxies(out)]
+    proxies = [p for p in smart_read_proxies(out.entities_uri)]
     assert len(proxies) == 151
 
 

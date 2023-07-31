@@ -2,6 +2,9 @@
 
 ## CHANGELOG
 
+### 0.3.1 (2023-07-31)
+- refactor aggregation to its own stage
+
 ### 0.3.0 (2023-07-28)
 - implement incremental task caching
 - re-model [nomenklatura](https://github.com/opensanctions/nomenklatura) in pydantic
