@@ -3,11 +3,13 @@ import sys
 from io import StringIO
 
 import orjson
+
+# from investigraph.logic import requests
 import requests
 
 from investigraph.model import Context
 
-URL = "https://www.asktheeu.org/en/body/all-authorities.csv"
+URL = "http://localhost:8000/all-authorities.csv"
 
 
 def extract(ctx: Context, *args, **kwargs):

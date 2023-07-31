@@ -4,10 +4,10 @@ resolver for `.source.Source`
 
 from io import BytesIO
 
+from ftmq.io import smart_open as open
 from normality import slugify
 from pantomime import types
 from pydantic import BaseModel
-from smart_open import open
 
 from investigraph.exceptions import ImproperlyConfigured
 from investigraph.logic import requests

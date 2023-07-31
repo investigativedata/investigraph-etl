@@ -2,14 +2,19 @@ import logging
 from pathlib import Path
 
 import yaml
+from ftmq.model import Dataset
+from ftmq.model.mixins import RemoteMixin, YamlMixin
 from pydantic import BaseModel
 from runpandarun.util import absolute_path
 
 from investigraph.exceptions import ImproperlyConfigured
 from investigraph.model.block import get_block
-from investigraph.model.dataset import Dataset
-from investigraph.model.mixins import RemoteMixin, YamlMixin
-from investigraph.model.stage import ExtractStage, LoadStage, TransformStage
+from investigraph.model.stage import (
+    AggregateStage,
+    ExtractStage,
+    LoadStage,
+    TransformStage,
+)
 from investigraph.settings import DATASETS_BLOCK
 from investigraph.util import PathLike, is_module
 
@@ -22,6 +27,7 @@ class Config(BaseModel, YamlMixin, RemoteMixin):
     extract: ExtractStage | None = ExtractStage()
     transform: TransformStage | None = TransformStage()
     load: LoadStage | None = LoadStage()
+    aggregate: bool | AggregateStage | None = AggregateStage()
 
     class Config:
         arbitrary_types_allowed = True
@@ -54,6 +60,11 @@ class Config(BaseModel, YamlMixin, RemoteMixin):
             config.load.handler = str(
                 absolute_path(config.load.handler, config.base_path)
             )
+        if config.aggregate:
+            if not is_module(config.aggregate.handler):
+                config.aggregate.handler = str(
+                    absolute_path(config.aggregate.handler, config.base_path)
+                )
 
         return config
 

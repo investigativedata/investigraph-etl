@@ -1,9 +1,11 @@
 import os
-from datetime import datetime, timedelta
+from datetime import timedelta
 from pathlib import Path
 from typing import Any
 
 from banal import as_bool
+from ftmstore import settings as ftmstore_settings
+from prefect.settings import PREFECT_API_DATABASE_CONNECTION_URL
 
 
 def get_env(env: str, default: Any | None = None) -> Any | None:
@@ -11,7 +13,6 @@ def get_env(env: str, default: Any | None = None) -> Any | None:
 
 
 VERSION = "0.3.0"
-RUN_TIME = datetime.utcnow().replace(microsecond=0)
 
 DEBUG = as_bool(get_env("DEBUG", 1))
 DATA_ROOT = Path(get_env("DATA_ROOT", Path.cwd() / "data")).absolute()
@@ -23,6 +24,9 @@ DEFAULT_TRANSFORMER = get_env(
     "DEFAULT_TRANSFORMER", "investigraph.logic.transform:map_ftm"
 )
 DEFAULT_LOADER = get_env("DEFAULT_LOADER", "investigraph.logic.load:load_proxies")
+DEFAULT_AGGREGATOR = get_env(
+    "DEFAULT_AGGREGATOR", "investigraph.logic.aggregate:in_memory"
+)
 
 REDIS_URL = get_env("REDIS_URL", "redis://localhost:6379")
 REDIS_PREFIX = get_env("REDIS_PREFIX", f"investigraph:{VERSION}")
@@ -38,3 +42,6 @@ TASK_CACHE_EXPIRATION = (
 TASK_RUNNER = get_env("PREFECT_TASK_RUNNER", "").lower()
 
 CHUNK_SIZE = int(get_env("CHUNK_SIZE", 1000))
+
+FTM_STORE_URI = get_env("FTM_STORE_URI", PREFECT_API_DATABASE_CONNECTION_URL.value())
+ftmstore_settings.DATABASE_URI = FTM_STORE_URI

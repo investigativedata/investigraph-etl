@@ -2,17 +2,19 @@
 The main entrypoint for the prefect flow
 """
 
+from datetime import datetime
 from typing import Any, Generator
 
+from ftmq.model import Coverage
 from prefect import flow, task
 from prefect.task_runners import ConcurrentTaskRunner
 from prefect_dask import DaskTaskRunner
 from prefect_ray import RayTaskRunner
 
 from investigraph import __version__, settings
-from investigraph.logic.aggregate import in_memory
-from investigraph.model import Context, Flow, FlowOptions, Resolver
-from investigraph.model.context import init_context
+from investigraph.model.context import Context, init_context
+from investigraph.model.flow import Flow, FlowOptions
+from investigraph.model.resolver import Resolver
 from investigraph.util import data_checksum
 
 
@@ -35,12 +37,11 @@ def get_task_cache_key(_, params) -> str:
     cache_expiration=settings.TASK_CACHE_EXPIRATION,
     refresh_cache=not settings.TASK_CACHE,
 )
-def aggregate(ctx: Context, results: list[str], ckey: str):
-    fragments, proxies = in_memory(ctx, *results)
-    ctx.log.info("AGGREGATED %d fragments to %d proxies", fragments, proxies)
-    out = ctx.config.load.entities_uri
-    ctx.log.info("OUTPUT: %s", out)
-    return out
+def aggregate(ctx: Context, results: list[str], ckey: str) -> Coverage:
+    fragments, coverage = ctx.aggregate(ctx, results)
+    ctx.log.info("AGGREGATED %d fragments to %d proxies", fragments, coverage.entities)
+    ctx.log.info("OUTPUT: %s", ctx.config.load.entities_uri)
+    return coverage
 
 
 @task(
@@ -50,7 +51,7 @@ def aggregate(ctx: Context, results: list[str], ckey: str):
     cache_expiration=settings.TASK_CACHE_EXPIRATION,
     refresh_cache=not settings.TASK_CACHE,
 )
-def load(ctx: Context, ckey: str):
+def load(ctx: Context, ckey: str) -> str:
     proxies = ctx.cache.get(ckey)
     out = ctx.load_fragments(proxies, ckey=ckey)
     ctx.log.info("LOADED %d proxies", len(proxies))
@@ -110,7 +111,7 @@ def extract(
     flow_run_name="{ctx.dataset}-{ctx.source.name}",
     task_runner=get_runner_from_env(),
 )
-def run_pipeline(ctx: Context):
+def run_pipeline(ctx: Context) -> list[Any]:
     res = None
     if ctx.config.extract.fetch:
         res = Resolver(source=ctx.source)
@@ -135,7 +136,7 @@ def run_pipeline(ctx: Context):
     flow_run_name="{options.flow_name}",
     task_runner=get_runner_from_env(),
 )
-def run(options: FlowOptions) -> str:
+def run(options: FlowOptions) -> Flow:
     flow = Flow.from_options(options)
     results = []
     for ix, source in enumerate(flow.config.extract.sources):
@@ -143,13 +144,16 @@ def run(options: FlowOptions) -> str:
         if ix == 0:  # only on first time
             ctx.export_metadata()
             ctx.log.info("INDEX: %s" % ctx.config.load.index_uri)
-        results.append(run_pipeline(ctx))
+        results.extend(run_pipeline(ctx))
 
-    results = [r.result() for result in results for r in result]
+    if flow.config.aggregate:
+        fragments = [r.result() for r in results]
+        res = aggregate.submit(ctx, fragments, data_checksum(fragments))
+        ctx.config.dataset.coverage = res.result()
+        ctx.export_metadata()
+        ctx.log.info("INDEX (updated with coverage): %s" % ctx.config.load.index_uri)
 
-    if flow.should_aggregate:
-        results = [aggregate(ctx, results, data_checksum(results))]
-
-    for uri in results:
-        ctx.log.info(f"LOADED proxies to `{uri}`")
-    return results
+    flow.end = datetime.utcnow()
+    fragment_uris = [r.result() for r in results]
+    flow.fragment_uris = filter(lambda x: x is not None, fragment_uris)
+    return flow

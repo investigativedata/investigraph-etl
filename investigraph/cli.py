@@ -5,14 +5,14 @@ from typing import Optional
 
 import orjson
 import typer
+from ftmq.io import smart_write
+from ftmq.model import Catalog
 from prefect.settings import PREFECT_HOME
 from rich import print
-from smart_open import open
 from typing_extensions import Annotated
 
 from investigraph.inspect import inspect_config, inspect_extract, inspect_transform
 from investigraph.model.block import get_block
-from investigraph.model.dataset import Catalog
 from investigraph.model.flow import FlowOptions
 from investigraph.pipeline import run
 from investigraph.settings import DATASETS_BLOCK, DATASETS_REPO
@@ -136,8 +136,7 @@ def cli_catalog(
     if uri == "-":
         sys.stdout.write(data.decode())
     else:
-        with open(uri, "wb") as fh:
-            fh.write(data)
+        smart_write(uri, data)
 
 
 @cli.command("reset")

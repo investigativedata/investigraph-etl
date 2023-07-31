@@ -2,19 +2,26 @@
 aggregate fragments
 """
 
+from typing import TYPE_CHECKING, Literal, TypeAlias
 from uuid import uuid4
 
 from ftmq.io import smart_read_proxies
+from ftmq.model.coverage import Collector
 from ftmstore import get_dataset
 
-from investigraph.model import Context
-from investigraph.settings import CHUNK_SIZE
-from investigraph.types import CE
+if TYPE_CHECKING:
+    from investigraph.model import Context
+
+from ftmq.model import Coverage
+
+from investigraph.types import CE, CEGenerator
 
 COMMON_SCHEMAS = ("Organization", "LegalEntity")
 
+AggregatorResult: TypeAlias = tuple[int, Coverage]
 
-def merge(ctx: Context, p1: CE, p2: CE) -> CE:
+
+def merge(ctx: "Context", p1: CE, p2: CE) -> CE:
     try:
         p1.merge(p2)
         return p1
@@ -30,48 +37,68 @@ def merge(ctx: Context, p1: CE, p2: CE) -> CE:
                 return p1
 
         ctx.log.warn(f"{e}, id: `{p1.id}`")
+        return p1
 
 
-def in_memory(ctx: Context, *uris: tuple[str]) -> tuple[int, int]:
+class Aggregator:
     """
-    aggregate in memory: read fragments from `in_uri` and write aggregated
-    proxies to `out_uri`
-
-    as `smart_open` is used here, `in_uri` and `out_uri` can be any local or
-    remote locations
+    Aggregate loaded fragments to entities
     """
-    ix = 0
-    buffer = {}
-    for ix, proxy in enumerate(smart_read_proxies(uris), 1):
-        if ix % (CHUNK_SIZE * 10) == 0:
-            ctx.log.info("reading in proxy %d ..." % ix)
-        if proxy.id in buffer:
-            buffer[proxy.id] = merge(ctx, buffer[proxy.id], proxy)
-        else:
-            buffer[proxy.id] = proxy
 
-    ctx.load_entities(buffer.values(), serialize=True)
-    return ix, len(buffer.values())
+    def __init__(self, ctx: "Context", fragment_uris: list[str]) -> None:
+        self.ctx = ctx
+        self.fragment_uris = fragment_uris
+        self.fragments = 0
+
+    def get_fragments(self) -> CEGenerator:
+        for ix, proxy in enumerate(smart_read_proxies(self.fragment_uris)):
+            if ix % self.ctx.config.aggregate.chunk_size == 0:
+                self.ctx.log.info("reading in proxy %d ..." % ix)
+            yield proxy
+        self.fragments = ix + 1
+
+    def aggregate_db(self) -> CEGenerator:
+        dataset = get_dataset(
+            "aggregate_%s" % uuid4().hex, database_uri=self.ctx.config.aggregate.db_uri
+        )
+        bulk = dataset.bulk()
+        for ix, proxy in enumerate(self.get_fragments()):
+            bulk.put(proxy, fragment=str(ix))
+        bulk.flush()
+        yield from dataset.iterate()
+        dataset.drop()
+
+    def aggregate_memory(self) -> CEGenerator:
+        buffer = {}
+        for proxy in self.get_fragments():
+            if proxy.id in buffer:
+                buffer[proxy.id] = merge(self.ctx, buffer[proxy.id], proxy)
+            else:
+                buffer[proxy.id] = proxy
+        yield from buffer.values()
+
+    def iterate(
+        self, collector: Collector, handler: Literal["memory", "db"] | None = "memory"
+    ) -> CEGenerator:
+        iterator = (
+            self.aggregate_memory() if handler == "memory" else self.aggregate_db()
+        )
+        for proxy in iterator:
+            collector.collect(proxy)
+            yield proxy
 
 
-def in_db(ctx: Context, in_uri: str) -> tuple[int, int]:
-    """
-    use ftm store database to aggregate.
-    `in_uri`: database connection string
-    """
-    dataset = get_dataset("aggregate_%s" % uuid4().hex)
-    bulk = dataset.bulk()
-    for ix, proxy in enumerate(smart_read_proxies(in_uri)):
-        if ix % 10_000 == 0:
-            ctx.log.info("Write [%s]: %s entities", dataset.name, ix)
-        bulk.put(proxy, fragment=str(ix))
-    bulk.flush()
-    proxies = []
-    for ox, proxy in enumerate(dataset.iterate()):
-        proxies.append(proxy)
-        if ox % 10_000 == 0:
-            ctx.load_entities(proxies, serialize=True)
-            proxies = []
+def in_memory(ctx: "Context", fragment_uris: list[str]) -> AggregatorResult:
+    aggregator = Aggregator(ctx, fragment_uris)
+    with ctx.config.dataset.coverage as collector:
+        proxies = aggregator.iterate(collector, "memory")
     ctx.load_entities(proxies, serialize=True)
-    dataset.drop()
-    return ix, ox
+    return aggregator.fragments, collector.export()
+
+
+def in_db(ctx: "Context", fragment_uris: list[str]) -> AggregatorResult:
+    aggregator = Aggregator(ctx, fragment_uris)
+    with ctx.config.dataset.coverage as collector:
+        proxies = aggregator.iterate(collector, "db")
+    ctx.load_entities(proxies, serialize=True)
+    return aggregator.fragments, collector.export()

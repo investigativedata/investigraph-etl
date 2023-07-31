@@ -28,6 +28,7 @@ extract:
           options:
             encoding: latin
             skiprows: 1
+            dtype: str
 
 transform:
   queries:

@@ -1,7 +1,7 @@
 from typing import Any, Generator, TypeAlias
 
+from ftmq.types import PathLike
 from nomenklatura.entity import CE
-from runpandarun.util import PathLike
 
 # a string-keyed dict
 Record: TypeAlias = dict[str, Any]

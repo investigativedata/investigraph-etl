@@ -3,19 +3,18 @@ from typing import Iterable
 
 import orjson
 from followthemoney.util import make_entity_id
+from ftmq.io import smart_write
 from nomenklatura.entity import CE
-from nomenklatura.util import datetime_iso
 from prefect import get_run_logger
 from prefect.logging.loggers import PrefectLogAdapter
 from pydantic import BaseModel
-from smart_open import open
 
 from investigraph.cache import Cache, get_cache
+from investigraph.logic.aggregate import AggregatorResult
 from investigraph.model.config import Config
 from investigraph.model.source import Source
-from investigraph.settings import DATA_ROOT
 from investigraph.types import CEGenerator
-from investigraph.util import ensure_path, join_slug, make_proxy
+from investigraph.util import join_slug, make_proxy
 
 
 class Context(BaseModel):
@@ -24,11 +23,8 @@ class Context(BaseModel):
     config: Config
     source: Source
 
-    class Config:
-        arbitrary_types_allowed = True
-
     def __hash__(self) -> int:
-        return hash((self.dataset, self.source.uri))
+        return hash(repr(self.dict()))
 
     @property
     def cache(self) -> Cache:
@@ -48,12 +44,14 @@ class Context(BaseModel):
         kwargs["parts"] = False
         return self.config.load.handle(self, *args, **kwargs)
 
+    def aggregate(self, *args, **kwargs) -> AggregatorResult:
+        return self.config.aggregate.handle(*args, **kwargs)
+
     def export_metadata(self) -> None:
         data = self.config.dataset
-        data.updated_at = data.updated_at or datetime_iso(datetime.utcnow())
+        data.updated_at = data.updated_at or datetime.utcnow()
         data = orjson.dumps(data.dict())
-        with open(self.config.load.index_uri, "wb") as fh:
-            fh.write(data)
+        smart_write(self.config.load.index_uri, data)
 
     def make_proxy(self, *args, **kwargs) -> CE:
         return make_proxy(*args, dataset=self.dataset, **kwargs)
@@ -92,14 +90,6 @@ class TaskContext(Context):
 
 
 def init_context(config: Config, source: Source) -> Context:
-    path = ensure_path(DATA_ROOT / config.dataset.name)
-    if config.load.index_uri is None:
-        config.load.index_uri = (path / "index.json").as_uri()
-    if config.load.fragments_uri is None:
-        config.load.fragments_uri = (path / "fragments.json").as_uri()
-    if config.load.entities_uri is None:
-        config.load.entities_uri = (path / "entities.ftm.json").as_uri()
-
     return Context(
         dataset=config.dataset.name,
         prefix=config.dataset.prefix,
