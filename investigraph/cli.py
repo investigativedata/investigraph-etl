@@ -1,7 +1,7 @@
 import shutil
 import sys
 from pathlib import Path
-from typing import Optional
+from typing import Annotated
 
 import orjson
 import typer
@@ -9,7 +9,6 @@ from ftmq.io import smart_write
 from ftmq.model import Catalog
 from prefect.settings import PREFECT_HOME
 from rich import print
-from typing_extensions import Annotated
 
 from investigraph.inspect import inspect_config, inspect_extract, inspect_transform
 from investigraph.model.block import get_block
@@ -22,14 +21,14 @@ cli = typer.Typer()
 
 @cli.command("run")
 def cli_run(
-    dataset: Annotated[Optional[str], typer.Option("-d")] = None,
-    block: Annotated[Optional[str], typer.Option("-b")] = None,
-    config: Annotated[Optional[str], typer.Option("-c")] = None,
-    index_uri: Annotated[Optional[str], typer.Option(...)] = None,
-    fragments_uri: Annotated[Optional[str], typer.Option(...)] = None,
-    entities_uri: Annotated[Optional[str], typer.Option(...)] = None,
-    aggregate: Annotated[Optional[bool], typer.Option(...)] = True,
-    chunk_size: Annotated[Optional[int], typer.Option(...)] = None,
+    dataset: Annotated[str | None, typer.Option("-d")] = None,
+    block: Annotated[str | None, typer.Option("-b")] = None,
+    config: Annotated[str | None, typer.Option("-c")] = None,
+    index_uri: Annotated[str | None, typer.Option(...)] = None,
+    fragments_uri: Annotated[str | None, typer.Option(...)] = None,
+    entities_uri: Annotated[str | None, typer.Option(...)] = None,
+    aggregate: Annotated[bool | None, typer.Option(...)] = True,
+    chunk_size: Annotated[int | None, typer.Option(...)] = None,
 ):
     """
     Execute a dataset pipeline
@@ -77,9 +76,9 @@ def cli_add_block(
 @cli.command("inspect")
 def cli_inspect(
     config_path: Annotated[Path, typer.Argument()],
-    extract: Annotated[Optional[bool], typer.Option()] = False,
-    transform: Annotated[Optional[bool], typer.Option()] = False,
-    to_json: Annotated[Optional[bool], typer.Option()] = False,
+    extract: Annotated[bool | None, typer.Option()] = False,
+    transform: Annotated[bool | None, typer.Option()] = False,
+    to_json: Annotated[bool | None, typer.Option()] = False,
 ):
     config = inspect_config(config_path)
     print(f"[bold green]OK[/bold green] `{config_path}`")
@@ -113,11 +112,11 @@ def cli_inspect(
 def cli_catalog(
     path: Annotated[Path, typer.Argument()],
     uri: Annotated[str, typer.Option("-o")] = "-",
-    flatten: Annotated[Optional[bool], typer.Option(...)] = False,
+    flatten: Annotated[bool | None, typer.Option(...)] = False,
 ):
     """
     Build a catalog from datasets metadata and write it to anywhere from stdout
-    (default) to any uri `smart_open` can handle, e.g.:
+    (default) to any uri `fsspec` can handle, e.g.:
 
         investigraph build-catalog catalog.yml -u s3://mybucket/catalog.json
     """

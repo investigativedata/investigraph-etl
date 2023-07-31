@@ -1,5 +1,6 @@
 import mimetypes
 from datetime import datetime
+from urllib.parse import urlparse
 
 import requests
 from dateparser import parse as parse_date
@@ -8,7 +9,6 @@ from pantomime import normalize_mimetype, types
 from pydantic import BaseModel
 from runpandarun import Playbook
 from runpandarun.util import PathLike, absolute_path
-from smart_open import parse_uri
 
 from investigraph.util import slugified_dict
 
@@ -44,7 +44,7 @@ class Source(BaseModel):
     def __init__(self, **data):
         data["uri"] = str(data["uri"])
         data["name"] = data.get("name", slugify(data["uri"]))
-        data["scheme"] = data.get("scheme", parse_uri(data["uri"]).scheme)
+        data["scheme"] = data.get("scheme", urlparse(data["uri"]).scheme or "file")
         if "mimetype" not in data:
             mtype, _ = mimetypes.guess_type(data["uri"])
             data["mimetype"] = normalize_mimetype(mtype)

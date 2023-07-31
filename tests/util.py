@@ -1,3 +1,6 @@
+# https://github.com/aio-libs/aiobotocore/issues/755
+
+
 import boto3
 
 from tests.conftest import FIXTURES_PATH
