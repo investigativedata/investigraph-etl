@@ -1,7 +1,7 @@
 import logging
 from collections.abc import Iterable
 from functools import cache
-from typing import Any
+from typing import Any, Set
 
 import fakeredis
 import redis
@@ -58,9 +58,9 @@ class Cache:
         self.cache.sadd(self.get_key(key) + "#SET", *values)
         return key
 
-    def smembers(self, key: str, delete: bool | None = settings.DEBUG) -> set[str]:
+    def smembers(self, key: str, delete: bool | None = settings.DEBUG) -> Set[str]:
         key = self.get_key(key) + "#SET"
-        res: set[bytes] = self.cache.smembers(key)
+        res: Set[bytes] = self.cache.smembers(key)
         if delete:
             self.cache.delete(key)
         return {v.decode() for v in res} or None
