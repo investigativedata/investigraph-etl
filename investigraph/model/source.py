@@ -32,6 +32,13 @@ class SourceHead(BaseModel):
     def can_stream(self) -> bool:
         return self.content_type in (types.CSV, types.JSON)
 
+    @property
+    def ckey(self) -> str | None:
+        if self.etag:
+            return self.etag
+        if self.last_modified:
+            return self.last_modified.isoformat()
+
 
 class Source(BaseModel):
     name: str

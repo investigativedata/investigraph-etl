@@ -103,10 +103,8 @@ class Resolver(BaseModel):
         slug = f"RESOLVE#{slugify(self.source.uri)}"
         if self.source.is_http:
             self._resolve_head()
-            if self.head.etag:
-                return f"{slug}#{self.head.etag}"
-            if self.head.last_modified:
-                return f"{slug}#{self.head.last_modified.isoformat()}"
+            if self.head.ckey:
+                return f"{slug}#{self.head.ckey}"
         if not self.source.stream:
             self._resolve_content()
             return self.checksum

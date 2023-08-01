@@ -2,8 +2,9 @@
 The main entrypoint for the prefect flow
 """
 
+from collections.abc import Generator
 from datetime import datetime
-from typing import Any, Generator
+from typing import Any
 
 from ftmq.model import Coverage
 from prefect import flow, task
@@ -20,10 +21,10 @@ from investigraph.util import data_checksum
 
 def get_runner_from_env() -> ConcurrentTaskRunner | DaskTaskRunner | RayTaskRunner:
     if settings.TASK_RUNNER == "dask":
-        return DaskTaskRunner()
+        return DaskTaskRunner
     if settings.TASK_RUNNER == "ray":
-        return RayTaskRunner()
-    return ConcurrentTaskRunner()
+        return RayTaskRunner
+    return ConcurrentTaskRunner
 
 
 def get_task_cache_key(_, params) -> str:
@@ -77,13 +78,6 @@ def transform(ctx: Context, ckey: str) -> str:
     return ctx.cache.set(proxies)
 
 
-@task(
-    retries=settings.TASK_RETRIES,
-    retry_delay_seconds=settings.TASK_RETRY_DELAY,
-    cache_key_fn=get_task_cache_key,
-    cache_expiration=settings.TASK_CACHE_EXPIRATION,
-    refresh_cache=not settings.TASK_CACHE,
-)
 def extract(
     ctx: Context, ckey: str, res: Resolver | None = None
 ) -> Generator[str, None, None]:
@@ -105,6 +99,28 @@ def extract(
     ctx.log.info("EXTRACTED %d records", ix)
 
 
+@task(
+    retries=settings.TASK_RETRIES,
+    retry_delay_seconds=settings.TASK_RETRY_DELAY,
+    cache_key_fn=get_task_cache_key,
+    cache_expiration=settings.TASK_CACHE_EXPIRATION,
+    refresh_cache=not settings.TASK_CACHE,
+)
+def extract_task(
+    ctx: Context, ckey: str, res: Resolver | None = None
+) -> Generator[str, None, None]:
+    return extract(ctx, ckey, res)
+
+
+def dispatch_extract(
+    ctx: Context, ckey: str, res: Resolver | None = None
+) -> Generator[str, None, None]:
+    if ctx.config.extract.fetch:
+        return extract_task(ctx, ckey, res)
+    else:  # enable requests subflow
+        return extract(ctx, ckey, res)
+
+
 @flow(
     name="investigraph-pipeline",
     version=__version__,
@@ -122,7 +138,7 @@ def run_pipeline(ctx: Context) -> list[Any]:
         ckey = ctx.source.uri
 
     results = []
-    for key in extract(ctx, f"extract-{ckey}", res):
+    for key in dispatch_extract(ctx, f"extract-{ckey}", res):
         transformed = transform.submit(ctx, key)
         loaded = load.submit(ctx, transformed)
         results.append(loaded)
@@ -134,7 +150,6 @@ def run_pipeline(ctx: Context) -> list[Any]:
     name="investigraph",
     version=__version__,
     flow_run_name="{options.flow_name}",
-    task_runner=get_runner_from_env(),
 )
 def run(options: FlowOptions) -> Flow:
     flow = Flow.from_options(options)
