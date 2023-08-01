@@ -456,6 +456,9 @@ cryptography==41.0.2 ; python_version >= "3.10" and python_version < "3.13" \
 dask==2023.3.1 ; python_version >= "3.10" and python_version < "3.13" \
     --hash=sha256:4a83c05760aedb7deeee8c16d24479292635a1ded6c3f803bf6c3d94ec9e7d20 \
     --hash=sha256:62d334012d7cd814186931ea83ebf1a6231c2af4260ad204dc78080a55947c17
+datapatch==1.0.2 ; python_version >= "3.10" and python_version < "3.13" \
+    --hash=sha256:a93970150d5025868011f76795176e764d854e5a3e65384763d2861f929d2808 \
+    --hash=sha256:f4c7af5ac80d90924ca1e8f6dbe97025d1a44673e4819f4338a00b6830c534c0
 dateparser==1.1.8 ; python_version >= "3.10" and python_version < "3.13" \
     --hash=sha256:070b29b5bbf4b1ec2cd51c96ea040dc68a614de703910a91ad1abba18f9f379f \
     --hash=sha256:86b8b7517efcc558f085a142cdb7620f0921543fcabdb538c8a4c4001d8178e3
@@ -1876,9 +1879,9 @@ ruamel-yaml-clib==0.2.7 ; platform_python_implementation == "CPython" and python
 ruamel-yaml==0.17.32 ; python_version >= "3.10" and python_version < "3.13" \
     --hash=sha256:23cd2ed620231677564646b0c6a89d138b6822a0d78656df7abda5879ec4f447 \
     --hash=sha256:ec939063761914e14542972a5cba6d33c23b0859ab6342f61cf070cfc600efc2
-runpandarun==0.2.5 ; python_version >= "3.10" and python_version < "3.13" \
-    --hash=sha256:677583fb15938de5eda044a255eacf66418698a1979e35a8c95f73ff050c52f3 \
-    --hash=sha256:6e700dbd6e8d7917bd75300dc736ea5408b829421dd971f4fe5a904d747fef57
+runpandarun==0.3.0 ; python_version >= "3.10" and python_version < "3.13" \
+    --hash=sha256:12c9f8786adb8b6ef8822c04f36dadcbfd51036c4caf93822bc8d9334c934f63 \
+    --hash=sha256:a2aba149eddd2fc0d0b01890754a46a92f138f77f02c1a7b49bfaf8188a44374
 s3fs==2023.6.0 ; python_version >= "3.10" and python_version < "3.13" \
     --hash=sha256:63fd8ddf05eb722de784b7b503196107f2a518061298cf005a8a4715b4d49117 \
     --hash=sha256:d1a0a423d0d2e17fb2a193d9531935dc3f45ba742693448a461b6b34f6a92a24

@@ -889,6 +889,25 @@ distributed = ["distributed (==2023.3.1)"]
 test = ["pandas[test]", "pre-commit", "pytest", "pytest-rerunfailures", "pytest-xdist"]
 
 [[package]]
+name = "datapatch"
+version = "1.0.2"
+description = ""
+optional = false
+python-versions = "*"
+files = [
+    {file = "datapatch-1.0.2-py2.py3-none-any.whl", hash = "sha256:f4c7af5ac80d90924ca1e8f6dbe97025d1a44673e4819f4338a00b6830c534c0"},
+    {file = "datapatch-1.0.2.tar.gz", hash = "sha256:a93970150d5025868011f76795176e764d854e5a3e65384763d2861f929d2808"},
+]
+
+[package.dependencies]
+babel = ">=2.9.1,<3.0.0"
+normality = ">=2.1.1,<3.0.0"
+pyyaml = "*"
+
+[package.extras]
+dev = ["bump2version", "mypy", "pytest", "pytest-cov", "types-pyyaml"]
+
+[[package]]
 name = "dateparser"
 version = "1.1.8"
 description = "Date parsing library designed to parse dates from HTML pages"
@@ -3942,18 +3961,19 @@ files = [
 
 [[package]]
 name = "runpandarun"
-version = "0.2.5"
+version = "0.3.0"
 description = "Tell pandas what to do – easy tabular data I/O playbooks"
 optional = false
 python-versions = ">=3.10,<4.0"
 files = [
-    {file = "runpandarun-0.2.5-py3-none-any.whl", hash = "sha256:677583fb15938de5eda044a255eacf66418698a1979e35a8c95f73ff050c52f3"},
-    {file = "runpandarun-0.2.5.tar.gz", hash = "sha256:6e700dbd6e8d7917bd75300dc736ea5408b829421dd971f4fe5a904d747fef57"},
+    {file = "runpandarun-0.3.0-py3-none-any.whl", hash = "sha256:12c9f8786adb8b6ef8822c04f36dadcbfd51036c4caf93822bc8d9334c934f63"},
+    {file = "runpandarun-0.3.0.tar.gz", hash = "sha256:a2aba149eddd2fc0d0b01890754a46a92f138f77f02c1a7b49bfaf8188a44374"},
 ]
 
 [package.dependencies]
 aiohttp = ">=3.8.5"
 banal = ">=1.0.6,<2.0.0"
+datapatch = ">=1.0.2,<2.0.0"
 fingerprints = ">=1.1.0,<2.0.0"
 fsspec = ">=2023.6.0,<2024.0.0"
 normality = ">=2.4.0,<3.0.0"
@@ -4860,4 +4880,4 @@ testing = ["big-O", "jaraco.functools", "jaraco.itertools", "more-itertools", "p
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.10,<3.13"
-content-hash = "80bd49c4912dd7618616e3f26329d3cd6795a1fec8f2ba8ad3d7b0d1eee7e86c"
+content-hash = "2ebc9387428c46040a6c007036798641d3ee17e1824855b6290313191feddd23"
