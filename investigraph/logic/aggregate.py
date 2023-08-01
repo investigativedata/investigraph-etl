@@ -5,6 +5,7 @@ aggregate fragments
 from typing import TYPE_CHECKING, Literal, TypeAlias
 from uuid import uuid4
 
+from followthemoney import model
 from ftmq.io import smart_read_proxies
 from ftmq.model.coverage import Collector
 from ftmstore import get_dataset
@@ -23,7 +24,8 @@ AggregatorResult: TypeAlias = tuple[int, Coverage]
 
 def merge(ctx: "Context", p1: CE, p2: CE) -> CE:
     try:
-        p1.merge(p2)
+        p1 = p1.merge(p2)
+        p1.schema = model.common_schema(p1.schema, p2.schema)
         return p1
     except Exception as e:
         # try common schemata, this will probably "downgrade" entities
@@ -33,7 +35,7 @@ def merge(ctx: "Context", p1: CE, p2: CE) -> CE:
                 p1 = ctx.make(schema, **p1.to_dict()["properties"])
                 p1.id = p2.id
                 p2 = ctx.make(schema, **p2.to_dict()["properties"])
-                p1.merge(p2)
+                p1 = p1.merge(p2)
                 return p1
 
         ctx.log.warn(f"{e}, id: `{p1.id}`")
@@ -51,6 +53,7 @@ class Aggregator:
         self.fragments = 0
 
     def get_fragments(self) -> CEGenerator:
+        ix = -1
         for ix, proxy in enumerate(smart_read_proxies(self.fragment_uris)):
             if ix % self.ctx.config.aggregate.chunk_size == 0:
                 self.ctx.log.info("reading in proxy %d ..." % ix)
