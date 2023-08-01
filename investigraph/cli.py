@@ -14,9 +14,18 @@ from investigraph.inspect import inspect_config, inspect_extract, inspect_transf
 from investigraph.model.block import get_block
 from investigraph.model.flow import FlowOptions
 from investigraph.pipeline import run
-from investigraph.settings import DATASETS_BLOCK, DATASETS_REPO
+from investigraph.settings import DATASETS_BLOCK, DATASETS_REPO, VERSION
 
-cli = typer.Typer()
+cli = typer.Typer(no_args_is_help=True)
+
+
+@cli.callback(invoke_without_command=True)
+def cli_version(
+    version: Annotated[Optional[bool], typer.Option(..., help="Show version")] = False
+):
+    if version:
+        print(VERSION)
+        raise typer.Exit()
 
 
 @cli.command("run")
