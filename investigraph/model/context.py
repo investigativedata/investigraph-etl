@@ -10,7 +10,7 @@ from prefect.logging.loggers import PrefectLogAdapter
 from pydantic import BaseModel
 
 from investigraph.cache import Cache, get_cache
-from investigraph.logic.aggregate import AggregatorResult
+from investigraph.logic.aggregate import AggregatorResult, merge
 from investigraph.model.config import Config
 from investigraph.model.source import Source
 from investigraph.types import CEGenerator
@@ -79,14 +79,17 @@ class Context(BaseModel):
 
 
 class TaskContext(Context):
-    proxies: list[CE] = []
+    proxies: dict[str, CE] = {}
 
     def __iter__(self) -> CEGenerator:
-        yield from self.proxies
+        yield from self.proxies.values()
 
     def emit(self, proxy: CE) -> None:
-        # mimic zavod
-        self.proxies.append(proxy)
+        # mimic zavod api, do merge already
+        if proxy.id in self.proxies:
+            self.proxies[proxy.id] = merge(self, self.proxies[proxy.id], proxy)
+        else:
+            self.proxies[proxy.id] = proxy
 
 
 def init_context(config: Config, source: Source) -> Context:
