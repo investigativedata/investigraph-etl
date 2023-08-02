@@ -71,9 +71,12 @@ def transform(ctx: Context, ckey: str) -> str:
     proxies: list[dict[str, Any]] = []
     records = ctx.cache.get(ckey)
     for rec, ix in records:
-        for proxy in ctx.config.transform.handle(ctx, rec, ix):
-            proxy.datasets = {ctx.dataset}
-            proxies.append(proxy.to_dict())
+        try:
+            for proxy in ctx.config.transform.handle(ctx, rec, ix):
+                proxy.datasets = {ctx.dataset}
+                proxies.append(proxy.to_dict())
+        except Exception as e:
+            ctx.log.error(f"{e.__class__.__name__}: {e}")
     ctx.log.info("TRANSFORMED %d records", len(records))
     return ctx.cache.set(proxies)
 
