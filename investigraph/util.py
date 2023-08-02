@@ -106,6 +106,13 @@ def string_id(value: Any) -> str | None:
     return make_entity_id(fingerprint(value))
 
 
+def str_or_none(value: Any) -> str | None:
+    if not value:
+        return None
+    value = str(value).strip()
+    return value or None
+
+
 def join_text(*parts: Any, sep: str = " ") -> str | None:
     parts = [clean_name(p) for p in parts]
     return _join_text(*parts, sep=sep)
