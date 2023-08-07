@@ -9,8 +9,9 @@ from investigraph.model.mapping import QueryMapping
 if TYPE_CHECKING:
     from investigraph.model import Context
 
+from ftmq.io import make_proxy
+
 from investigraph.types import CEGenerator, SDict
-from investigraph.util import uplevel_proxy
 
 
 def map_record(record: SDict, mapping: QueryMapping) -> CEGenerator:
@@ -18,8 +19,7 @@ def map_record(record: SDict, mapping: QueryMapping) -> CEGenerator:
     if mapping.source.check_filters(record):
         entities = mapping.map(record)
         for proxy in entities.values():
-            proxy = uplevel_proxy(proxy)
-            yield proxy
+            yield make_proxy(proxy.to_dict())
 
 
 def map_ftm(ctx: "Context", data: SDict, ix: int) -> CEGenerator:

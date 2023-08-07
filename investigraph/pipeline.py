@@ -73,7 +73,6 @@ def transform(ctx: Context, ckey: str) -> str:
     for rec, ix in records:
         try:
             for proxy in ctx.config.transform.handle(ctx, rec, ix):
-                proxy.datasets = {ctx.dataset}
                 proxies.append(proxy.to_dict())
         except Exception as e:
             ctx.log.error(f"{e.__class__.__name__}: {e}")

@@ -10,10 +10,9 @@ from typing import Any, Callable
 
 import orjson
 from banal import clean_dict, ensure_dict, is_listish
-from followthemoney import model
-from followthemoney.proxy import E
 from followthemoney.util import join_text as _join_text
 from followthemoney.util import make_entity_id, sanitize_text
+from ftmq.util import make_dataset
 from nomenklatura.entity import CE, CompositeEntity
 from normality import slugify
 from pydantic import BaseModel
@@ -28,13 +27,8 @@ def slugified_dict(data: dict[Any, Any]) -> SDict:
 
 
 def make_proxy(schema: str, dataset: str | None = "default", **properties) -> CE:
-    return CompositeEntity(
-        model, {"schema": schema, "properties": properties}, default_dataset=dataset
-    )
-
-
-def uplevel_proxy(proxy: E) -> CE:
-    return CompositeEntity.from_dict(model, proxy.to_dict())
+    dataset = make_dataset(dataset)
+    return CompositeEntity(dataset, {"schema": schema, "properties": properties})
 
 
 @cache
