@@ -9,7 +9,7 @@ from investigraph.model.mapping import QueryMapping
 if TYPE_CHECKING:
     from investigraph.model import Context
 
-from ftmq.io import make_proxy
+from ftmq.util import make_proxy
 
 from investigraph.types import CEGenerator, SDict
 

@@ -12,8 +12,9 @@ import orjson
 from banal import clean_dict, ensure_dict, is_listish
 from followthemoney.util import join_text as _join_text
 from followthemoney.util import make_entity_id, sanitize_text
-from ftmq.util import make_dataset
-from nomenklatura.entity import CE, CompositeEntity
+from ftmq.util import make_proxy as _make_proxy
+from nomenklatura.dataset import DefaultDataset
+from nomenklatura.entity import CE
 from normality import slugify
 from pydantic import BaseModel
 from runpandarun.util import PathLike
@@ -26,9 +27,9 @@ def slugified_dict(data: dict[Any, Any]) -> SDict:
     return {slugify(k, "_"): v for k, v in ensure_dict(data).items()}
 
 
-def make_proxy(schema: str, dataset: str | None = "default", **properties) -> CE:
-    dataset = make_dataset(dataset)
-    return CompositeEntity(dataset, {"schema": schema, "properties": properties})
+def make_proxy(schema: str, dataset: str | None = DefaultDataset, **properties) -> CE:
+    data = {"schema": schema, "properties": properties}
+    return _make_proxy(data, dataset)
 
 
 @cache
