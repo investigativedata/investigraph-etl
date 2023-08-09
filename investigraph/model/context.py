@@ -17,14 +17,16 @@ from investigraph.types import CEGenerator
 from investigraph.util import join_slug, make_proxy
 
 
-class Context(BaseModel):
+class BaseContext(BaseModel):
     dataset: str
     prefix: str
     config: Config
-    source: Source
 
     def __hash__(self) -> int:
         return hash(repr(self.dict()))
+
+    def __eq__(self, other) -> bool:
+        return hash(self) == hash(other)
 
     @property
     def cache(self) -> Cache:
@@ -76,6 +78,26 @@ class Context(BaseModel):
 
     def emit(self) -> None:
         raise NotImplementedError
+
+    def from_source(self, source: Source) -> "Context":
+        return Context(
+            dataset=self.config.dataset.name,
+            prefix=self.config.dataset.prefix,
+            config=self.config,
+            source=source,
+        )
+
+    @classmethod
+    def from_config(cls, config: Config) -> "BaseContext":
+        return cls(
+            dataset=config.dataset.name,
+            prefix=config.dataset.prefix,
+            config=config,
+        )
+
+
+class Context(BaseContext):
+    source: Source
 
 
 class TaskContext(Context):

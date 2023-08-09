@@ -17,12 +17,12 @@ publisher:
     mySociety. It is not an official EU website.
   url: https://www.asktheeu.org/
 
+seed:
+  handler: ./custom.py:seed
 
 extract:
   fetch: false
   handler: ./custom.py:extract
-  sources:
-    - uri: ./all-authorities.csv
 
 transform:
   handler: ./eu_authorities/custom.py:parse_record

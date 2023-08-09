@@ -13,6 +13,7 @@ from investigraph.model.stage import (
     AggregateStage,
     ExtractStage,
     LoadStage,
+    SeedStage,
     TransformStage,
 )
 from investigraph.settings import DATASETS_BLOCK
@@ -24,6 +25,7 @@ log = logging.getLogger(__name__)
 class Config(BaseModel, YamlMixin, RemoteMixin):
     dataset: Dataset
     base_path: Path | None = Path()
+    seed: SeedStage | None = SeedStage()
     extract: ExtractStage | None = ExtractStage()
     transform: TransformStage | None = TransformStage()
     load: LoadStage | None = LoadStage()
@@ -48,6 +50,10 @@ class Config(BaseModel, YamlMixin, RemoteMixin):
         config = cls(**data)
 
         # custom user code
+        if not is_module(config.seed.handler):
+            config.seed.handler = str(
+                absolute_path(config.seed.handler, config.base_path)
+            )
         if not is_module(config.extract.handler):
             config.extract.handler = str(
                 absolute_path(config.extract.handler, config.base_path)

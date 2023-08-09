@@ -7,9 +7,13 @@ import orjson
 # from investigraph.logic import requests
 import requests
 
-from investigraph.model import Context
+from investigraph.model import Context, Source
 
 URL = "http://localhost:8000/all-authorities.csv"
+
+
+def seed(ctx: Context):
+    yield Source(uri=URL, name="all-authorities-csv")
 
 
 def extract(ctx: Context, *args, **kwargs):

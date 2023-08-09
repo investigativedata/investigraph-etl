@@ -19,6 +19,7 @@ DATA_ROOT = Path(get_env("DATA_ROOT", Path.cwd() / "data")).absolute()
 DATASETS_REPO = "https://github.com/investigativedata/investigraph-datasets.git"
 DATASETS_BLOCK = get_env("DATASETS_BLOCK")
 
+DEFAULT_SEEDER = get_env("DEFAULT_SEEDER", "investigraph.logic.seed:handle")
 DEFAULT_EXTRACTOR = get_env("DEFAULT_EXTRACTOR", "investigraph.logic.extract:handle")
 DEFAULT_TRANSFORMER = get_env(
     "DEFAULT_TRANSFORMER", "investigraph.logic.transform:map_ftm"

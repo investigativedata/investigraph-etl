@@ -63,7 +63,7 @@ class Source(BaseModel):
         ensure absolute file paths based on base path of paretn config.yml
         """
         if self.scheme.startswith("file"):
-            self.uri = absolute_path(self.uri, base)
+            self.uri = str(absolute_path(self.uri, base))
 
     @property
     def is_http(self) -> bool:

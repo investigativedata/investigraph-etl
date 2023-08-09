@@ -4,7 +4,7 @@ The main entrypoint for the prefect flow
 
 from collections.abc import Generator
 from datetime import datetime
-from typing import Any
+from typing import Any, Set
 
 from ftmq.model import Coverage
 from prefect import flow, task
@@ -13,7 +13,7 @@ from prefect_dask import DaskTaskRunner
 from prefect_ray import RayTaskRunner
 
 from investigraph import __version__, settings
-from investigraph.model.context import Context, init_context
+from investigraph.model.context import BaseContext, Context
 from investigraph.model.flow import Flow, FlowOptions
 from investigraph.model.resolver import Resolver
 from investigraph.util import data_checksum
@@ -156,12 +156,18 @@ def run_pipeline(ctx: Context) -> list[Any]:
 def run(options: FlowOptions) -> Flow:
     flow = Flow.from_options(options)
     results = []
-    for ix, source in enumerate(flow.config.extract.sources):
-        ctx = init_context(config=flow.config, source=source)
+    ctxs: Set[Context] = set()
+    ctx = BaseContext.from_config(flow.config)
+    for source in ctx.config.seed.handle(ctx):
+        ctxs.add(ctx.from_source(source))
+    for source in flow.config.extract.sources:
+        ctxs.add(ctx.from_source(source))
+
+    for ix, run_ctx in enumerate(ctxs):
         if ix == 0:  # only on first time
             ctx.export_metadata()
             ctx.log.info("INDEX: %s" % ctx.config.load.index_uri)
-        results.extend(run_pipeline(ctx))
+        results.extend(run_pipeline(run_ctx))
 
     if flow.config.aggregate:
         fragments = [r.result() for r in results]
