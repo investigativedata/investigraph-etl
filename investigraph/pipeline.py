@@ -123,12 +123,6 @@ def dispatch_extract(
         return extract(ctx, ckey, res)
 
 
-@flow(
-    name="investigraph-pipeline",
-    version=__version__,
-    flow_run_name="{ctx.dataset}-{ctx.source.name}",
-    task_runner=get_runner_from_env(),
-)
 def run_pipeline(ctx: Context) -> list[Any]:
     res = None
     if ctx.config.extract.fetch:
@@ -152,6 +146,7 @@ def run_pipeline(ctx: Context) -> list[Any]:
     name="investigraph",
     version=__version__,
     flow_run_name="{options.flow_name}",
+    task_runner=get_runner_from_env(),
 )
 def run(options: FlowOptions) -> Flow:
     flow = Flow.from_options(options)
@@ -160,7 +155,7 @@ def run(options: FlowOptions) -> Flow:
     ctx = BaseContext.from_config(flow.config)
     for source in ctx.config.seed.handle(ctx):
         ctxs.add(ctx.from_source(source))
-    for source in flow.config.extract.sources:
+    for source in ctx.config.extract.sources:
         ctxs.add(ctx.from_source(source))
 
     for ix, run_ctx in enumerate(ctxs):

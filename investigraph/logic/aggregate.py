@@ -83,10 +83,8 @@ class Aggregator:
     def iterate(
         self, collector: Collector, handler: Literal["memory", "db"] | None = "memory"
     ) -> CEGenerator:
-        iterator = (
-            self.aggregate_memory() if handler == "memory" else self.aggregate_db()
-        )
-        for proxy in iterator:
+        aggregator = self.aggregate_db if handler == "db" else self.aggregate_memory
+        for proxy in aggregator():
             collector.collect(proxy)
             yield proxy
 
