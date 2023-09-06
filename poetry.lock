@@ -211,6 +211,27 @@ typing-extensions = ">=4"
 tz = ["python-dateutil"]
 
 [[package]]
+name = "alephclient"
+version = "2.3.6"
+description = "Command-line client for Aleph API"
+optional = false
+python-versions = "*"
+files = [
+    {file = "alephclient-2.3.6-py2.py3-none-any.whl", hash = "sha256:9facda92111e784fad3bba86a20ef1355aa8a2e584f1e3a2d0dad2cf9aa03162"},
+    {file = "alephclient-2.3.6.tar.gz", hash = "sha256:41b0cb4494d6b8edd6e107593cb4b5542ba88ccea4d4fe0ca838e052f64c6146"},
+]
+
+[package.dependencies]
+banal = ">=1.0.1"
+click = ">=7.0"
+pyyaml = "*"
+requests = ">=2.21.0"
+requests-toolbelt = ">=0.9.1"
+
+[package.extras]
+dev = ["mypy", "pytest", "pytest-mock (>=1.10.0)", "wheel"]
+
+[[package]]
 name = "anyio"
 version = "3.7.1"
 description = "High level compatibility layer for multiple asynchronous event loop implementations"
@@ -1380,17 +1401,18 @@ tqdm = ["tqdm"]
 
 [[package]]
 name = "ftmq"
-version = "0.2.1"
+version = "0.3.0"
 description = "followthemoney query dsl and io helpers"
 optional = false
 python-versions = ">=3.10,<3.13"
 files = [
-    {file = "ftmq-0.2.1-py3-none-any.whl", hash = "sha256:90d8035b90a0e0b2f6c8ec05319a6cfdf2ced5ddc23b31308fc415f586d5226e"},
-    {file = "ftmq-0.2.1.tar.gz", hash = "sha256:d88640b475276c7abc7c5c6fac01660fa7b0643216acedeec76a29b90a2a4ef1"},
+    {file = "ftmq-0.3.0-py3-none-any.whl", hash = "sha256:671ec7b927ba4db9c4f67541ab14a6e898768468f6ffddae5c6e55546e8d1485"},
+    {file = "ftmq-0.3.0.tar.gz", hash = "sha256:38379733fd4838bdfe1fba7a5384314641a5d526c80c334e2973ca3d29f848c5"},
 ]
 
 [package.dependencies]
 adlfs = ">=2023.4.0,<2024.0.0"
+alephclient = ">=2.3.6,<3.0.0"
 banal = ">=1.0.6,<2.0.0"
 certifi = ">=2023.07.22"
 click = ">=8.1.3,<9.0.0"
@@ -1399,12 +1421,14 @@ cryptography = ">=41.0.2"
 followthemoney = ">=3.4.0,<4.0.0"
 fsspec = ">=2023.6.0,<2024.0.0"
 gcsfs = ">=2023.6.0,<2024.0.0"
-nomenklatura = ">=3.3.7,<4.0.0"
+nomenklatura = ">=3.4.0,<4.0.0"
 orjson = ">=3.9.1,<4.0.0"
+pycountry = ">=22.3.5,<23.0.0"
 pydantic = "<2"
 PyICU = ">=2.11,<3.0"
 s3fs = ">=2023.6.0,<2024.0.0"
 scipy = ">=1.10.0"
+sqlalchemy = ">=2.0.19,<3.0.0"
 
 [[package]]
 name = "gcsfs"
@@ -3459,6 +3483,19 @@ files = [
 ]
 
 [[package]]
+name = "pycountry"
+version = "22.3.5"
+description = "ISO country, subdivision, language, currency and script definitions and their translations"
+optional = false
+python-versions = ">=3.6, <4"
+files = [
+    {file = "pycountry-22.3.5.tar.gz", hash = "sha256:b2163a246c585894d808f18783e19137cb70a0c18fb36748dc01fc6f109c1646"},
+]
+
+[package.dependencies]
+setuptools = "*"
+
+[[package]]
 name = "pycparser"
 version = "2.21"
 description = "C parser in Python"
@@ -4189,6 +4226,20 @@ requests = ">=2.0.0"
 
 [package.extras]
 rsa = ["oauthlib[signedtoken] (>=3.0.0)"]
+
+[[package]]
+name = "requests-toolbelt"
+version = "1.0.0"
+description = "A utility belt for advanced users of python-requests"
+optional = false
+python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
+files = [
+    {file = "requests-toolbelt-1.0.0.tar.gz", hash = "sha256:7681a0a3d047012b5bdc0ee37d7f8f07ebe76ab08caeccfc3921ce23c88d5bc6"},
+    {file = "requests_toolbelt-1.0.0-py2.py3-none-any.whl", hash = "sha256:cccfdd665f0a24fcf4726e690f65639d272bb0637b9b92dfd91a5568ccf6bd06"},
+]
+
+[package.dependencies]
+requests = ">=2.0.1,<3.0.0"
 
 [[package]]
 name = "responses"
@@ -5336,4 +5387,4 @@ testing = ["big-O", "jaraco.functools", "jaraco.itertools", "more-itertools", "p
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.10,<3.13"
-content-hash = "856dcd536b50609839eec3824ee08d5404119d9f588a8efa8d70f5fc6a36c7e2"
+content-hash = "eba92ffcf4fd03db4c13b957b3b3467d435dbac7c7299fdaac6cfee89837928e"
