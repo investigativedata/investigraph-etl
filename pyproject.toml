@@ -52,7 +52,7 @@ normality = "^2.4.0"
 nomenklatura = "^3.3.8"
 
 [tool.poetry.group.dev.dependencies]
-pytest-env = "^0.8.2"
+pytest-env = ">=0.8.2,<1.1.0"
 moto = "4.2.2"
 pytest = "^7.3.2"
 pytest-cov = "^4.1.0"

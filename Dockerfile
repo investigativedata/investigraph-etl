@@ -8,6 +8,7 @@ RUN apt-get update && apt-get -y upgrade
 RUN pip install -q -U pip setuptools
 
 RUN apt-get install -y pkg-config libicu-dev
+RUN apt-get install -y libleveldb-dev
 RUN pip install -q --no-binary=:pyicu: pyicu
 RUN pip install -q psycopg2-binary
 RUN pip install -q asyncpg
