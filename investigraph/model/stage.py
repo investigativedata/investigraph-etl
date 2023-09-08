@@ -10,6 +10,7 @@ from investigraph.settings import (
     DEFAULT_AGGREGATOR,
     DEFAULT_EXTRACTOR,
     DEFAULT_LOADER,
+    DEFAULT_SEEDER,
     DEFAULT_TRANSFORMER,
     FTM_STORE_URI,
 )
@@ -38,6 +39,12 @@ class Stage(BaseModel):
     def handle(self, ctx: "Context", *args, **kwargs) -> TaskResult:
         handler = self.get_handler()
         return handler(ctx, *args, **kwargs)
+
+
+class SeedStage(Stage):
+    _default_handler = DEFAULT_SEEDER
+
+    glob: str | None = None
 
 
 class ExtractStage(Stage):

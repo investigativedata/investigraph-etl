@@ -10,10 +10,10 @@ from typing import Any, Callable
 
 import orjson
 from banal import clean_dict, ensure_dict, is_listish
-from followthemoney import model
-from followthemoney.proxy import E
 from followthemoney.util import join_text as _join_text
 from followthemoney.util import make_entity_id, sanitize_text
+from ftmq.util import make_dataset
+from nomenklatura.dataset import DefaultDataset
 from nomenklatura.entity import CE, CompositeEntity
 from normality import slugify
 from pydantic import BaseModel
@@ -27,14 +27,11 @@ def slugified_dict(data: dict[Any, Any]) -> SDict:
     return {slugify(k, "_"): v for k, v in ensure_dict(data).items()}
 
 
-def make_proxy(schema: str, dataset: str | None = "default", **properties) -> CE:
-    return CompositeEntity(
-        model, {"schema": schema, "properties": properties}, default_dataset=dataset
-    )
-
-
-def uplevel_proxy(proxy: E) -> CE:
-    return CompositeEntity.from_dict(model, proxy.to_dict())
+def make_proxy(schema: str, dataset: str | None = DefaultDataset, **properties) -> CE:
+    data = {"schema": schema, "properties": properties}
+    if isinstance(dataset, str):
+        dataset = make_dataset(dataset)
+    return CompositeEntity.from_data(dataset, data)
 
 
 @cache
@@ -104,6 +101,13 @@ def fingerprint(value: Any) -> str | None:
 @lru_cache(1024)
 def string_id(value: Any) -> str | None:
     return make_entity_id(fingerprint(value))
+
+
+def str_or_none(value: Any) -> str | None:
+    if not value:
+        return None
+    value = str(value).strip()
+    return value or None
 
 
 def join_text(*parts: Any, sep: str = " ") -> str | None:

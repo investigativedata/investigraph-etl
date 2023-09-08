@@ -32,6 +32,13 @@ class SourceHead(BaseModel):
     def can_stream(self) -> bool:
         return self.content_type in (types.CSV, types.JSON)
 
+    @property
+    def ckey(self) -> str | None:
+        if self.etag:
+            return self.etag
+        if self.last_modified:
+            return self.last_modified.isoformat()
+
 
 class Source(BaseModel):
     name: str
@@ -56,7 +63,7 @@ class Source(BaseModel):
         ensure absolute file paths based on base path of paretn config.yml
         """
         if self.scheme.startswith("file"):
-            self.uri = absolute_path(self.uri, base)
+            self.uri = str(absolute_path(self.uri, base))
 
     @property
     def is_http(self) -> bool:

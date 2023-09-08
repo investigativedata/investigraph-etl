@@ -69,3 +69,10 @@ def test_util_data_checksum():
     assert util.data_checksum(["a", 1]) != util.data_checksum(["a", "1"])
     assert util.data_checksum([1, 2]) == util.data_checksum([2, 1])
     assert util.data_checksum({"a": 1, "b": 2}) == util.data_checksum({"b": 2, "a": 1})
+
+
+def test_util_str_or_none():
+    assert util.str_or_none("foo") == "foo"
+    assert util.str_or_none("") is None
+    assert util.str_or_none(" ") is None
+    assert util.str_or_none(None) is None

@@ -2,6 +2,10 @@
 
 ## CHANGELOG
 
+### 0.3.2 (2023-09-08)
+- introdoce optional seed stage before extract stage
+- minor improvements and dependencies updates
+
 ### 0.3.1 (2023-07-31)
 - refactor aggregation to its own stage
 

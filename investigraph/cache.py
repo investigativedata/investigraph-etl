@@ -1,6 +1,7 @@
 import logging
+from collections.abc import Iterable
 from functools import cache
-from typing import Any, Iterable, Set
+from typing import Any, Set
 
 import fakeredis
 import redis
@@ -42,7 +43,7 @@ class Cache:
         self.cache.set(self.get_key(key), data)
         return key
 
-    def get(self, key: str, delete: bool | None = False) -> Any:
+    def get(self, key: str, delete: bool | None = settings.DEBUG) -> Any:
         key = self.get_key(key)
         res = self.cache.get(key)
         if delete:
@@ -57,7 +58,7 @@ class Cache:
         self.cache.sadd(self.get_key(key) + "#SET", *values)
         return key
 
-    def smembers(self, key: str, delete: bool | None = False) -> Set[str]:
+    def smembers(self, key: str, delete: bool | None = settings.DEBUG) -> Set[str]:
         key = self.get_key(key) + "#SET"
         res: Set[bytes] = self.cache.smembers(key)
         if delete:
@@ -65,7 +66,7 @@ class Cache:
         return {v.decode() for v in res} or None
 
     def flushall(self):
-        self.cache.flushall()
+        return self.cache.flushall()
 
     @staticmethod
     def get_key(key: str) -> str:

@@ -2,8 +2,9 @@
 The main entrypoint for the prefect flow
 """
 
+from collections.abc import Generator
 from datetime import datetime
-from typing import Any, Generator
+from typing import Any, Set
 
 from ftmq.model import Coverage
 from prefect import flow, task
@@ -12,7 +13,7 @@ from prefect_dask import DaskTaskRunner
 from prefect_ray import RayTaskRunner
 
 from investigraph import __version__, settings
-from investigraph.model.context import Context, init_context
+from investigraph.model.context import BaseContext, Context
 from investigraph.model.flow import Flow, FlowOptions
 from investigraph.model.resolver import Resolver
 from investigraph.util import data_checksum
@@ -20,10 +21,10 @@ from investigraph.util import data_checksum
 
 def get_runner_from_env() -> ConcurrentTaskRunner | DaskTaskRunner | RayTaskRunner:
     if settings.TASK_RUNNER == "dask":
-        return DaskTaskRunner()
+        return DaskTaskRunner
     if settings.TASK_RUNNER == "ray":
-        return RayTaskRunner()
-    return ConcurrentTaskRunner()
+        return RayTaskRunner
+    return ConcurrentTaskRunner
 
 
 def get_task_cache_key(_, params) -> str:
@@ -70,20 +71,15 @@ def transform(ctx: Context, ckey: str) -> str:
     proxies: list[dict[str, Any]] = []
     records = ctx.cache.get(ckey)
     for rec, ix in records:
-        for proxy in ctx.config.transform.handle(ctx, rec, ix):
-            proxy.datasets = {ctx.dataset}
-            proxies.append(proxy.to_dict())
+        try:
+            for proxy in ctx.config.transform.handle(ctx, rec, ix):
+                proxies.append(proxy.to_dict())
+        except Exception as e:
+            ctx.log.error(f"{e.__class__.__name__}: {e}")
     ctx.log.info("TRANSFORMED %d records", len(records))
     return ctx.cache.set(proxies)
 
 
-@task(
-    retries=settings.TASK_RETRIES,
-    retry_delay_seconds=settings.TASK_RETRY_DELAY,
-    cache_key_fn=get_task_cache_key,
-    cache_expiration=settings.TASK_CACHE_EXPIRATION,
-    refresh_cache=not settings.TASK_CACHE,
-)
 def extract(
     ctx: Context, ckey: str, res: Resolver | None = None
 ) -> Generator[str, None, None]:
@@ -105,12 +101,28 @@ def extract(
     ctx.log.info("EXTRACTED %d records", ix)
 
 
-@flow(
-    name="investigraph-pipeline",
-    version=__version__,
-    flow_run_name="{ctx.dataset}-{ctx.source.name}",
-    task_runner=get_runner_from_env(),
+@task(
+    retries=settings.TASK_RETRIES,
+    retry_delay_seconds=settings.TASK_RETRY_DELAY,
+    cache_key_fn=get_task_cache_key,
+    cache_expiration=settings.TASK_CACHE_EXPIRATION,
+    refresh_cache=not settings.TASK_CACHE,
 )
+def extract_task(
+    ctx: Context, ckey: str, res: Resolver | None = None
+) -> Generator[str, None, None]:
+    return extract(ctx, ckey, res)
+
+
+def dispatch_extract(
+    ctx: Context, ckey: str, res: Resolver | None = None
+) -> Generator[str, None, None]:
+    if ctx.config.extract.fetch:
+        return extract_task(ctx, ckey, res)
+    else:  # enable requests subflow
+        return extract(ctx, ckey, res)
+
+
 def run_pipeline(ctx: Context) -> list[Any]:
     res = None
     if ctx.config.extract.fetch:
@@ -122,7 +134,7 @@ def run_pipeline(ctx: Context) -> list[Any]:
         ckey = ctx.source.uri
 
     results = []
-    for key in extract(ctx, f"extract-{ckey}", res):
+    for key in dispatch_extract(ctx, f"extract-{ckey}", res):
         transformed = transform.submit(ctx, key)
         loaded = load.submit(ctx, transformed)
         results.append(loaded)
@@ -139,12 +151,18 @@ def run_pipeline(ctx: Context) -> list[Any]:
 def run(options: FlowOptions) -> Flow:
     flow = Flow.from_options(options)
     results = []
-    for ix, source in enumerate(flow.config.extract.sources):
-        ctx = init_context(config=flow.config, source=source)
+    ctxs: Set[Context] = set()
+    ctx = BaseContext.from_config(flow.config)
+    for source in ctx.config.seed.handle(ctx):
+        ctxs.add(ctx.from_source(source))
+    for source in ctx.config.extract.sources:
+        ctxs.add(ctx.from_source(source))
+
+    for ix, run_ctx in enumerate(ctxs):
         if ix == 0:  # only on first time
             ctx.export_metadata()
             ctx.log.info("INDEX: %s" % ctx.config.load.index_uri)
-        results.extend(run_pipeline(ctx))
+        results.extend(run_pipeline(run_ctx))
 
     if flow.config.aggregate:
         fragments = [r.result() for r in results]
