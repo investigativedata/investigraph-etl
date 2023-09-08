@@ -210,6 +210,9 @@ boto3==1.28.17 ; python_version >= "3.10" and python_version < "3.13" \
 botocore==1.31.17 ; python_version >= "3.10" and python_version < "3.13" \
     --hash=sha256:396459065dba4339eb4da4ec8b4e6599728eb89b7caaceea199e26f7d824a41c \
     --hash=sha256:6ac34a1d34aa3750e78b77b8596617e2bab938964694d651939dba2cbde2c12b
+bump2version==1.0.1 ; python_version >= "3.10" and python_version < "3.13" \
+    --hash=sha256:37f927ea17cde7ae2d7baf832f8e80ce3777624554a653006c9144f8017fe410 \
+    --hash=sha256:762cb2bfad61f4ec8e2bdf452c7c267416f8c70dd9ecb1653fd0bbb01fa936e6
 cachelib==0.10.2 ; python_version >= "3.10" and python_version < "3.13" \
     --hash=sha256:42d49f2fad9310dd946d7be73d46776bcd4d5fde4f49ad210cfdd447fbdfc346 \
     --hash=sha256:593faeee62a7c037d50fc835617a01b887503f972fb52b188ae7e50e9cb69740
