@@ -1413,13 +1413,13 @@ tqdm = ["tqdm"]
 
 [[package]]
 name = "ftmq"
-version = "0.3.0"
+version = "0.3.1"
 description = "followthemoney query dsl and io helpers"
 optional = false
 python-versions = ">=3.10,<3.13"
 files = [
-    {file = "ftmq-0.3.0-py3-none-any.whl", hash = "sha256:671ec7b927ba4db9c4f67541ab14a6e898768468f6ffddae5c6e55546e8d1485"},
-    {file = "ftmq-0.3.0.tar.gz", hash = "sha256:38379733fd4838bdfe1fba7a5384314641a5d526c80c334e2973ca3d29f848c5"},
+    {file = "ftmq-0.3.1-py3-none-any.whl", hash = "sha256:1f81bee6da7f9bda9dcd32e797c7aaf2aff5bbba1d75601e9604a15159a23678"},
+    {file = "ftmq-0.3.1.tar.gz", hash = "sha256:24b8d87bc97bc28d92fd418eec268cee43e24898420396a570541ce66ca5cce5"},
 ]
 
 [package.dependencies]
