@@ -3318,13 +3318,13 @@ virtualenv = ">=20.10.0"
 
 [[package]]
 name = "prefect"
-version = "2.13.0"
+version = "2.13.2"
 description = "Workflow orchestration and management."
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "prefect-2.13.0-py3-none-any.whl", hash = "sha256:6a7e03cb3f267c54d2ce9c8f037e7932eb46d6b9b465a20005092a614a428bce"},
-    {file = "prefect-2.13.0.tar.gz", hash = "sha256:04dae0c393d44078c48a6c3816b1877a6eb6f9cc41ad6215a86dcdfd7ffaf02f"},
+    {file = "prefect-2.13.2-py3-none-any.whl", hash = "sha256:6ce31ff794cf45297f6a112408b00c1d81f7ae68667966978e415afac235c05d"},
+    {file = "prefect-2.13.2.tar.gz", hash = "sha256:509a2f06d58c6a4bd77a209379804bf6610028613a273512240de8ca0a3b276c"},
 ]
 
 [package.dependencies]
@@ -3349,11 +3349,11 @@ httpx = {version = ">=0.23,<0.23.2 || >0.23.2", extras = ["http2"]}
 jinja2 = ">=3.0.0,<4.0.0"
 jsonpatch = ">=1.32,<2.0"
 jsonschema = ">=3.2.0,<5.0.0"
-kubernetes = ">=24.2.0,<28.0.0"
+kubernetes = ">=24.2.0,<29.0.0"
 orjson = ">=3.7,<4.0"
 packaging = ">=21.3,<24.3"
 pathspec = ">=0.8.0"
-pendulum = ">=2.1.2,<4.0.0"
+pendulum = ">=2.1.2,<3.0.0"
 pydantic = ">=1.10.0,<2.0.0"
 python-slugify = ">=5.0,<9.0"
 pytz = ">=2021.1,<2024"
