@@ -65,7 +65,7 @@ def load(ctx: Context, ckey: str) -> str:
     retry_delay_seconds=settings.TASK_RETRY_DELAY,
     cache_key_fn=get_task_cache_key,
     cache_expiration=settings.TASK_CACHE_EXPIRATION,
-    refresh_cache=not settings.TASK_CACHE,
+    refresh_cache=not settings.TASK_CACHE or not settings.TRANSFORM_CACHE,
 )
 def transform(ctx: Context, ckey: str) -> str:
     proxies: list[dict[str, Any]] = []
@@ -106,7 +106,7 @@ def extract(
     retry_delay_seconds=settings.TASK_RETRY_DELAY,
     cache_key_fn=get_task_cache_key,
     cache_expiration=settings.TASK_CACHE_EXPIRATION,
-    refresh_cache=not settings.TASK_CACHE,
+    refresh_cache=not settings.TASK_CACHE or not settings.EXTRACT_CACHE,
 )
 def extract_task(
     ctx: Context, ckey: str, res: Resolver | None = None

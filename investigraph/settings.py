@@ -39,6 +39,9 @@ TASK_CACHE_EXPIRATION = int(get_env("TASK_CACHE_EXPIRATION", 0)) or None  # in m
 TASK_CACHE_EXPIRATION = (
     timedelta(TASK_CACHE_EXPIRATION) if TASK_CACHE_EXPIRATION is not None else None
 )
+FETCH_CACHE = as_bool(get_env("FETCH_CACHE"), TASK_CACHE)
+TRANSFORM_CACHE = as_bool(get_env("TRANSFORM_CACHE"), TASK_CACHE)
+EXTRACT_CACHE = as_bool(get_env("EXTRACT_CACHE"), TASK_CACHE)
 
 TASK_RUNNER = get_env("PREFECT_TASK_RUNNER", "").lower()
 
