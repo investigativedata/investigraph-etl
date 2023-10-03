@@ -32,7 +32,7 @@ def get_request_cache_key(*args, **kwargs) -> str:
     cache_key_fn=get_request_cache_key,
     persist_result=True,
     cache_expiration=settings.TASK_CACHE_EXPIRATION,
-    refresh_cache=not settings.TASK_CACHE,
+    refresh_cache=not settings.TASK_CACHE or not settings.FETCH_CACHE,
 )
 def _get(url: str, *args, **kwargs):
     log = get_run_logger()

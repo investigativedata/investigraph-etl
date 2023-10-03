@@ -126,7 +126,7 @@ def checksum(io: BytesIO, algorithm: str | None = "md5") -> str:
 def data_checksum(data: Any, algorithm: str | None = "md5") -> str:
     if is_listish(data):
         data = sorted(data, key=lambda x: repr(x))
-    data = orjson.dumps(data, option=orjson.OPT_SORT_KEYS)
+    data = orjson.dumps(data, option=orjson.OPT_SORT_KEYS, default=str)
     return checksum(BytesIO(data), algorithm)
 
 
@@ -156,25 +156,6 @@ def pydantic_merge(m1: BaseModel, m2: BaseModel) -> BaseModel:
             f"Cannot merge: `{m1.__class__.__name__}` with `{m2.__class__.__name__}`"
         )
     return m1.__class__(**dict_merge(m1.dict(), m2.dict()))
-
-
-def join_slug(
-    *parts: str | None,
-    prefix: str | None = None,
-    sep: str = "-",
-    strict: bool = True,
-    max_len: int = 255,
-) -> str | None:
-    sections = [slugify(p, sep=sep) for p in parts]
-    if strict and None in sections:
-        return None
-    texts = [p for p in sections if p is not None]
-    if not len(texts):
-        return None
-    prefix = slugify(prefix, sep=sep)
-    if prefix is not None:
-        texts = [prefix, *texts]
-    return sep.join(texts)[:max_len].strip(sep)
 
 
 def to_dict(obj: Any) -> dict[Any]:

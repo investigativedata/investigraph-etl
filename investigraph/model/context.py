@@ -4,6 +4,7 @@ from typing import Iterable
 import orjson
 from followthemoney.util import make_entity_id
 from ftmq.io import smart_write
+from ftmq.util import join_slug
 from nomenklatura.entity import CE
 from prefect import get_run_logger
 from prefect.logging.loggers import PrefectLogAdapter
@@ -14,7 +15,7 @@ from investigraph.logic.aggregate import AggregatorResult, merge
 from investigraph.model.config import Config
 from investigraph.model.source import Source
 from investigraph.types import CEGenerator
-from investigraph.util import join_slug, make_proxy
+from investigraph.util import make_proxy
 
 
 class BaseContext(BaseModel):

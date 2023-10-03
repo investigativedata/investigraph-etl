@@ -2,8 +2,12 @@
 
 ## CHANGELOG
 
+### 0.3.3 (2023-10-03)
+
+- Update dependencies
+
 ### 0.3.2 (2023-09-08)
-- introdoce optional seed stage before extract stage
+- introduce optional seed stage before extract stage
 - minor improvements and dependencies updates
 
 ### 0.3.1 (2023-07-31)

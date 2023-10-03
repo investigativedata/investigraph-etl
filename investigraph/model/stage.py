@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Callable
+from typing import TYPE_CHECKING, Any, Callable
 
 from banal import ensure_list, keys_values
 from pydantic import BaseModel
@@ -44,7 +44,8 @@ class Stage(BaseModel):
 class SeedStage(Stage):
     _default_handler = DEFAULT_SEEDER
 
-    glob: str | None = None
+    glob: str | list[str] | None = None
+    storage_options: dict[str, Any] = None
 
 
 class ExtractStage(Stage):
