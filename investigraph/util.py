@@ -126,7 +126,7 @@ def checksum(io: BytesIO, algorithm: str | None = "md5") -> str:
 def data_checksum(data: Any, algorithm: str | None = "md5") -> str:
     if is_listish(data):
         data = sorted(data, key=lambda x: repr(x))
-    data = orjson.dumps(data, option=orjson.OPT_SORT_KEYS)
+    data = orjson.dumps(data, option=orjson.OPT_SORT_KEYS, default=str)
     return checksum(BytesIO(data), algorithm)
 
 
