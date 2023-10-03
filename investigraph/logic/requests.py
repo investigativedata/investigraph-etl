@@ -7,9 +7,6 @@ res = requests.get(url, params={})
 
 """
 
-
-from urllib.parse import urlencode
-
 import requests
 from prefect import flow, get_run_logger, task
 from prefect.tasks import task_input_hash
@@ -37,7 +34,7 @@ def get_request_cache_key(*args, **kwargs) -> str:
 def _get(url: str, *args, **kwargs):
     log = get_run_logger()
     kwargs.pop("ckey", None)
-    log.info(f"GET {url}?{urlencode(kwargs)}")
+    log.info(f"GET {url}")
     res = requests.get(url, *args, **kwargs)
     assert res.ok
     return res

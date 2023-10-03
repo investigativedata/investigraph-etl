@@ -7,7 +7,7 @@ from ftmq.io import smart_write
 from ftmq.util import join_slug
 from nomenklatura.entity import CE
 from prefect import get_run_logger
-from prefect.logging.loggers import PrefectLogAdapter
+from prefect.logging.loggers import MissingContextError, PrefectLogAdapter
 from pydantic import BaseModel
 
 from investigraph.cache import Cache, get_cache
@@ -35,7 +35,12 @@ class BaseContext(BaseModel):
 
     @property
     def log(self) -> PrefectLogAdapter:
-        return get_run_logger()
+        try:
+            return get_run_logger()
+        except MissingContextError:
+            import logging
+
+            return logging.getLogger(__name__)
 
     def load_fragments(self, *args, **kwargs) -> str:
         kwargs["uri"] = kwargs.pop("uri", self.config.load.fragments_uri)
