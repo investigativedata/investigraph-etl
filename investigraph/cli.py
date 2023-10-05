@@ -130,8 +130,6 @@ def cli_catalog(
         investigraph build-catalog catalog.yml -u s3://mybucket/catalog.json
     """
     catalog = Catalog.from_path(path)
-    if uri != "-":
-        catalog.uri = uri
     if flatten:
         datasets = [d.dict() for d in catalog.get_datasets()]
         data = {
