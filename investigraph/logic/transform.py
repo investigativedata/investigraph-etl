@@ -14,7 +14,9 @@ from ftmq.io import make_proxy
 from investigraph.types import CEGenerator, SDict
 
 
-def map_record(record: SDict, mapping: QueryMapping, dataset: str) -> CEGenerator:
+def map_record(
+    record: SDict, mapping: QueryMapping, dataset: str | None = "default"
+) -> CEGenerator:
     mapping = mapping.get_mapping()
     if mapping.source.check_filters(record):
         entities = mapping.map(record)
