@@ -50,7 +50,7 @@ def aggregate(ctx: Context, results: list[str], ckey: str) -> Coverage:
     retry_delay_seconds=settings.TASK_RETRY_DELAY,
     cache_key_fn=get_task_cache_key,
     cache_expiration=settings.TASK_CACHE_EXPIRATION,
-    refresh_cache=not settings.TASK_CACHE,
+    refresh_cache=not settings.TASK_CACHE or not settings.LOAD_CACHE,
 )
 def load(ctx: Context, ckey: str) -> str:
     proxies = ctx.cache.get(ckey)

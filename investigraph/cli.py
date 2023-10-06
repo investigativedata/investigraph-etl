@@ -37,7 +37,7 @@ def cli_run(
     fragments_uri: Annotated[Optional[str], typer.Option(...)] = None,
     entities_uri: Annotated[Optional[str], typer.Option(...)] = None,
     aggregate: Annotated[Optional[bool], typer.Option(...)] = True,
-    chunk_size: Annotated[Optional[int], typer.Option(...)] = None,
+    chunk_size: Annotated[Optional[int], typer.Option(...)] = 1_000,
 ):
     """
     Execute a dataset pipeline
