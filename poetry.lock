@@ -1190,26 +1190,6 @@ json = ["jsonpath-ng (>=1.6,<2.0)"]
 lua = ["lupa (>=1.14,<3.0)"]
 
 [[package]]
-name = "fastapi"
-version = "0.103.2"
-description = "FastAPI framework, high performance, easy to learn, fast to code, ready for production"
-optional = false
-python-versions = ">=3.7"
-files = [
-    {file = "fastapi-0.103.2-py3-none-any.whl", hash = "sha256:3270de872f0fe9ec809d4bd3d4d890c6d5cc7b9611d721d6438f9dacc8c4ef2e"},
-    {file = "fastapi-0.103.2.tar.gz", hash = "sha256:75a11f6bfb8fc4d2bec0bd710c2d5f2829659c0e8c0afd5560fdda6ce25ec653"},
-]
-
-[package.dependencies]
-anyio = ">=3.7.1,<4.0.0"
-pydantic = ">=1.7.4,<1.8 || >1.8,<1.8.1 || >1.8.1,<2.0.0 || >2.0.0,<2.0.1 || >2.0.1,<2.1.0 || >2.1.0,<3.0.0"
-starlette = ">=0.27.0,<0.28.0"
-typing-extensions = ">=4.5.0"
-
-[package.extras]
-all = ["email-validator (>=2.0.0)", "httpx (>=0.23.0)", "itsdangerous (>=1.1.0)", "jinja2 (>=2.11.2)", "orjson (>=3.2.1)", "pydantic-extra-types (>=2.0.0)", "pydantic-settings (>=2.0.0)", "python-multipart (>=0.0.5)", "pyyaml (>=5.3.1)", "ujson (>=4.0.1,!=4.0.2,!=4.1.0,!=4.2.0,!=4.3.0,!=5.0.0,!=5.1.0)", "uvicorn[standard] (>=0.12.0)"]
-
-[[package]]
 name = "filelock"
 version = "3.12.4"
 description = "A platform independent file lock."
@@ -1731,7 +1711,7 @@ files = [
     {file = "greenlet-3.0.0-cp311-cp311-musllinux_1_1_aarch64.whl", hash = "sha256:0b72b802496cccbd9b31acea72b6f87e7771ccfd7f7927437d592e5c92ed703c"},
     {file = "greenlet-3.0.0-cp311-cp311-musllinux_1_1_x86_64.whl", hash = "sha256:527cd90ba3d8d7ae7dceb06fda619895768a46a1b4e423bdb24c1969823b8362"},
     {file = "greenlet-3.0.0-cp311-cp311-win_amd64.whl", hash = "sha256:37f60b3a42d8b5499be910d1267b24355c495064f271cfe74bf28b17b099133c"},
-    {file = "greenlet-3.0.0-cp311-universal2-macosx_10_9_universal2.whl", hash = "sha256:c3692ecf3fe754c8c0f2c95ff19626584459eab110eaab66413b1e7425cd84e9"},
+    {file = "greenlet-3.0.0-cp312-cp312-macosx_10_9_universal2.whl", hash = "sha256:1482fba7fbed96ea7842b5a7fc11d61727e8be75a077e603e8ab49d24e234383"},
     {file = "greenlet-3.0.0-cp312-cp312-macosx_13_0_arm64.whl", hash = "sha256:be557119bf467d37a8099d91fbf11b2de5eb1fd5fc5b91598407574848dc910f"},
     {file = "greenlet-3.0.0-cp312-cp312-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:73b2f1922a39d5d59cc0e597987300df3396b148a9bd10b76a058a2f2772fc04"},
     {file = "greenlet-3.0.0-cp312-cp312-manylinux_2_17_ppc64le.manylinux2014_ppc64le.whl", hash = "sha256:d1e22c22f7826096ad503e9bb681b05b8c1f5a8138469b255eb91f26a76634f2"},
@@ -1741,7 +1721,6 @@ files = [
     {file = "greenlet-3.0.0-cp312-cp312-musllinux_1_1_aarch64.whl", hash = "sha256:952256c2bc5b4ee8df8dfc54fc4de330970bf5d79253c863fb5e6761f00dda35"},
     {file = "greenlet-3.0.0-cp312-cp312-musllinux_1_1_x86_64.whl", hash = "sha256:269d06fa0f9624455ce08ae0179430eea61085e3cf6457f05982b37fd2cefe17"},
     {file = "greenlet-3.0.0-cp312-cp312-win_amd64.whl", hash = "sha256:9adbd8ecf097e34ada8efde9b6fec4dd2a903b1e98037adf72d12993a1c80b51"},
-    {file = "greenlet-3.0.0-cp312-universal2-macosx_10_9_universal2.whl", hash = "sha256:553d6fb2324e7f4f0899e5ad2c427a4579ed4873f42124beba763f16032959af"},
     {file = "greenlet-3.0.0-cp37-cp37m-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:c6b5ce7f40f0e2f8b88c28e6691ca6806814157ff05e794cdd161be928550f4c"},
     {file = "greenlet-3.0.0-cp37-cp37m-manylinux_2_17_ppc64le.manylinux2014_ppc64le.whl", hash = "sha256:ecf94aa539e97a8411b5ea52fc6ccd8371be9550c4041011a091eb8b3ca1d810"},
     {file = "greenlet-3.0.0-cp37-cp37m-manylinux_2_17_s390x.manylinux2014_s390x.whl", hash = "sha256:80dcd3c938cbcac986c5c92779db8e8ce51a89a849c135172c88ecbdc8c056b7"},
@@ -3275,19 +3254,19 @@ virtualenv = ">=20.10.0"
 
 [[package]]
 name = "prefect"
-version = "2.13.4"
+version = "2.13.5"
 description = "Workflow orchestration and management."
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "prefect-2.13.4-py3-none-any.whl", hash = "sha256:383d42672fc33843787c7f0883f9ab1517f3ffa9fe2d5e59f79e2a98c9986e6f"},
-    {file = "prefect-2.13.4.tar.gz", hash = "sha256:c89508a93dc636d8c3f00c5527aa5a5366ed064877ecf9590be098e79b390254"},
+    {file = "prefect-2.13.5-py3-none-any.whl", hash = "sha256:1cd53645d9d330804ac4ffcb72b44a3b464431896030129a7f261a360f14de20"},
+    {file = "prefect-2.13.5.tar.gz", hash = "sha256:29217d65bcfc492cf0a0beff6c6307582182fb8da33f4c66e14eca644ec036e0"},
 ]
 
 [package.dependencies]
 aiosqlite = ">=0.17.0"
 alembic = ">=1.7.5,<2.0.0"
-anyio = ">=3.4.0,<4.0.0"
+anyio = ">=3.7.1,<4.0.0"
 apprise = ">=1.1.0,<2.0.0"
 asgi-lifespan = ">=1.0,<3.0"
 asyncpg = ">=0.23"
@@ -3298,7 +3277,6 @@ croniter = ">=1.0.12,<2.0.0"
 cryptography = ">=36.0.1"
 dateparser = ">=1.1.1,<2.0.0"
 docker = ">=4.0,<7.0"
-fastapi = ">=0.93"
 fsspec = ">=2022.5.0"
 graphviz = ">=0.20.1"
 griffe = ">=0.20.0"
@@ -3319,9 +3297,10 @@ readchar = ">=4.0.0,<5.0.0"
 rich = ">=11.0,<14.0"
 ruamel-yaml = ">=0.17.0"
 sqlalchemy = {version = ">=1.4.22,<1.4.33 || >1.4.33,<3.0.0", extras = ["asyncio"]}
+starlette = ">=0.27.0,<0.28.0"
 toml = ">=0.10.0"
 typer = ">=0.4.2"
-typing-extensions = ">=4.1.0,<5.0.0"
+typing-extensions = ">=4.5.0,<5.0.0"
 uvicorn = ">=0.14.0"
 websockets = ">=10.4"
 
