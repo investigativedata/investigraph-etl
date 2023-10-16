@@ -82,7 +82,7 @@ class BaseContext(BaseModel):
     def task(self) -> "TaskContext":
         return TaskContext(**self.dict())
 
-    def emit(self) -> None:
+    def emit(self, proxy: CE) -> None:
         raise NotImplementedError
 
     def from_source(self, source: Source) -> "Context":

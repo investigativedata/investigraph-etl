@@ -14,7 +14,7 @@ def get_env(env: str, default: Any | None = None) -> Any | None:
 
 VERSION = "0.3.3"
 
-DEBUG = as_bool(get_env("DEBUG", 1))
+DEBUG = as_bool(get_env("DEBUG", 0))
 DATA_ROOT = Path(get_env("DATA_ROOT", Path.cwd() / "data")).absolute()
 DATASETS_REPO = "https://github.com/investigativedata/investigraph-datasets.git"
 DATASETS_BLOCK = get_env("DATASETS_BLOCK")
@@ -31,6 +31,7 @@ DEFAULT_AGGREGATOR = get_env(
 
 REDIS_URL = get_env("REDIS_URL", "redis://localhost:6379")
 REDIS_PREFIX = get_env("REDIS_PREFIX", f"investigraph:{VERSION}")
+REDIS_PERSIST = as_bool(get_env("REDIS_PERSIST", 0))
 
 TASK_CACHE = as_bool(get_env("TASK_CACHE", 1))
 TASK_RETRIES = int(get_env("TASK_RETRIES", 3))

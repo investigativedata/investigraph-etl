@@ -12,6 +12,8 @@ from investigraph.util import data_checksum
 
 log = logging.getLogger(__name__)
 
+DELETE = settings.DEBUG or not settings.REDIS_PERSIST
+
 
 class Cache:
     """
@@ -43,7 +45,7 @@ class Cache:
         self.cache.set(self.get_key(key), data)
         return key
 
-    def get(self, key: str, delete: bool | None = settings.DEBUG) -> Any:
+    def get(self, key: str, delete: bool | None = DELETE) -> Any:
         key = self.get_key(key)
         res = self.cache.get(key)
         if delete:
@@ -58,7 +60,7 @@ class Cache:
         self.cache.sadd(self.get_key(key) + "#SET", *values)
         return key
 
-    def smembers(self, key: str, delete: bool | None = settings.DEBUG) -> Set[str]:
+    def smembers(self, key: str, delete: bool | None = DELETE) -> Set[str]:
         key = self.get_key(key) + "#SET"
         res: Set[bytes] = self.cache.smembers(key)
         if delete:

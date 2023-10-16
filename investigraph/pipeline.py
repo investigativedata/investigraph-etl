@@ -54,10 +54,11 @@ def aggregate(ctx: Context, results: list[str], ckey: str) -> Coverage:
 )
 def load(ctx: Context, ckey: str) -> str:
     proxies = ctx.cache.get(ckey)
-    out = ctx.load_fragments(proxies, ckey=ckey)
-    ctx.log.info("LOADED %d proxies", len(proxies))
-    ctx.log.info("OUTPUT: %s", out)
-    return out
+    if proxies:
+        out = ctx.load_fragments(proxies, ckey=ckey)
+        ctx.log.info("LOADED %d proxies", len(proxies))
+        ctx.log.info("OUTPUT: %s", out)
+        return out
 
 
 @task(
