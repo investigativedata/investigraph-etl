@@ -2,6 +2,12 @@
 
 ## CHANGELOG
 
+### 0.3.4 (2023-10-16)
+
+- Fix `investigraph inspect` command
+- Move some util code to `ftmq`
+- Update dependencies
+
 ### 0.3.3 (2023-10-03)
 
 - Update dependencies
