@@ -1,7 +1,7 @@
 import hashlib
 import os
 import re
-from functools import cache, lru_cache
+from functools import cache
 from importlib import import_module
 from importlib.util import module_from_spec, spec_from_file_location
 from io import BytesIO
@@ -11,8 +11,7 @@ from typing import Any, Callable
 import orjson
 from banal import clean_dict, ensure_dict, is_listish
 from followthemoney.util import join_text as _join_text
-from followthemoney.util import make_entity_id, sanitize_text
-from ftmq.util import make_dataset
+from ftmq.util import clean_name, make_dataset
 from nomenklatura.dataset import DefaultDataset
 from nomenklatura.entity import CE, CompositeEntity
 from normality import slugify
@@ -60,47 +59,6 @@ def get_func(path: str) -> Callable:
         module = module_from_spec(spec)
         spec.loader.exec_module(module)
     return getattr(module, func)
-
-
-@lru_cache(1024)
-def clean_string(value: Any) -> str | None:
-    """
-    Convert a value to None or a sanitized string without linebreaks
-    """
-    value = sanitize_text(value)
-    if value is None:
-        return
-    return " ".join(value.split())
-
-
-@lru_cache(1024)
-def clean_name(value: Any) -> str | None:
-    """
-    Clean a value and only return it if it is a "name" in the sense of, doesn't
-    contain exclusively of special chars
-    """
-    value = clean_string(value)
-    if slugify(value) is None:
-        return
-    return value
-
-
-@lru_cache(1024)
-def fingerprint(value: Any) -> str | None:
-    """
-    Create a stable but simplified string or None from input
-    that can be used to generate ids (to mimic `fingerprints.generate` which is
-    unstable for IDs as its algorithm could change)
-    """
-    value = clean_name(value)
-    if value is None:
-        return
-    return " ".join(sorted(set(slugify(value).split("-"))))
-
-
-@lru_cache(1024)
-def string_id(value: Any) -> str | None:
-    return make_entity_id(fingerprint(value))
 
 
 def str_or_none(value: Any) -> str | None:
