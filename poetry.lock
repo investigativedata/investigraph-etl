@@ -1394,13 +1394,13 @@ tqdm = ["tqdm"]
 
 [[package]]
 name = "ftmq"
-version = "0.3.5"
+version = "0.3.6"
 description = "followthemoney query dsl and io helpers"
 optional = false
 python-versions = ">=3.10,<3.13"
 files = [
-    {file = "ftmq-0.3.5-py3-none-any.whl", hash = "sha256:eca516302c058ddafa8aad22cc7b81167b20da06ef43d3a0f3fa4fcfff0f595d"},
-    {file = "ftmq-0.3.5.tar.gz", hash = "sha256:6534dbd8c584544e1969a760e3bf43211942e56803f1656c1a74257568015c2b"},
+    {file = "ftmq-0.3.6-py3-none-any.whl", hash = "sha256:db85b9121b8c1511d5ac60fff6fe964f7d506c42b348aea5cb2b1a7137a9e18e"},
+    {file = "ftmq-0.3.6.tar.gz", hash = "sha256:f2658cbbea6aab66a9cb86cad219a92c4defc6fafa5220044fc72e9c4f33cd4d"},
 ]
 
 [package.dependencies]
@@ -5505,4 +5505,4 @@ testing = ["big-O", "jaraco.functools", "jaraco.itertools", "more-itertools", "p
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.10,<3.13"
-content-hash = "4176d82f16a16914748c14980801255cdc908c1cfd8da7e629dcdca9ab6b5e36"
+content-hash = "b08245bf9888c3ce233f90ef62269d5c0733e52c385625fd376a2c9af3d51d97"
