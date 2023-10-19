@@ -9,7 +9,7 @@ from pathlib import Path
 from typing import Any, Callable
 
 import orjson
-from banal import clean_dict, ensure_dict, is_listish
+from banal import clean_dict, ensure_dict, ensure_list, is_listish, is_mapping
 from followthemoney.util import join_text as _join_text
 from ftmq.util import clean_name, make_dataset
 from nomenklatura.dataset import DefaultDataset
@@ -101,8 +101,11 @@ def dict_merge(d1: dict[Any, Any], d2: dict[Any, Any]) -> dict[Any, Any]:
     d1, d2 = clean_dict(d1), clean_dict(d2)
     for key, value in d2.items():
         if not is_empty(value):
-            if isinstance(value, dict):
+            if is_mapping(value):
+                value = ensure_dict(value)
                 d1[key] = dict_merge(d1.get(key, {}), value)
+            elif is_listish(value):
+                d1[key] = ensure_list(d1.get(key)) + ensure_list(value)
             else:
                 d1[key] = value
     return d1
