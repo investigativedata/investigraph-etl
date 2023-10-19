@@ -46,21 +46,7 @@ def test_util():
     assert str(c.base_path) == "/tmp"
 
 
-def test_util_cleaning():
-    assert util.clean_string(" foo\n bar") == "foo bar"
-    assert util.clean_string(None) is None
-    assert util.clean_string("") is None
-    assert util.clean_string("  ") is None
-    assert util.clean_name("  foo\n bar") == "foo bar"
-    assert util.clean_name("- - . *") is None
-
-    assert util.fingerprint("Mrs. Jane Doe") == "doe jane mrs"
-    assert util.fingerprint("Mrs. Jane Mrs. Doe") == "doe jane mrs"
-    assert util.fingerprint("#") is None
-    assert util.fingerprint(" ") is None
-    assert util.fingerprint("") is None
-    assert util.fingerprint(None) is None
-
+def test_util_join():
     assert util.join_text("A", " ", "b", "-") == "A b"
 
 

@@ -12,9 +12,9 @@ def get_env(env: str, default: Any | None = None) -> Any | None:
     return os.environ.get(env, default)
 
 
-VERSION = "0.3.3"
+VERSION = "0.4.0"
 
-DEBUG = as_bool(get_env("DEBUG", 1))
+DEBUG = as_bool(get_env("DEBUG", 0))
 DATA_ROOT = Path(get_env("DATA_ROOT", Path.cwd() / "data")).absolute()
 DATASETS_REPO = "https://github.com/investigativedata/investigraph-datasets.git"
 DATASETS_BLOCK = get_env("DATASETS_BLOCK")
@@ -31,6 +31,7 @@ DEFAULT_AGGREGATOR = get_env(
 
 REDIS_URL = get_env("REDIS_URL", "redis://localhost:6379")
 REDIS_PREFIX = get_env("REDIS_PREFIX", f"investigraph:{VERSION}")
+REDIS_PERSIST = as_bool(get_env("REDIS_PERSIST", 0))
 
 TASK_CACHE = as_bool(get_env("TASK_CACHE", 1))
 TASK_RETRIES = int(get_env("TASK_RETRIES", 3))
@@ -40,8 +41,9 @@ TASK_CACHE_EXPIRATION = (
     timedelta(TASK_CACHE_EXPIRATION) if TASK_CACHE_EXPIRATION is not None else None
 )
 FETCH_CACHE = as_bool(get_env("FETCH_CACHE"), TASK_CACHE)
-TRANSFORM_CACHE = as_bool(get_env("TRANSFORM_CACHE"), TASK_CACHE)
 EXTRACT_CACHE = as_bool(get_env("EXTRACT_CACHE"), TASK_CACHE)
+TRANSFORM_CACHE = as_bool(get_env("TRANSFORM_CACHE"), TASK_CACHE)
+LOAD_CACHE = as_bool(get_env("LOAD_CACHE"), TASK_CACHE)
 
 TASK_RUNNER = get_env("PREFECT_TASK_RUNNER", "").lower()
 

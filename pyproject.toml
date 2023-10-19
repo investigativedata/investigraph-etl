@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "investigraph"
-version = "0.3.3"
+version = "0.4.0"
 description = "etl pipeline for investigations with follow the money data"
 authors = ["Simon Wörpel <simon@investigativedata.org>"]
 license = "MIT"
@@ -24,7 +24,7 @@ investigraph = "investigraph.cli:cli"
 "Bug Tracker" = "https://github.com/investigativedata/investigraph-etl/issues"
 
 [tool.poetry.dependencies]
-python = ">=3.10,<3.13"
+python = ">=3.11,<3.12"
 banal = "^1.0.6"
 cachelib = "^0.10.2"
 dateparser = "^1.1.8"
@@ -41,8 +41,8 @@ requests = "^2.31.0"
 sqlalchemy = "^2.0.20"
 tabulate = "^0.9.0"
 typer = "^0.9.0"
-ftmq = "^0.3.3"
-prefect-ray = "^0.2.5"
+ftmq = "^0.4.0"
+prefect-ray = ">=0.2.5,<0.4.0"
 ray = "^2.5.1"
 pydantic = ">=1.10.0,<2.0.0"
 runpandarun = "^0.3.2"
@@ -54,7 +54,7 @@ fingerprints = "<1.2"
 
 [tool.poetry.group.dev.dependencies]
 pytest-env = ">=0.8.2,<1.1.0"
-moto = "4.2.2"
+moto = "4.2.6"
 pytest = "^7.3.2"
 pytest-cov = "^4.1.0"
 black = "^23.3.0"
