@@ -12,7 +12,7 @@ def get_env(env: str, default: Any | None = None) -> Any | None:
     return os.environ.get(env, default)
 
 
-VERSION = "0.3.3"
+VERSION = "0.4.0"
 
 DEBUG = as_bool(get_env("DEBUG", 0))
 DATA_ROOT = Path(get_env("DATA_ROOT", Path.cwd() / "data")).absolute()
