@@ -17,6 +17,8 @@ Using [prefect.io](https://www.prefect.io/) for ftm pipeline processing
 
 ## installation
 
+`investigraph` requires at least **Python 3.11**
+
     pip install investigraph
 
 ## example datasets

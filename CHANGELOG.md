@@ -2,6 +2,11 @@
 
 ## CHANGELOG
 
+### 0.4.0 (2023-10-19)
+
+- Drop support for python 3.10
+- Fix `ftmq` dependency
+
 ### 0.3.4 (2023-10-16)
 
 - Fix `investigraph inspect` command
