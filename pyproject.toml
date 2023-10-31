@@ -53,7 +53,7 @@ nomenklatura = "<3.5"
 fingerprints = "<1.2"
 
 [tool.poetry.group.dev.dependencies]
-pytest-env = ">=0.8.2,<1.1.0"
+pytest-env = ">=0.8.2,<1.2.0"
 moto = "4.2.6"
 pytest = "^7.3.2"
 pytest-cov = "^4.1.0"
