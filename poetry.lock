@@ -2504,13 +2504,13 @@ files = [
 
 [[package]]
 name = "moto"
-version = "4.2.6"
+version = "4.2.7"
 description = ""
 optional = false
 python-versions = ">=3.7"
 files = [
-    {file = "moto-4.2.6-py2.py3-none-any.whl", hash = "sha256:20cd41f89b7fe363ef49b9ead787c9a1f3d560f4d0711b3767e7416694de1127"},
-    {file = "moto-4.2.6.tar.gz", hash = "sha256:ce0a55d7e756c59a5a4392c7097aa5ca53e00aa2dd3f7000093356be15e7aef9"},
+    {file = "moto-4.2.7-py2.py3-none-any.whl", hash = "sha256:3e0ef388900448485cd6eff18e9f7fcaa6cf4560b6fb536ba2e2e1278a5ecc59"},
+    {file = "moto-4.2.7.tar.gz", hash = "sha256:1298006aaa6996b886658eb194cac0e3a5679c9fcce6cb13e741ccc5a7247abb"},
 ]
 
 [package.dependencies]
@@ -2525,29 +2525,29 @@ werkzeug = ">=0.5,<2.2.0 || >2.2.0,<2.2.1 || >2.2.1"
 xmltodict = "*"
 
 [package.extras]
-all = ["PyYAML (>=5.1)", "aws-xray-sdk (>=0.93,!=0.96)", "cfn-lint (>=0.40.0)", "docker (>=3.0.0)", "ecdsa (!=0.15)", "graphql-core", "jsondiff (>=1.1.2)", "multipart", "openapi-spec-validator (>=0.2.8)", "py-partiql-parser (==0.4.0)", "pyparsing (>=3.0.7)", "python-jose[cryptography] (>=3.1.0,<4.0.0)", "setuptools", "sshpubkeys (>=3.1.0)"]
-apigateway = ["PyYAML (>=5.1)", "ecdsa (!=0.15)", "openapi-spec-validator (>=0.2.8)", "python-jose[cryptography] (>=3.1.0,<4.0.0)"]
+all = ["PyYAML (>=5.1)", "aws-xray-sdk (>=0.93,!=0.96)", "cfn-lint (>=0.40.0)", "docker (>=3.0.0)", "ecdsa (!=0.15)", "graphql-core", "jsondiff (>=1.1.2)", "multipart", "openapi-spec-validator (>=0.5.0)", "py-partiql-parser (==0.4.1)", "pyparsing (>=3.0.7)", "python-jose[cryptography] (>=3.1.0,<4.0.0)", "setuptools", "sshpubkeys (>=3.1.0)"]
+apigateway = ["PyYAML (>=5.1)", "ecdsa (!=0.15)", "openapi-spec-validator (>=0.5.0)", "python-jose[cryptography] (>=3.1.0,<4.0.0)"]
 apigatewayv2 = ["PyYAML (>=5.1)"]
 appsync = ["graphql-core"]
 awslambda = ["docker (>=3.0.0)"]
 batch = ["docker (>=3.0.0)"]
-cloudformation = ["PyYAML (>=5.1)", "aws-xray-sdk (>=0.93,!=0.96)", "cfn-lint (>=0.40.0)", "docker (>=3.0.0)", "ecdsa (!=0.15)", "graphql-core", "jsondiff (>=1.1.2)", "openapi-spec-validator (>=0.2.8)", "py-partiql-parser (==0.4.0)", "pyparsing (>=3.0.7)", "python-jose[cryptography] (>=3.1.0,<4.0.0)", "setuptools", "sshpubkeys (>=3.1.0)"]
+cloudformation = ["PyYAML (>=5.1)", "aws-xray-sdk (>=0.93,!=0.96)", "cfn-lint (>=0.40.0)", "docker (>=3.0.0)", "ecdsa (!=0.15)", "graphql-core", "jsondiff (>=1.1.2)", "openapi-spec-validator (>=0.5.0)", "py-partiql-parser (==0.4.1)", "pyparsing (>=3.0.7)", "python-jose[cryptography] (>=3.1.0,<4.0.0)", "setuptools", "sshpubkeys (>=3.1.0)"]
 cognitoidp = ["ecdsa (!=0.15)", "python-jose[cryptography] (>=3.1.0,<4.0.0)"]
 ds = ["sshpubkeys (>=3.1.0)"]
-dynamodb = ["docker (>=3.0.0)", "py-partiql-parser (==0.4.0)"]
-dynamodbstreams = ["docker (>=3.0.0)", "py-partiql-parser (==0.4.0)"]
+dynamodb = ["docker (>=3.0.0)", "py-partiql-parser (==0.4.1)"]
+dynamodbstreams = ["docker (>=3.0.0)", "py-partiql-parser (==0.4.1)"]
 ebs = ["sshpubkeys (>=3.1.0)"]
 ec2 = ["sshpubkeys (>=3.1.0)"]
 efs = ["sshpubkeys (>=3.1.0)"]
 eks = ["sshpubkeys (>=3.1.0)"]
 glue = ["pyparsing (>=3.0.7)"]
 iotdata = ["jsondiff (>=1.1.2)"]
-proxy = ["PyYAML (>=5.1)", "aws-xray-sdk (>=0.93,!=0.96)", "cfn-lint (>=0.40.0)", "docker (>=2.5.1)", "ecdsa (!=0.15)", "graphql-core", "jsondiff (>=1.1.2)", "multipart", "openapi-spec-validator (>=0.2.8)", "py-partiql-parser (==0.4.0)", "pyparsing (>=3.0.7)", "python-jose[cryptography] (>=3.1.0,<4.0.0)", "setuptools", "sshpubkeys (>=3.1.0)"]
-resourcegroupstaggingapi = ["PyYAML (>=5.1)", "cfn-lint (>=0.40.0)", "docker (>=3.0.0)", "ecdsa (!=0.15)", "graphql-core", "jsondiff (>=1.1.2)", "openapi-spec-validator (>=0.2.8)", "py-partiql-parser (==0.4.0)", "pyparsing (>=3.0.7)", "python-jose[cryptography] (>=3.1.0,<4.0.0)", "sshpubkeys (>=3.1.0)"]
+proxy = ["PyYAML (>=5.1)", "aws-xray-sdk (>=0.93,!=0.96)", "cfn-lint (>=0.40.0)", "docker (>=2.5.1)", "ecdsa (!=0.15)", "graphql-core", "jsondiff (>=1.1.2)", "multipart", "openapi-spec-validator (>=0.5.0)", "py-partiql-parser (==0.4.1)", "pyparsing (>=3.0.7)", "python-jose[cryptography] (>=3.1.0,<4.0.0)", "setuptools", "sshpubkeys (>=3.1.0)"]
+resourcegroupstaggingapi = ["PyYAML (>=5.1)", "cfn-lint (>=0.40.0)", "docker (>=3.0.0)", "ecdsa (!=0.15)", "graphql-core", "jsondiff (>=1.1.2)", "openapi-spec-validator (>=0.5.0)", "py-partiql-parser (==0.4.1)", "pyparsing (>=3.0.7)", "python-jose[cryptography] (>=3.1.0,<4.0.0)", "sshpubkeys (>=3.1.0)"]
 route53resolver = ["sshpubkeys (>=3.1.0)"]
-s3 = ["PyYAML (>=5.1)", "py-partiql-parser (==0.4.0)"]
-s3crc32c = ["PyYAML (>=5.1)", "crc32c", "py-partiql-parser (==0.4.0)"]
-server = ["PyYAML (>=5.1)", "aws-xray-sdk (>=0.93,!=0.96)", "cfn-lint (>=0.40.0)", "docker (>=3.0.0)", "ecdsa (!=0.15)", "flask (!=2.2.0,!=2.2.1)", "flask-cors", "graphql-core", "jsondiff (>=1.1.2)", "openapi-spec-validator (>=0.2.8)", "py-partiql-parser (==0.4.0)", "pyparsing (>=3.0.7)", "python-jose[cryptography] (>=3.1.0,<4.0.0)", "setuptools", "sshpubkeys (>=3.1.0)"]
+s3 = ["PyYAML (>=5.1)", "py-partiql-parser (==0.4.1)"]
+s3crc32c = ["PyYAML (>=5.1)", "crc32c", "py-partiql-parser (==0.4.1)"]
+server = ["PyYAML (>=5.1)", "aws-xray-sdk (>=0.93,!=0.96)", "cfn-lint (>=0.40.0)", "docker (>=3.0.0)", "ecdsa (!=0.15)", "flask (!=2.2.0,!=2.2.1)", "flask-cors", "graphql-core", "jsondiff (>=1.1.2)", "openapi-spec-validator (>=0.5.0)", "py-partiql-parser (==0.4.1)", "pyparsing (>=3.0.7)", "python-jose[cryptography] (>=3.1.0,<4.0.0)", "setuptools", "sshpubkeys (>=3.1.0)"]
 ssm = ["PyYAML (>=5.1)"]
 xray = ["aws-xray-sdk (>=0.93,!=0.96)", "setuptools"]
 
@@ -3966,8 +3966,6 @@ files = [
     {file = "ray-2.8.0-cp311-cp311-manylinux2014_aarch64.whl", hash = "sha256:c1ba046faf4f3bb7d58d99923ec042a82d86b243227642e864349d5ad5639a1e"},
     {file = "ray-2.8.0-cp311-cp311-manylinux2014_x86_64.whl", hash = "sha256:bd9b4ed49cb89a6715e6ba4ec8bdebef7664b64fd05fb48fd0a913832784b746"},
     {file = "ray-2.8.0-cp311-cp311-win_amd64.whl", hash = "sha256:60fd55aa5c11550bbbe7fd97cf51ec33e6b8cde7ee136e0182bd4298a1732421"},
-    {file = "ray-2.8.0-cp37-cp37m-macosx_10_15_x86_64.whl", hash = "sha256:d341b59341cd5272166292a5a4b73ee5c7e37b7cd5610f721158803cdb60feff"},
-    {file = "ray-2.8.0-cp37-cp37m-win_amd64.whl", hash = "sha256:a642fb479b5fded33725f29f5315c738eaf832440e35e246f2f769904dd25144"},
     {file = "ray-2.8.0-cp38-cp38-macosx_10_15_x86_64.whl", hash = "sha256:19311606bc1eccbf07a4f420f2a9eb6548c463506868df1e1e81bb568add3c14"},
     {file = "ray-2.8.0-cp38-cp38-macosx_11_0_arm64.whl", hash = "sha256:1ed34be0ec7a290d5ceae651c3e49c7e42b46c0f5e755afca28b15df385f774d"},
     {file = "ray-2.8.0-cp38-cp38-manylinux2014_aarch64.whl", hash = "sha256:df504921c4bea3588d45ac9aef13d974d6e1a23b107a89a60fa1e2f6005e0e08"},
@@ -5458,4 +5456,4 @@ testing = ["big-O", "jaraco.functools", "jaraco.itertools", "more-itertools", "p
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.11,<3.12"
-content-hash = "4ec867b53f8708baec6ae633b40d4687a1724eb42754d6c823e3344f7ceb534f"
+content-hash = "3d7f030cb81c3ddc55ba890d398fdbf236cddd2091ef333e8948ac9bc3221d10"
