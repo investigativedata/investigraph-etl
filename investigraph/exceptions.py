@@ -4,3 +4,7 @@ class ImproperlyConfigured(Exception):
 
 class BlockError(Exception):
     pass
+
+
+class DataError(Exception):
+    pass

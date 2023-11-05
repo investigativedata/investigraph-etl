@@ -11,6 +11,7 @@ from prefect.logging.loggers import MissingContextError, PrefectLogAdapter
 from pydantic import BaseModel
 
 from investigraph.cache import Cache, get_cache
+from investigraph.exceptions import DataError
 from investigraph.logic.aggregate import AggregatorResult, merge
 from investigraph.model.config import Config
 from investigraph.model.source import Source
@@ -113,6 +114,8 @@ class TaskContext(Context):
         yield from self.proxies.values()
 
     def emit(self, proxy: CE) -> None:
+        if not proxy.id:
+            raise DataError("No Entity ID!")
         # mimic zavod api, do merge already
         if proxy.id in self.proxies:
             self.proxies[proxy.id] = merge(self, self.proxies[proxy.id], proxy)
