@@ -45,7 +45,7 @@ class Resolver(BaseModel):
             can = self.mimetype in STREAM_TYPES
         if wants is None:
             return can
-        return wants and can
+        return bool(wants and can)
 
     def _resolve_head(self) -> None:
         if self.head is None:
@@ -54,7 +54,9 @@ class Resolver(BaseModel):
     def _resolve_http(self) -> None:
         if self.response is None:
             self._resolve_head()
-            self.source.stream = self.source.stream or self.head.can_stream()
+            if self.source.stream is None:
+                if self.mimetype == types.CSV:
+                    self.source.stream = self.head.can_stream()
             res = requests.get(self.source.uri, stream=self.source.stream)
             assert res.ok
             self.response = res
