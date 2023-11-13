@@ -21,8 +21,8 @@ def test_cache():
     assert cache.get(key) == data
 
     proxy = make_proxy("Person")
-    proxy.add("name", "Alice")
     proxy.id = "id-alice"
+    proxy.add("name", "Alice")
     key = cache.set(proxy.to_dict())
     assert cache.get(key) == proxy.to_dict()
 
