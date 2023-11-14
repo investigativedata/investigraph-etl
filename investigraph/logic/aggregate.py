@@ -71,15 +71,15 @@ class Aggregator:
 
 def in_memory(ctx: "Context", fragment_uris: list[str]) -> AggregatorResult:
     aggregator = Aggregator(ctx, fragment_uris)
-    with ctx.config.dataset.coverage as collector:
-        proxies = aggregator.iterate(collector, "memory")
+    collector = Collector()
+    proxies = aggregator.iterate(collector, "memory")
     ctx.load_entities(proxies, serialize=True)
     return aggregator.fragments, collector.export()
 
 
 def in_db(ctx: "Context", fragment_uris: list[str]) -> AggregatorResult:
     aggregator = Aggregator(ctx, fragment_uris)
-    with ctx.config.dataset.coverage as collector:
-        proxies = aggregator.iterate(collector, "db")
+    collector = Collector()
+    proxies = aggregator.iterate(collector, "db")
     ctx.load_entities(proxies, serialize=True)
     return aggregator.fragments, collector.export()

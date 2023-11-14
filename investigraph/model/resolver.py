@@ -7,7 +7,7 @@ from io import BytesIO
 from ftmq.io import smart_open as open
 from normality import slugify
 from pantomime import types
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 
 from investigraph.exceptions import ImproperlyConfigured
 from investigraph.logic import requests
@@ -24,9 +24,7 @@ class Resolver(BaseModel):
     response: requests.Response | None = None
     content: bytes | None = None
     checksum: str | None = None
-
-    class Config:
-        arbitrary_types_allowed = True
+    model_config = ConfigDict(arbitrary_types_allowed=True)
 
     @property
     def mimetype(self) -> str:

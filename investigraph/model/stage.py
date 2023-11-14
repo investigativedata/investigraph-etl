@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Any, Callable
+from typing import TYPE_CHECKING, Any, Callable, ClassVar
 
 from banal import ensure_list, keys_values
 from pydantic import BaseModel
@@ -24,13 +24,13 @@ from investigraph.model.source import Source
 
 
 class Stage(BaseModel):
-    _default_handler = None
+    default_handler: ClassVar[str | None] = None
 
     handler: str
     chunk_size: int | None = CHUNK_SIZE
 
     def __init__(self, **data):
-        data["handler"] = data.pop("handler", self._default_handler)
+        data["handler"] = data.pop("handler", self.default_handler)
         super().__init__(**data)
 
     def get_handler(self) -> Callable:
@@ -42,14 +42,14 @@ class Stage(BaseModel):
 
 
 class SeedStage(Stage):
-    _default_handler = DEFAULT_SEEDER
+    default_handler: ClassVar[str] = DEFAULT_SEEDER
 
     glob: str | list[str] | None = None
     storage_options: dict[str, Any] = None
 
 
 class ExtractStage(Stage):
-    _default_handler = DEFAULT_EXTRACTOR
+    default_handler: ClassVar[str] = DEFAULT_EXTRACTOR
 
     fetch: bool | None = True
     sources: list[Source] | None = []
@@ -62,7 +62,7 @@ class ExtractStage(Stage):
 
 
 class TransformStage(Stage):
-    _default_handler = DEFAULT_TRANSFORMER
+    default_handler: ClassVar[str] = DEFAULT_TRANSFORMER
 
     queries: list[QueryMapping] | None = None
 
@@ -72,7 +72,7 @@ class TransformStage(Stage):
 
 
 class LoadStage(Stage):
-    _default_handler = DEFAULT_LOADER
+    default_handler: ClassVar[str] = DEFAULT_LOADER
 
     index_uri: str | None = None
     fragments_uri: str | None = None
@@ -80,7 +80,7 @@ class LoadStage(Stage):
 
 
 class AggregateStage(Stage):
-    _default_handler = DEFAULT_AGGREGATOR
+    default_handler: ClassVar[str] = DEFAULT_AGGREGATOR
 
     db_uri: str | None = FTM_STORE_URI
 

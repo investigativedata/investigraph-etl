@@ -131,13 +131,13 @@ def cli_catalog(
     """
     catalog = Catalog.from_path(path)
     if flatten:
-        datasets = [d.dict() for d in catalog.get_datasets()]
+        datasets = [d.model_dump() for d in catalog.get_datasets()]
         data = {
             "datasets": datasets,
             "catalog": catalog.metadata(),
         }
     else:
-        data = catalog.dict()
+        data = catalog.model_dump()
     data = orjson.dumps(data, option=orjson.OPT_APPEND_NEWLINE)
     if uri == "-":
         sys.stdout.write(data.decode())

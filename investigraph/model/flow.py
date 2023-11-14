@@ -3,7 +3,7 @@ from typing import Any
 
 from normality import slugify
 from prefect.runtime import flow_run
-from pydantic import BaseModel, root_validator
+from pydantic import BaseModel, model_validator
 
 from investigraph.model.config import Config, get_config
 from investigraph.settings import CHUNK_SIZE, DATA_ROOT, DATASETS_BLOCK
@@ -27,7 +27,7 @@ class FlowOptions(BaseModel):
             return self.dataset
         return slugify(self.config)
 
-    @root_validator
+    @model_validator(mode="before")
     def validate_options(cls, values):
         block = values.get("dataset") and (values.get("block") or DATASETS_BLOCK)
         config = values.get("config")
@@ -73,7 +73,6 @@ class Flow(BaseModel):
             super().__init__(dataset=config.dataset.name, config=config, **data)
         else:
             super().__init__(**data)
-        self.entities_uri = self.config.load.entities_uri
         path = ensure_path(DATA_ROOT / self.config.dataset.name)
         if self.config.load.index_uri is None:
             self.config.load.index_uri = (path / "index.json").as_uri()
@@ -81,6 +80,7 @@ class Flow(BaseModel):
             self.config.load.fragments_uri = (path / "fragments.json").as_uri()
         if self.config.load.entities_uri is None:
             self.config.load.entities_uri = (path / "entities.ftm.json").as_uri()
+        self.entities_uri = self.config.load.entities_uri
 
     @classmethod
     def from_options(cls, options: FlowOptions) -> "Flow":

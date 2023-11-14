@@ -1,7 +1,6 @@
 from datetime import datetime
 from typing import Iterable
 
-import orjson
 from followthemoney.util import make_entity_id
 from ftmq.io import smart_write
 from ftmq.util import join_slug
@@ -25,7 +24,7 @@ class BaseContext(BaseModel):
     config: Config
 
     def __hash__(self) -> int:
-        return hash(repr(self.dict()))
+        return hash(repr(self.model_dump()))
 
     def __eq__(self, other) -> bool:
         return hash(self) == hash(other)
@@ -59,7 +58,7 @@ class BaseContext(BaseModel):
     def export_metadata(self) -> None:
         data = self.config.dataset
         data.updated_at = data.updated_at or datetime.utcnow()
-        data = orjson.dumps(data.dict())
+        data = data.model_dump_json().encode()
         smart_write(self.config.load.index_uri, data)
 
     def make_proxy(self, *args, **kwargs) -> CE:
@@ -81,7 +80,7 @@ class BaseContext(BaseModel):
         return join_slug(*args, sep="#")
 
     def task(self) -> "TaskContext":
-        return TaskContext(**self.dict())
+        return TaskContext(**self.model_dump())
 
     def emit(self, proxy: CE) -> None:
         raise NotImplementedError

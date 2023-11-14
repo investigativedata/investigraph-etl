@@ -36,7 +36,7 @@ class QueryMapping(BaseModel):
         return load_mapping(self)
 
     def __hash__(self) -> int:
-        return hash(repr(self.dict()))
+        return hash(repr(self.model_dump()))
 
 
 @cache
