@@ -116,12 +116,12 @@ def pydantic_merge(m1: BaseModel, m2: BaseModel) -> BaseModel:
         raise ImproperlyConfigured(
             f"Cannot merge: `{m1.__class__.__name__}` with `{m2.__class__.__name__}`"
         )
-    return m1.__class__(**dict_merge(m1.dict(), m2.dict()))
+    return m1.__class__(**dict_merge(m1.model_dump(), m2.model_dump()))
 
 
 def to_dict(obj: Any) -> dict[Any]:
-    if hasattr(obj, "dict"):
-        return obj.dict()
+    if hasattr(obj, "model_dump"):
+        return obj.model_dump()
     if hasattr(obj, "to_dict"):
         return obj.to_dict()
     return ensure_dict(obj)

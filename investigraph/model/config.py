@@ -4,7 +4,7 @@ from pathlib import Path
 import yaml
 from ftmq.model import Dataset
 from ftmq.model.mixins import RemoteMixin, YamlMixin
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 from runpandarun.util import absolute_path
 
 from investigraph.exceptions import ImproperlyConfigured
@@ -30,9 +30,7 @@ class Config(BaseModel, YamlMixin, RemoteMixin):
     transform: TransformStage | None = TransformStage()
     load: LoadStage | None = LoadStage()
     aggregate: bool | AggregateStage | None = AggregateStage()
-
-    class Config:
-        arbitrary_types_allowed = True
+    model_config = ConfigDict(arbitrary_types_allowed=True)
 
     def __init__(self, **data):
         if "dataset" not in data:

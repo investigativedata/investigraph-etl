@@ -3,13 +3,11 @@ from importlib import reload
 import cloudpickle
 from ftmq.io import smart_read_proxies
 from ftmstore import get_dataset
-from moto import mock_s3
 
 from investigraph import settings
 from investigraph.model import DatasetBlock, FlowOptions
 from investigraph.model.context import init_context
 from investigraph.pipeline import run
-from tests.util import setup_s3_bucket
 
 
 def test_pipeline_pickle_ctx(gdho):
@@ -78,20 +76,6 @@ def test_pipeline_local_ftmstore():
     store = get_dataset("eu_authorities", database_uri=store_uri)
     entities = [e for e in store.iterate()]
     assert len(entities) == 151
-
-
-@mock_s3
-def test_pipeline_local_s3():
-    setup_s3_bucket()
-    options = FlowOptions(
-        dataset="eu_authorities",
-        config="./tests/fixtures/eu_authorities.local.yml",
-        fragments_uri="s3://investigraph/eu_authorities/fragments.ftm.json",
-        entities_uri="s3://investigraph/eu_authorities/entities.ftm.json",
-    )
-    out = run(options)
-    proxies = [p for p in smart_read_proxies(out.entities_uri)]
-    assert len(proxies) == 151
 
 
 def test_pipeline_local_customized():

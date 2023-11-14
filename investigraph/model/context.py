@@ -1,7 +1,6 @@
 from datetime import datetime
 from typing import Iterable
 
-import orjson
 from followthemoney.util import make_entity_id
 from ftmq.io import smart_write
 from ftmq.util import join_slug
@@ -11,6 +10,7 @@ from prefect.logging.loggers import MissingContextError, PrefectLogAdapter
 from pydantic import BaseModel
 
 from investigraph.cache import Cache, get_cache
+from investigraph.exceptions import DataError
 from investigraph.logic.aggregate import AggregatorResult, merge
 from investigraph.model.config import Config
 from investigraph.model.source import Source
@@ -24,7 +24,7 @@ class BaseContext(BaseModel):
     config: Config
 
     def __hash__(self) -> int:
-        return hash(repr(self.dict()))
+        return hash(repr(self.model_dump()))
 
     def __eq__(self, other) -> bool:
         return hash(self) == hash(other)
@@ -58,7 +58,7 @@ class BaseContext(BaseModel):
     def export_metadata(self) -> None:
         data = self.config.dataset
         data.updated_at = data.updated_at or datetime.utcnow()
-        data = orjson.dumps(data.dict())
+        data = data.model_dump_json().encode()
         smart_write(self.config.load.index_uri, data)
 
     def make_proxy(self, *args, **kwargs) -> CE:
@@ -80,7 +80,7 @@ class BaseContext(BaseModel):
         return join_slug(*args, sep="#")
 
     def task(self) -> "TaskContext":
-        return TaskContext(**self.dict())
+        return TaskContext(**self.model_dump())
 
     def emit(self, proxy: CE) -> None:
         raise NotImplementedError
@@ -113,6 +113,8 @@ class TaskContext(Context):
         yield from self.proxies.values()
 
     def emit(self, proxy: CE) -> None:
+        if not proxy.id:
+            raise DataError("No Entity ID!")
         # mimic zavod api, do merge already
         if proxy.id in self.proxies:
             self.proxies[proxy.id] = merge(self, self.proxies[proxy.id], proxy)
