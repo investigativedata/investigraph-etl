@@ -8,9 +8,9 @@ from investigraph.util import make_proxy
 
 
 def handle(ctx: Context, data: dict[str, Any], ix: int):
-    body = make_proxy("PublicBody")
     slug = data.pop("URL name")
-    body.id = join_slug(ctx.prefix, slug)
+    id_ = join_slug(ctx.prefix, slug)
+    body = make_proxy("PublicBody", id_)
     body.add("name", data.pop("Name"))
     body.add("weakAlias", data.pop("Short name"))
     tags = data.pop("Tags").split()

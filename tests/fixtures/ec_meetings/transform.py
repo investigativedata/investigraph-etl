@@ -9,23 +9,24 @@ from investigraph.types import SDict
 
 
 def make_address(ctx: Context, data: SDict) -> CE:
-    proxy = ctx.make_proxy("Address")
-    proxy.id = ctx.make_id(proxy.caption, prefix="addr")
-    proxy.add("full", data.pop("Location"))
+    location = data.pop("Location")
+    id_ = ctx.make_id(location, prefix="addr")
+    proxy = ctx.make_proxy("Address", id_)
+    proxy.add("full", location)
     return proxy
 
 
 def make_person(ctx: Context, name: str, role: str, body: CE) -> CE:
-    proxy = ctx.make_proxy("Person")
-    proxy.id = ctx.make_slug("person", make_entity_id(body.id, fp(name)))
+    id_ = ctx.make_slug("person", make_entity_id(body.id, fp(name)))
+    proxy = ctx.make_proxy("Person", id_)
     proxy.add("name", name)
     proxy.add("description", role)
     return proxy
 
 
 def make_organization(ctx: Context, regId: str, name: str | None = None) -> CE:
-    proxy = ctx.make_proxy("Organization")
-    proxy.id = ctx.make_slug(regId, prefix="eu-tr")
+    id_ = ctx.make_slug(regId, prefix="eu-tr")
+    proxy = ctx.make_proxy("Organization", id_)
     if fp(name):
         proxy.add("name", name)
     proxy.add("idNumber", regId)
@@ -81,12 +82,12 @@ def make_event(
 ) -> Generator[CE, None, None]:
     date = data.pop("Date of meeting")
     participants = [o for o in make_organizations(ctx, data)]
-    proxy = ctx.make_proxy("Event")
-    proxy.id = ctx.make_slug(
+    id_ = ctx.make_slug(
         "meeting",
         date,
         make_entity_id(organizer.id, *sorted([p.id for p in participants])),
     )
+    proxy = ctx.make_proxy("Event", id_)
     label = join_text(*[p.first("name") for p in participants])
     name = f"{date} - {organizer.caption} x {label}"
     proxy.add("name", name)
@@ -114,8 +115,8 @@ def parse_record(ctx: Context, data: SDict, body: CE):
     yield from involved
 
     for member in involved:
-        rel = ctx.make_proxy("Membership")
-        rel.id = ctx.make_slug("membership", make_entity_id(body.id, member.id))
+        id_ = ctx.make_slug("membership", make_entity_id(body.id, member.id))
+        rel = ctx.make_proxy("Membership", id_)
         rel.add("organization", body)
         rel.add("member", member)
         rel.add("role", member.get("description"))
@@ -124,9 +125,10 @@ def parse_record(ctx: Context, data: SDict, body: CE):
 
 def parse_record_ec(ctx: Context, data: SDict):
     # meetings of EC representatives
-    body = ctx.make_proxy("PublicBody")
-    body.id = ctx.make_slug(fp(body.caption))
-    body.add("name", data.pop("Name of cabinet"))
+    name = data.pop("Name of cabinet")
+    id_ = ctx.make_slug(fp(name))
+    body = ctx.make_proxy("PublicBody", id_)
+    body.add("name", name)
     body.add("jurisdiction", "eu")
 
     yield body
@@ -136,8 +138,8 @@ def parse_record_ec(ctx: Context, data: SDict):
 def parse_record_dg(ctx: Context, data: SDict):
     # meetings of EC Directors-General
     acronym = data.pop("Name of DG - acronym")
-    body = ctx.make_proxy("PublicBody")
-    body.id = ctx.make_slug("dg", acronym)
+    id_ = ctx.make_slug("dg", acronym)
+    body = ctx.make_proxy("PublicBody", id_)
     body.add("name", data.pop("Name of DG - full name"))
     body.add("weakAlias", acronym)
     body.add("jurisdiction", "eu")
