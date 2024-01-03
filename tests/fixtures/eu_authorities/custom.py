@@ -4,8 +4,8 @@ from investigraph.types import SDict
 
 def parse_record(ctx: Context, data: SDict, ix: int):
     slug = data.pop("URL name")
-    body = ctx.make_proxy("PublicBody")
-    body.id = ctx.make_slug(slug)
+    id_ = ctx.make_slug(slug)
+    body = ctx.make_proxy("PublicBody", id_)
     body.add("name", data.pop("Name"))
     body.add("weakAlias", data.pop("Short name"))
     tags = data.pop("Tags").split()
