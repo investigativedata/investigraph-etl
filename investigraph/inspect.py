@@ -21,7 +21,7 @@ def print_error(msg: str):
 
 def get_records(ctx: Context) -> list[dict[str, Any]]:
     records: list[dict[str, Any]] = []
-    print("Extracting `%s` ..." % ctx.source.uri)
+    # print("Extracting `%s` ..." % ctx.source.uri)
     res = Resolver(source=ctx.source)
     if res.source.is_http and ctx.config.extract.fetch:
         res._resolve_http()

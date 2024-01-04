@@ -9,6 +9,8 @@ from ftmq.io import smart_write
 from ftmq.model import Catalog
 from prefect.settings import PREFECT_HOME
 from rich import print
+from rich.console import Console
+from rich.table import Table
 
 from investigraph.inspect import inspect_config, inspect_extract, inspect_transform
 from investigraph.model.block import get_block
@@ -17,6 +19,7 @@ from investigraph.pipeline import run
 from investigraph.settings import DATASETS_BLOCK, DATASETS_REPO, VERSION
 
 cli = typer.Typer(no_args_is_help=True)
+console = Console()
 
 
 @cli.callback(invoke_without_command=True)
@@ -85,36 +88,44 @@ def cli_add_block(
 @cli.command("inspect")
 def cli_inspect(
     config_path: Annotated[Path, typer.Argument()],
-    extract: Annotated[Optional[bool], typer.Option()] = False,
-    transform: Annotated[Optional[bool], typer.Option()] = False,
+    extract: Annotated[Optional[bool], typer.Option("-e", "--extract")] = False,
+    transform: Annotated[Optional[bool], typer.Option("-t", "--transform")] = False,
     to_json: Annotated[Optional[bool], typer.Option()] = False,
 ):
     config = inspect_config(config_path)
-    print(f"[bold green]OK[/bold green] `{config_path}`")
-    print(f"[bold]dataset:[/bold] {config.dataset.name}")
-    print(f"[bold]title:[/bold] {config.dataset.title}")
+    if not to_json:
+        print(f"[bold green]OK[/bold green] `{config_path}`")
+        print(f"[bold]dataset:[/bold] {config.dataset.name}")
+        print(f"[bold]title:[/bold] {config.dataset.title}")
 
     if extract:
         for name, df in inspect_extract(config):
-            print(f"[bold green]OK[/bold green] {name}")
+            if not to_json:
+                print(f"[bold green]OK[/bold green] {name}")
             if to_json:
                 for _, row in df.iterrows():
-                    print(
-                        orjson.dumps(
-                            row.to_dict(), option=orjson.OPT_APPEND_NEWLINE
-                        ).decode()
+                    typer.echo(
+                        orjson.dumps(row.to_dict(), option=orjson.OPT_APPEND_NEWLINE)
                     )
             else:
-                print(df.to_markdown(index=False))
+                table = Table(*df.columns)
+                for values in df.itertuples():
+                    values = (str(v) if v is not None else "" for v in values)
+                    table.add_row(*values)
+                console.print(table)
 
     if transform:
         for name, proxies in inspect_transform(config):
-            print(f"[bold green]OK[/bold green] {name}")
+            if not to_json:
+                print(f"[bold green]OK[/bold green] {name}")
             for proxy in proxies:
                 data = orjson.dumps(
                     proxy.to_dict(), option=orjson.OPT_APPEND_NEWLINE
                 ).decode()
-                print(data)
+                if not to_json:
+                    print(data)
+                else:
+                    typer.echo(data)
 
 
 @cli.command("build-catalog")
