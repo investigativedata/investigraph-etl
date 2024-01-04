@@ -1,4 +1,5 @@
 from datetime import datetime
+from logging import Logger, LoggerAdapter
 from typing import Iterable
 
 from followthemoney.util import make_entity_id
@@ -6,7 +7,7 @@ from ftmq.io import smart_write
 from ftmq.util import join_slug
 from nomenklatura.entity import CE
 from prefect import get_run_logger
-from prefect.logging.loggers import MissingContextError, PrefectLogAdapter
+from prefect.exceptions import MissingContextError
 from pydantic import BaseModel
 
 from investigraph.cache import Cache, get_cache
@@ -34,7 +35,7 @@ class BaseContext(BaseModel):
         return get_cache()
 
     @property
-    def log(self) -> PrefectLogAdapter:
+    def log(self) -> LoggerAdapter | Logger:
         try:
             return get_run_logger()
         except MissingContextError:
