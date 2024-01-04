@@ -33,8 +33,12 @@ def make_proxy(
     dataset: str | None = DefaultDataset,
     **properties,
 ) -> CE:
-    data = {"id": id, "schema": schema, "properties": properties}
-    return _make_proxy(data, dataset)
+    data = {"id": id, "schema": schema}
+    proxy = _make_proxy(data, dataset)
+    # add the property values via this api to ensure type checking & cleaning
+    for k, v in properties.items():
+        proxy.add(k, v)
+    return proxy
 
 
 @cache
