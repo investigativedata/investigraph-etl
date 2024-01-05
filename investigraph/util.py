@@ -18,7 +18,7 @@ from normality import slugify
 from pydantic import BaseModel
 from runpandarun.util import PathLike
 
-from investigraph.exceptions import ImproperlyConfigured
+from investigraph.exceptions import DataError, ImproperlyConfigured
 from investigraph.types import SDict
 
 
@@ -28,10 +28,12 @@ def slugified_dict(data: dict[Any, Any]) -> SDict:
 
 def make_proxy(
     schema: str,
-    id: str,
+    id: str | None = None,
     dataset: str | None = DefaultDataset,
     **properties,
 ) -> CE:
+    if properties and not id:
+        raise DataError("Specify Entity ID when using properties kwargs!")
     data = {"id": id, "schema": schema}
     proxy = _make_proxy(data, dataset)
     # add the property values via this api to ensure type checking & cleaning
