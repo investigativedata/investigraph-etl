@@ -8,7 +8,6 @@ from io import BytesIO
 from pathlib import Path
 from typing import Any, Callable
 
-import orjson
 from banal import clean_dict, ensure_dict, ensure_list, is_listish, is_mapping
 from followthemoney.util import join_text as _join_text
 from ftmq.util import clean_name
@@ -90,9 +89,7 @@ def checksum(io: BytesIO, algorithm: str | None = "md5") -> str:
 
 
 def data_checksum(data: Any, algorithm: str | None = "md5") -> str:
-    if is_listish(data):
-        data = sorted(data, key=lambda x: repr(x))
-    data = orjson.dumps(data, option=orjson.OPT_SORT_KEYS, default=str)
+    data = repr(data).encode()
     return checksum(BytesIO(data), algorithm)
 
 
