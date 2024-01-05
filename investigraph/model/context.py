@@ -5,10 +5,10 @@ from typing import Iterable
 from followthemoney.util import make_entity_id
 from ftmq.io import smart_write
 from ftmq.util import join_slug
-from nomenklatura.entity import CE
+from nomenklatura.entity import CE, CompositeEntity
 from prefect import get_run_logger
 from prefect.exceptions import MissingContextError
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 
 from investigraph.cache import Cache, get_cache
 from investigraph.exceptions import DataError
@@ -108,7 +108,8 @@ class Context(BaseContext):
 
 
 class TaskContext(Context):
-    proxies: dict[str, CE] = {}
+    proxies: dict[str, CompositeEntity] = {}
+    model_config = ConfigDict(arbitrary_types_allowed=True)
 
     def __iter__(self) -> CEGenerator:
         yield from self.proxies.values()
