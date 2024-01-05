@@ -90,42 +90,54 @@ def cli_inspect(
     config_path: Annotated[Path, typer.Argument()],
     extract: Annotated[Optional[bool], typer.Option("-e", "--extract")] = False,
     transform: Annotated[Optional[bool], typer.Option("-t", "--transform")] = False,
+    limit: Annotated[Optional[int], typer.Option("-l", "--limit")] = 5,
+    to_csv: Annotated[Optional[bool], typer.Option()] = False,
     to_json: Annotated[Optional[bool], typer.Option()] = False,
+    usecols: Annotated[
+        Optional[str],
+        typer.Option(
+            "-c",
+            "--usecols",
+            help="Comma separated list of column names or ix to display",
+        ),
+    ] = None,
 ):
     config = inspect_config(config_path)
-    if not to_json:
+    if not to_json and not to_csv:
         print(f"[bold green]OK[/bold green] `{config_path}`")
         print(f"[bold]dataset:[/bold] {config.dataset.name}")
         print(f"[bold]title:[/bold] {config.dataset.title}")
 
     if extract:
-        for name, df in inspect_extract(config):
-            if not to_json:
+        for name, df in inspect_extract(config, limit):
+            if usecols:
+                df = df[[c for c in usecols.split(",") if c in df.columns]]
+            if not to_json and not to_csv:
                 print(f"[bold green]OK[/bold green] {name}")
             if to_json:
                 for _, row in df.iterrows():
                     typer.echo(
                         orjson.dumps(row.to_dict(), option=orjson.OPT_APPEND_NEWLINE)
                     )
+            elif to_csv:
+                df.to_csv(sys.stdout, index=False)
             else:
-                table = Table(*df.columns)
-                for values in df.itertuples():
-                    values = (str(v) if v is not None else "" for v in values)
-                    table.add_row(*values)
+                table = Table(*df.columns.map(str))
+                df = df.fillna("").map(str)
+                for _, row in df.iterrows():
+                    table.add_row(*row.values)
                 console.print(table)
 
     if transform:
-        for name, proxies in inspect_transform(config):
+        for name, proxies in inspect_transform(config, limit):
             if not to_json:
                 print(f"[bold green]OK[/bold green] {name}")
             for proxy in proxies:
-                data = orjson.dumps(
-                    proxy.to_dict(), option=orjson.OPT_APPEND_NEWLINE
-                ).decode()
+                data = proxy.to_dict()
                 if not to_json:
                     print(data)
                 else:
-                    typer.echo(data)
+                    typer.echo(orjson.dumps(data))
 
 
 @cli.command("build-catalog")
