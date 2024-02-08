@@ -3523,13 +3523,13 @@ virtualenv = ">=20.10.0"
 
 [[package]]
 name = "prefect"
-version = "2.14.12"
+version = "2.14.20"
 description = "Workflow orchestration and management."
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "prefect-2.14.12-py3-none-any.whl", hash = "sha256:8cd8f4bc18cc73c095e8f669e2bb9383af3d45176c4c2d663ef5be6cc192d9ff"},
-    {file = "prefect-2.14.12.tar.gz", hash = "sha256:c16585f9a9c946149fbac714432f0ec20f2d8dd6ad4a002e450a4a0bc2cddf24"},
+    {file = "prefect-2.14.20-py3-none-any.whl", hash = "sha256:b287230bbd38bad831848e7f5da46a3116823d6131c1a6fbd0528ea3b9e29dc1"},
+    {file = "prefect-2.14.20.tar.gz", hash = "sha256:1b06b9c363985e346506a0db1b53f4cf5e5bcff2fb6bb3ffb32bb75fcfc6b4af"},
 ]
 
 [package.dependencies]
@@ -3555,11 +3555,11 @@ httpx = {version = ">=0.23,<0.23.2 || >0.23.2", extras = ["http2"]}
 jinja2 = ">=3.0.0,<4.0.0"
 jsonpatch = ">=1.32,<2.0"
 jsonschema = ">=3.2.0,<5.0.0"
-kubernetes = ">=24.2.0,<29.0.0"
+kubernetes = ">=24.2.0,<30.0.0"
 orjson = ">=3.7,<4.0"
 packaging = ">=21.3,<24.3"
 pathspec = ">=0.8.0"
-pendulum = ">=2.1.2,<3.0.0"
+pendulum = {version = "<3.0", markers = "python_version < \"3.12\""}
 pydantic = {version = ">=1.10.0,<2.0.0 || >2.0.0,<2.0.1 || >2.0.1,<2.1.0 || >2.1.0,<3.0.0", extras = ["email"]}
 python-dateutil = ">=2.8.2,<3.0.0"
 python-slugify = ">=5.0,<9.0"
@@ -3579,7 +3579,7 @@ uvicorn = ">=0.14.0"
 websockets = ">=10.4,<13.0"
 
 [package.extras]
-dev = ["cairosvg", "codespell", "flaky", "ipython", "ipython (==8.12.*)", "jinja2", "mike", "mkdocs", "mkdocs-gen-files", "mkdocs-material", "mkdocstrings-python", "mock", "moto", "mypy", "numpy", "pillow", "pre-commit", "pytest (>7)", "pytest-asyncio (>=0.18.2,!=0.22.0,<0.23.0)", "pytest-benchmark", "pytest-cov", "pytest-env", "pytest-flakefinder", "pytest-timeout", "pytest-xdist (<3.4.0)", "pytkdocs (>=0.14.2)", "pyyaml", "requests", "respx", "ruff", "setuptools (!=60.9.0)", "virtualenv", "watchfiles"]
+dev = ["cairosvg", "codespell", "flaky", "ipython", "ipython (==8.12.*)", "jinja2", "mike", "mkdocs", "mkdocs-gen-files", "mkdocs-material", "mkdocstrings-python", "mock", "moto (<5)", "mypy", "numpy", "pillow", "pre-commit", "pytest (>7,<8)", "pytest-asyncio (>=0.18.2,!=0.22.0,<0.23.0)", "pytest-benchmark", "pytest-cov", "pytest-env", "pytest-flakefinder", "pytest-timeout", "pytest-xdist (<3.4.0)", "pytkdocs (>=0.14.2)", "pyyaml", "requests", "respx", "ruff", "setuptools (!=60.9.0)", "virtualenv", "watchfiles"]
 
 [[package]]
 name = "prefect-dask"
