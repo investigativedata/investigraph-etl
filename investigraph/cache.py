@@ -1,14 +1,13 @@
 import logging
-from collections.abc import Iterable
 from functools import cache
-from typing import Any, Set
+from typing import Any, Iterable, Set
 
 import fakeredis
 import redis
+from anystore.util import make_data_checksum
 from cachelib.serializers import RedisSerializer
 
 from investigraph import settings
-from investigraph.util import data_checksum
 
 log = logging.getLogger(__name__)
 
@@ -40,7 +39,7 @@ class Cache:
         self.cache = con
 
     def set(self, data: Any, key: str | None = None) -> str:
-        key = key or data_checksum(data)
+        key = key or make_data_checksum(data)
         data = self.serializer.dumps(data)
         self.cache.set(self.get_key(key), data)
         return key
@@ -56,7 +55,7 @@ class Cache:
 
     def sadd(self, *values: Iterable[Any], key: str | None = None) -> str:
         values = [str(v) for v in values]
-        key = key or data_checksum(values)
+        key = key or make_data_checksum(values)
         self.cache.sadd(self.get_key(key) + "#SET", *values)
         return key
 

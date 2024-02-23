@@ -4,6 +4,7 @@ resolver for `.source.Source`
 
 from io import BytesIO
 
+from anystore.util import make_checksum
 from ftmq.io import smart_open as open
 from normality import slugify
 from pantomime import types
@@ -13,7 +14,6 @@ from investigraph.exceptions import ImproperlyConfigured
 from investigraph.logic import requests
 from investigraph.model.source import Source, SourceHead
 from investigraph.types import BytesGenerator
-from investigraph.util import checksum
 
 STREAM_TYPES = [types.CSV, types.JSON]
 
@@ -69,7 +69,7 @@ class Resolver(BaseModel):
             else:
                 with open(self.source.uri, "rb") as fh:
                     self.content = fh.read()
-            self.checksum = checksum(BytesIO(self.content))
+            self.checksum = make_checksum(BytesIO(self.content))
 
     def iter(self, chunk_size: int | None = 10_000) -> BytesGenerator:
         if self.source.stream:

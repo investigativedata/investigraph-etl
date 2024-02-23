@@ -53,13 +53,6 @@ def test_util_join():
     assert util.join_text("A", " ", "b", "-") == "A b"
 
 
-def test_util_data_checksum():
-    assert len(util.data_checksum("a")) == 32
-    assert len(util.data_checksum({"foo": "bar"})) == 32
-    assert len(util.data_checksum(True)) == 32
-    assert util.data_checksum(["a", 1]) != util.data_checksum(["a", "1"])
-
-
 def test_util_str_or_none():
     assert util.str_or_none("foo") == "foo"
     assert util.str_or_none("") is None

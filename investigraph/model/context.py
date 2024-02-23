@@ -2,8 +2,8 @@ from datetime import datetime
 from logging import Logger, LoggerAdapter
 from typing import Iterable
 
+from anystore.io import smart_write
 from followthemoney.util import make_entity_id
-from ftmq.io import smart_write
 from ftmq.util import join_slug
 from nomenklatura.entity import CE, CompositeEntity
 from prefect import get_run_logger

@@ -6,6 +6,7 @@ from collections.abc import Generator
 from datetime import datetime
 from typing import Any, Set
 
+from anystore.util import make_data_checksum
 from ftmq.model import Coverage
 from prefect import flow, task
 from prefect.task_runners import ConcurrentTaskRunner
@@ -16,7 +17,6 @@ from investigraph import __version__, settings
 from investigraph.model.context import BaseContext, Context
 from investigraph.model.flow import Flow, FlowOptions
 from investigraph.model.resolver import Resolver
-from investigraph.util import data_checksum
 
 
 def get_runner_from_env() -> ConcurrentTaskRunner | DaskTaskRunner | RayTaskRunner:
@@ -167,7 +167,7 @@ def run(options: FlowOptions) -> Flow:
 
     if flow.config.aggregate:
         fragments = [r.result() for r in results]
-        res = aggregate.submit(ctx, fragments, data_checksum(fragments))
+        res = aggregate.submit(ctx, fragments, make_data_checksum(fragments))
         ctx.config.dataset.coverage = res.result()
         ctx.export_metadata()
         ctx.log.info("INDEX (updated with coverage): %s" % ctx.config.load.index_uri)

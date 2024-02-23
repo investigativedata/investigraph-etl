@@ -1,10 +1,8 @@
-import hashlib
 import os
 import re
 from functools import cache
 from importlib import import_module
 from importlib.util import module_from_spec, spec_from_file_location
-from io import BytesIO
 from pathlib import Path
 from typing import Any, Callable
 
@@ -82,19 +80,6 @@ def join_text(*parts: Any, sep: str = " ") -> str | None:
     return _join_text(*parts, sep=sep)
 
 
-def checksum(io: BytesIO, algorithm: str | None = "md5") -> str:
-    handler = getattr(hashlib, algorithm)
-    hash_ = handler()
-    for chunk in iter(lambda: io.read(128 * hash_.block_size), b""):
-        hash_.update(chunk)
-    return hash_.hexdigest()
-
-
-def data_checksum(data: Any, algorithm: str | None = "md5") -> str:
-    data = repr(data).encode()
-    return checksum(BytesIO(data), algorithm)
-
-
 def is_empty(value: Any) -> bool:
     if isinstance(value, (bool, int)):
         return False
@@ -126,7 +111,7 @@ def pydantic_merge(m1: BaseModel, m2: BaseModel) -> BaseModel:
     return m1.__class__(**dict_merge(m1.model_dump(), m2.model_dump()))
 
 
-def to_dict(obj: Any) -> dict[Any]:
+def to_dict(obj: Any) -> dict[str, Any]:
     if hasattr(obj, "model_dump"):
         return obj.model_dump()
     if hasattr(obj, "to_dict"):
