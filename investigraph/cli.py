@@ -5,7 +5,8 @@ from typing import Annotated, Optional
 
 import orjson
 import typer
-from ftmq.io import smart_write
+from anystore.io import smart_write
+from anystore.types import Uri
 from ftmq.model import Catalog
 from prefect.settings import PREFECT_HOME
 from rich import print
@@ -13,10 +14,9 @@ from rich.console import Console
 from rich.table import Table
 
 from investigraph.inspect import inspect_config, inspect_extract, inspect_transform
-from investigraph.model.block import get_block
 from investigraph.model.flow import FlowOptions
 from investigraph.pipeline import run
-from investigraph.settings import DATASETS_BLOCK, DATASETS_REPO, VERSION
+from investigraph.settings import VERSION
 
 cli = typer.Typer(no_args_is_help=True)
 console = Console()
@@ -33,9 +33,10 @@ def cli_version(
 
 @cli.command("run")
 def cli_run(
-    dataset: Annotated[Optional[str], typer.Option("-d")] = None,
-    block: Annotated[Optional[str], typer.Option("-b")] = None,
-    config: Annotated[Optional[str], typer.Option("-c")] = None,
+    config: Annotated[
+        Optional[Uri],
+        typer.Option("-c", help="Any local or remote json or yaml uri"),
+    ] = "-",
     index_uri: Annotated[Optional[str], typer.Option(...)] = None,
     fragments_uri: Annotated[Optional[str], typer.Option(...)] = None,
     entities_uri: Annotated[Optional[str], typer.Option(...)] = None,
@@ -46,8 +47,6 @@ def cli_run(
     Execute a dataset pipeline
     """
     options = FlowOptions(
-        dataset=dataset,
-        block=block,
         config=config,
         index_uri=index_uri,
         fragments_uri=fragments_uri,
@@ -56,33 +55,6 @@ def cli_run(
         chunk_size=chunk_size,
     )
     run(options)
-
-
-@cli.command("add-block")
-def cli_add_block(
-    block: Annotated[
-        str,
-        typer.Option(
-            "-b",
-            prompt=f"Datasets configuration block, for example: {DATASETS_BLOCK}",
-        ),
-    ],
-    uri: Annotated[
-        str, typer.Option("-u", prompt=f"Block source uri, example: {DATASETS_REPO}")
-    ],
-):
-    """
-    Configure a datasets block (currently only github and local filesystem supported.)
-    """
-    block = get_block(block)
-    try:
-        block.register(uri)
-        print(f"[bold green]OK[/bold green] block `{block}` created.")
-    except ValueError as e:
-        if "already in use" in str(e):
-            print(f"[bold red]Error[/bold red] block `{block}` already existing.")
-        else:
-            raise e
 
 
 @cli.command("inspect")

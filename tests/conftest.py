@@ -7,7 +7,6 @@ import pytest
 import requests
 
 from investigraph.model import Config
-from investigraph.model.block import get_block
 
 FIXTURES_PATH = (Path(__file__).parent / "fixtures").absolute()
 
@@ -59,11 +58,6 @@ def http_server(tmp_path_factory, worker_id):
 @pytest.fixture(scope="module")
 def fixtures_path():
     return FIXTURES_PATH
-
-
-@pytest.fixture(scope="module")
-def local_block():
-    return get_block("local-file-system/testdata", "./tests/fixtures", overwrite=True)
 
 
 @pytest.fixture(scope="module")

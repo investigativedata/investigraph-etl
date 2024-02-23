@@ -37,5 +37,4 @@ ENV DEBUG=0
 
 USER 1000
 WORKDIR /data
-ENTRYPOINT ["/docker-entrypoint.sh"]
 CMD ["prefect server start"]
