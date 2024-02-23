@@ -34,7 +34,7 @@ def test_config_gdho(gdho: Config):
 
 
 def test_config_pandas_merge():
-    config = Config.from_string(
+    config = Config.from_yaml_str(
         """
 name: test
 extract:

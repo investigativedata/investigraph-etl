@@ -1,7 +1,8 @@
 import logging
 from pathlib import Path
+from typing import Self
+from urllib.parse import urlparse
 
-import yaml
 from anystore.mixins import BaseModel
 from anystore.types import Uri
 from ftmq.model import Dataset
@@ -40,10 +41,12 @@ class Config(BaseModel):
             source.ensure_uri(self.base_path)
 
     @classmethod
-    def from_yaml_string(cls, data: str, base_path: PathLike | None = ".") -> "Config":
-        data = yaml.safe_load(data)
-        data["base_path"] = Path(base_path)
-        config = cls(**data)
+    def from_uri(cls, uri: Uri, base_path: PathLike | None = None) -> Self:
+        if base_path is None:
+            u = urlparse(str(uri))
+            if not u.scheme or u.scheme == "file":
+                base_path = Path(uri).absolute().parent
+        config = cls._from_uri(uri, base_path=base_path)
 
         # custom user code
         if not is_module(config.seed.handler):
@@ -72,4 +75,4 @@ class Config(BaseModel):
 
 
 def get_config(uri: Uri) -> Config:
-    return Config._from_uri(uri)
+    return Config.from_uri(uri)

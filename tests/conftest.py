@@ -62,12 +62,12 @@ def fixtures_path():
 
 @pytest.fixture(scope="module")
 def ec_meetings():
-    return Config.from_path(FIXTURES_PATH / "ec_meetings" / "config.yml")
+    return Config.from_uri(FIXTURES_PATH / "ec_meetings" / "config.yml")
 
 
 @pytest.fixture(scope="module")
 def gdho():
-    config = Config.from_path(FIXTURES_PATH / "gdho" / "config.yml")
+    config = Config.from_uri(FIXTURES_PATH / "gdho" / "config.yml")
     for source in config.extract.sources:
         source.uri = "http://localhost:8000/gdho/organizations.csv"
     return config
@@ -75,7 +75,7 @@ def gdho():
 
 @pytest.fixture(scope="module")
 def eu_authorities():
-    config = Config.from_path(FIXTURES_PATH / "eu_authorities" / "config.yml")
+    config = Config.from_uri(FIXTURES_PATH / "eu_authorities" / "config.yml")
     for source in config.extract.sources:
         source.uri = "http://localhost:8000/all-authorities.csv"
     return config
@@ -83,7 +83,7 @@ def eu_authorities():
 
 @pytest.fixture(scope="module")
 def ec_meetings_local():
-    config = Config.from_path(FIXTURES_PATH / "ec_meetings" / "config.yml")
+    config = Config.from_uri(FIXTURES_PATH / "ec_meetings" / "config.yml")
     for source in config.extract.sources:
         source.uri = "http://localhost:8000/ec-meetings.xlsx"
     return config

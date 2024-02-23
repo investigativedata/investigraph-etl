@@ -33,7 +33,7 @@ def get_records(ctx: Context, limit: int | None = 5) -> list[dict[str, Any]]:
 
 
 def inspect_config(p: PathLike) -> Config:
-    config = get_config(path=p)
+    config = get_config(p)
     try:
         if not callable(config.extract.get_handler()):
             print_error(f"module not found or not callable: `{config.extract.handler}`")

@@ -6,7 +6,6 @@ from typing import Annotated, Optional
 import orjson
 import typer
 from anystore.io import smart_write
-from anystore.types import Uri
 from ftmq.model import Catalog
 from prefect.settings import PREFECT_HOME
 from rich import print
@@ -34,9 +33,9 @@ def cli_version(
 @cli.command("run")
 def cli_run(
     config: Annotated[
-        Optional[Uri],
+        str,
         typer.Option("-c", help="Any local or remote json or yaml uri"),
-    ] = "-",
+    ],
     index_uri: Annotated[Optional[str], typer.Option(...)] = None,
     fragments_uri: Annotated[Optional[str], typer.Option(...)] = None,
     entities_uri: Annotated[Optional[str], typer.Option(...)] = None,
