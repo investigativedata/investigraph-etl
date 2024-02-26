@@ -7,19 +7,17 @@ from uuid import uuid4
 
 from ftmq.aggregate import merge
 from ftmq.io import smart_read_proxies
-from ftmq.model.coverage import Collector
+from ftmq.model.coverage import Collector, DatasetStats
 from ftmstore import get_dataset
 
 if TYPE_CHECKING:
     from investigraph.model import Context
 
-from ftmq.model import Coverage
-
 from investigraph.types import CEGenerator
 
 COMMON_SCHEMAS = ("Organization", "LegalEntity")
 
-AggregatorResult: TypeAlias = tuple[int, Coverage]
+AggregatorResult: TypeAlias = tuple[int, DatasetStats]
 
 
 class Aggregator:

@@ -7,7 +7,7 @@ from datetime import datetime
 from typing import Any, Set
 
 from anystore.util import make_data_checksum
-from ftmq.model import Coverage
+from ftmq.model.coverage import DatasetStats
 from prefect import flow, task
 from prefect.task_runners import ConcurrentTaskRunner
 from prefect_dask import DaskTaskRunner
@@ -38,11 +38,11 @@ def get_task_cache_key(_, params) -> str:
     cache_expiration=settings.TASK_CACHE_EXPIRATION,
     refresh_cache=not settings.TASK_CACHE,
 )
-def aggregate(ctx: Context, results: list[str], ckey: str) -> Coverage:
-    fragments, coverage = ctx.aggregate(ctx, results)
-    ctx.log.info("AGGREGATED %d fragments to %d proxies", fragments, coverage.entities)
+def aggregate(ctx: Context, results: list[str], ckey: str) -> DatasetStats:
+    fragments, stats = ctx.aggregate(ctx, results)
+    ctx.log.info("AGGREGATED %d fragments to %d proxies", fragments, stats.entity_count)
     ctx.log.info("OUTPUT: %s", ctx.config.load.entities_uri)
-    return coverage
+    return stats
 
 
 @task(
