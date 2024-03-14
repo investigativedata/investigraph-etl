@@ -8,8 +8,9 @@ from typing import Any, Callable
 
 from banal import clean_dict, ensure_dict, ensure_list, is_listish, is_mapping
 from followthemoney.util import join_text as _join_text
-from ftmq.util import clean_name
+from ftmq.util import clean_name, make_fingerprint, make_fingerprint_id
 from ftmq.util import make_proxy as _make_proxy
+from ftmq.util import make_string_id
 from nomenklatura.dataset import DefaultDataset
 from nomenklatura.entity import CE
 from normality import slugify
@@ -117,3 +118,15 @@ def to_dict(obj: Any) -> dict[str, Any]:
     if hasattr(obj, "to_dict"):
         return obj.to_dict()
     return ensure_dict(obj)
+
+
+__all__ = [
+    "make_string_id",
+    "make_fingerprint",
+    "make_fingerprint_id",
+    "make_proxy",
+    "str_or_none",
+    "join_text",
+    "clean_name",
+    "is_empty",
+]
