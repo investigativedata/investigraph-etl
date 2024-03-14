@@ -52,4 +52,4 @@ def test_cli_inspect(fixtures_path: Path):
         cli, ["inspect", config, "--transform", "--to-json", "-l", "1"]
     )
     assert result.exit_code == 0
-    assert len(result.stdout.split("\n")) == 1
+    assert len(result.stdout.strip().split("\n")) == 1
