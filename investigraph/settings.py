@@ -12,12 +12,10 @@ def get_env(env: str, default: Any | None = None) -> Any | None:
     return os.environ.get(env, default)
 
 
-VERSION = "0.5.1"
+VERSION = "0.5.2"
 
 DEBUG = as_bool(get_env("DEBUG", 0))
 DATA_ROOT = Path(get_env("DATA_ROOT", Path.cwd() / "data")).absolute()
-DATASETS_REPO = "https://github.com/investigativedata/investigraph-datasets.git"
-DATASETS_BLOCK = get_env("DATASETS_BLOCK")
 
 DEFAULT_SEEDER = get_env("DEFAULT_SEEDER", "investigraph.logic.seed:handle")
 DEFAULT_EXTRACTOR = get_env("DEFAULT_EXTRACTOR", "investigraph.logic.extract:handle")

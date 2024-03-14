@@ -1,14 +1,14 @@
 import logging
 from pathlib import Path
+from typing import Self
+from urllib.parse import urlparse
 
-import yaml
+from anystore.mixins import BaseModel
+from anystore.types import Uri
 from ftmq.model import Dataset
-from ftmq.model.mixins import RemoteMixin, YamlMixin
-from pydantic import BaseModel, ConfigDict
+from pydantic import ConfigDict
 from runpandarun.util import absolute_path
 
-from investigraph.exceptions import ImproperlyConfigured
-from investigraph.model.block import get_block
 from investigraph.model.stage import (
     AggregateStage,
     ExtractStage,
@@ -16,13 +16,12 @@ from investigraph.model.stage import (
     SeedStage,
     TransformStage,
 )
-from investigraph.settings import DATASETS_BLOCK
 from investigraph.util import PathLike, is_module
 
 log = logging.getLogger(__name__)
 
 
-class Config(BaseModel, YamlMixin, RemoteMixin):
+class Config(BaseModel):
     dataset: Dataset
     base_path: Path | None = Path()
     seed: SeedStage | None = SeedStage()
@@ -42,10 +41,12 @@ class Config(BaseModel, YamlMixin, RemoteMixin):
             source.ensure_uri(self.base_path)
 
     @classmethod
-    def from_string(cls, data: str, base_path: PathLike | None = ".") -> "Config":
-        data = yaml.safe_load(data)
-        data["base_path"] = Path(base_path)
-        config = cls(**data)
+    def from_uri(cls, uri: Uri, base_path: PathLike | None = None) -> Self:
+        if base_path is None:
+            u = urlparse(str(uri))
+            if not u.scheme or u.scheme == "file":
+                base_path = Path(uri).absolute().parent
+        config = cls._from_uri(uri, base_path=base_path)
 
         # custom user code
         if not is_module(config.seed.handler):
@@ -73,19 +74,5 @@ class Config(BaseModel, YamlMixin, RemoteMixin):
         return config
 
 
-def get_config(
-    dataset: str | None = None, block: str | None = None, path: PathLike | None = None
-) -> Config:
-    """
-    Return configuration based on block or path (path has precedence)
-    """
-    if path is not None:
-        return Config.from_path(path)
-    if dataset is not None:
-        block = block or DATASETS_BLOCK
-        if block is not None:
-            block = get_block(block)
-            log.info("Using block `%s`" % block)
-            block.load(dataset)
-            return Config.from_path(block.path / dataset / "config.yml")
-    raise ImproperlyConfigured("Specify `dataset` and `block` or `path` to config.")
+def get_config(uri: Uri) -> Config:
+    return Config.from_uri(uri)

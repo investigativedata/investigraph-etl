@@ -1,23 +1,16 @@
-from investigraph.model import Config, DatasetBlock
+from investigraph.model import Config
 from investigraph.model.config import get_config
 from investigraph.model.mapping import QueryMapping
 
 
-def test_config(ec_meetings: Config, local_block: DatasetBlock):
+def test_config(ec_meetings: Config):
     config = ec_meetings
     assert config.dataset.name == "ec_meetings"
     assert config.dataset.prefix == "ec"
     assert len(config.extract.sources) == 3
     assert config.transform.handler.endswith("ec_meetings/transform.py:handle")
 
-    config = get_config("ec_meetings", block="local-file-system/testdata")
-    assert config.dataset.name == "ec_meetings"
-    assert len(config.extract.sources) == 3
-    assert config.transform.handler.endswith("ec_meetings/transform.py:handle")
-    func = config.transform.get_handler()
-    assert callable(func)
-
-    config = get_config(path="./tests/fixtures/ec_meetings/config.yml")
+    config = get_config("./tests/fixtures/ec_meetings/config.yml")
     assert config.dataset.name == "ec_meetings"
     assert len(config.extract.sources) == 3
     assert config.transform.handler.endswith("ec_meetings/transform.py:handle")
@@ -41,7 +34,7 @@ def test_config_gdho(gdho: Config):
 
 
 def test_config_pandas_merge():
-    config = Config.from_string(
+    config = Config.from_yaml_str(
         """
 name: test
 extract:

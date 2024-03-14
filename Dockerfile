@@ -21,10 +21,6 @@ COPY README.md /investigraph/
 
 RUN pip install -q /investigraph
 
-COPY docker-entrypoint.sh /docker-entrypoint.sh
-RUN chmod +x /docker-entrypoint.sh
-
-RUN mkdir -p /data/datasets
 RUN mkdir -p /data/prefect
 RUN chown -R 1000:1000 /data
 
@@ -37,5 +33,4 @@ ENV DEBUG=0
 
 USER 1000
 WORKDIR /data
-ENTRYPOINT ["/docker-entrypoint.sh"]
 CMD ["prefect server start"]

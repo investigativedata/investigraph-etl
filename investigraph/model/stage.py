@@ -45,7 +45,7 @@ class SeedStage(Stage):
     default_handler: ClassVar[str] = DEFAULT_SEEDER
 
     glob: str | list[str] | None = None
-    storage_options: dict[str, Any] = None
+    storage_options: dict[str, Any] | None = None
 
 
 class ExtractStage(Stage):

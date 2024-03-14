@@ -1,13 +1,14 @@
 from datetime import datetime
-from typing import Iterable
+from logging import Logger, LoggerAdapter
+from typing import Generator, Iterable
 
+from anystore.io import smart_write
 from followthemoney.util import make_entity_id
-from ftmq.io import smart_write
 from ftmq.util import join_slug
-from nomenklatura.entity import CE
+from nomenklatura.entity import CE, CompositeEntity
 from prefect import get_run_logger
-from prefect.logging.loggers import MissingContextError, PrefectLogAdapter
-from pydantic import BaseModel
+from prefect.exceptions import MissingContextError
+from pydantic import BaseModel, ConfigDict
 
 from investigraph.cache import Cache, get_cache
 from investigraph.exceptions import DataError
@@ -34,7 +35,7 @@ class BaseContext(BaseModel):
         return get_cache()
 
     @property
-    def log(self) -> PrefectLogAdapter:
+    def log(self) -> LoggerAdapter | Logger:
         try:
             return get_run_logger()
         except MissingContextError:
@@ -93,6 +94,12 @@ class BaseContext(BaseModel):
             source=source,
         )
 
+    def from_sources(self) -> Generator["Context", None, None]:
+        for source in self.config.seed.handle(self):
+            yield self.from_source(source)
+        for source in self.config.extract.sources:
+            yield self.from_source(source)
+
     @classmethod
     def from_config(cls, config: Config) -> "BaseContext":
         return cls(
@@ -107,7 +114,8 @@ class Context(BaseContext):
 
 
 class TaskContext(Context):
-    proxies: dict[str, CE] = {}
+    proxies: dict[str, CompositeEntity] = {}
+    model_config = ConfigDict(arbitrary_types_allowed=True)
 
     def __iter__(self) -> CEGenerator:
         yield from self.proxies.values()

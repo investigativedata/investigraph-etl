@@ -23,7 +23,7 @@ Using [prefect.io](https://www.prefect.io/) for ftm pipeline processing
 
 ## example datasets
 
-There is a dedicated [repo](https://github.com/investigativedata/investigraph-datasets) for example datasets that can be used as a [Block](https://docs.prefect.io/2.10.11/concepts/blocks/) within the prefect.io deployment.
+There is a dedicated [repo](https://github.com/investigativedata/investigraph-datasets) for example datasets built with investigraph.
 
 ## deployment
 
@@ -48,18 +48,6 @@ After installation, `investigraph` as a command should be available:
 Quick run a local dataset definition:
 
     investigraph run -c ./path/to/config.yml
-
-Register a local datasets block:
-
-    investigraph add-block -b local-file-system/investigraph-local -u ./datasets
-
-Register github datasets block:
-
-    investigraph add-block -b github/investigraph-datasets -u https://github.com/investigativedata/investigraph-datasets.git
-
-Run a dataset pipeline from a dataset defined in a registered block:
-
-    investigraph run -d ec_meetings -b github/investigraph-datasets
 
 View prefect dashboard:
 

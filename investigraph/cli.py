@@ -5,18 +5,20 @@ from typing import Annotated, Optional
 
 import orjson
 import typer
-from ftmq.io import smart_write
+from anystore.io import smart_write
 from ftmq.model import Catalog
 from prefect.settings import PREFECT_HOME
 from rich import print
+from rich.console import Console
+from rich.table import Table
 
 from investigraph.inspect import inspect_config, inspect_extract, inspect_transform
-from investigraph.model.block import get_block
 from investigraph.model.flow import FlowOptions
 from investigraph.pipeline import run
-from investigraph.settings import DATASETS_BLOCK, DATASETS_REPO, VERSION
+from investigraph.settings import VERSION
 
 cli = typer.Typer(no_args_is_help=True)
+console = Console()
 
 
 @cli.callback(invoke_without_command=True)
@@ -30,9 +32,10 @@ def cli_version(
 
 @cli.command("run")
 def cli_run(
-    dataset: Annotated[Optional[str], typer.Option("-d")] = None,
-    block: Annotated[Optional[str], typer.Option("-b")] = None,
-    config: Annotated[Optional[str], typer.Option("-c")] = None,
+    config: Annotated[
+        str,
+        typer.Option("-c", help="Any local or remote json or yaml uri"),
+    ],
     index_uri: Annotated[Optional[str], typer.Option(...)] = None,
     fragments_uri: Annotated[Optional[str], typer.Option(...)] = None,
     entities_uri: Annotated[Optional[str], typer.Option(...)] = None,
@@ -43,8 +46,6 @@ def cli_run(
     Execute a dataset pipeline
     """
     options = FlowOptions(
-        dataset=dataset,
-        block=block,
         config=config,
         index_uri=index_uri,
         fragments_uri=fragments_uri,
@@ -55,66 +56,59 @@ def cli_run(
     run(options)
 
 
-@cli.command("add-block")
-def cli_add_block(
-    block: Annotated[
-        str,
-        typer.Option(
-            "-b",
-            prompt=f"Datasets configuration block, for example: {DATASETS_BLOCK}",
-        ),
-    ],
-    uri: Annotated[
-        str, typer.Option("-u", prompt=f"Block source uri, example: {DATASETS_REPO}")
-    ],
-):
-    """
-    Configure a datasets block (currently only github and local filesystem supported.)
-    """
-    block = get_block(block)
-    try:
-        block.register(uri)
-        print(f"[bold green]OK[/bold green] block `{block}` created.")
-    except ValueError as e:
-        if "already in use" in str(e):
-            print(f"[bold red]Error[/bold red] block `{block}` already existing.")
-        else:
-            raise e
-
-
 @cli.command("inspect")
 def cli_inspect(
     config_path: Annotated[Path, typer.Argument()],
-    extract: Annotated[Optional[bool], typer.Option()] = False,
-    transform: Annotated[Optional[bool], typer.Option()] = False,
+    extract: Annotated[Optional[bool], typer.Option("-e", "--extract")] = False,
+    transform: Annotated[Optional[bool], typer.Option("-t", "--transform")] = False,
+    limit: Annotated[Optional[int], typer.Option("-l", "--limit")] = 5,
+    to_csv: Annotated[Optional[bool], typer.Option()] = False,
     to_json: Annotated[Optional[bool], typer.Option()] = False,
+    usecols: Annotated[
+        Optional[str],
+        typer.Option(
+            "-c",
+            "--usecols",
+            help="Comma separated list of column names or ix to display",
+        ),
+    ] = None,
 ):
     config = inspect_config(config_path)
-    print(f"[bold green]OK[/bold green] `{config_path}`")
-    print(f"[bold]dataset:[/bold] {config.dataset.name}")
-    print(f"[bold]title:[/bold] {config.dataset.title}")
+    if not to_json and not to_csv:
+        print(f"[bold green]OK[/bold green] `{config_path}`")
+        print(f"[bold]dataset:[/bold] {config.dataset.name}")
+        print(f"[bold]title:[/bold] {config.dataset.title}")
 
     if extract:
-        for name, df in inspect_extract(config):
-            print(f"[bold green]OK[/bold green] {name}")
+        for name, df in inspect_extract(config, limit):
+            if usecols:
+                df = df[[c for c in usecols.split(",") if c in df.columns]]
+            if not to_json and not to_csv:
+                print(f"[bold green]OK[/bold green] {name}")
             if to_json:
                 for _, row in df.iterrows():
-                    print(
-                        orjson.dumps(
-                            row.to_dict(), option=orjson.OPT_APPEND_NEWLINE
-                        ).decode()
+                    typer.echo(
+                        orjson.dumps(row.to_dict(), option=orjson.OPT_APPEND_NEWLINE)
                     )
+            elif to_csv:
+                df.to_csv(sys.stdout, index=False)
             else:
-                print(df.to_markdown(index=False))
+                table = Table(*df.columns.map(str))
+                df = df.fillna("").map(str)
+                for _, row in df.iterrows():
+                    table.add_row(*row.values)
+                console.print(table)
 
     if transform:
-        for name, proxies in inspect_transform(config):
-            print(f"[bold green]OK[/bold green] {name}")
+        for name, proxies in inspect_transform(config, limit):
+            if not to_json:
+                print(f"[bold green]OK[/bold green] {name}")
             for proxy in proxies:
-                data = orjson.dumps(
-                    proxy.to_dict(), option=orjson.OPT_APPEND_NEWLINE
-                ).decode()
-                print(data)
+                data = proxy.to_dict()
+                if not to_json:
+                    print(data)
+                else:
+                    typer.echo(orjson.dumps(data))
 
 
 @cli.command("build-catalog")

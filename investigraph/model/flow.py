@@ -1,19 +1,17 @@
 from datetime import datetime
 from typing import Any
 
-from normality import slugify
+from anystore.types import Uri
 from prefect.runtime import flow_run
-from pydantic import BaseModel, model_validator
+from pydantic import BaseModel
 
 from investigraph.model.config import Config, get_config
-from investigraph.settings import CHUNK_SIZE, DATA_ROOT, DATASETS_BLOCK
+from investigraph.settings import CHUNK_SIZE, DATA_ROOT
 from investigraph.util import ensure_path
 
 
 class FlowOptions(BaseModel):
-    dataset: str | None = None
-    block: str | None = None
-    config: str | None = None
+    config: Uri
     aggregate: bool | None = None
     chunk_size: int | None = CHUNK_SIZE
 
@@ -23,21 +21,11 @@ class FlowOptions(BaseModel):
 
     @property
     def flow_name(self) -> str:
-        if self.dataset is not None:
-            return self.dataset
-        return slugify(self.config)
-
-    @model_validator(mode="before")
-    def validate_options(cls, values):
-        block = values.get("dataset") and (values.get("block") or DATASETS_BLOCK)
-        config = values.get("config")
-        if not block and not config:
-            raise ValueError("Specify at least a config file or a block and dataset")
-        return values
+        config = get_config(self.config)
+        return config.dataset.name
 
 
 class Flow(BaseModel):
-    dataset: str
     config: Config
     run_id: str | None = None
     start: datetime
@@ -52,11 +40,7 @@ class Flow(BaseModel):
         # override base config with runtime options
         options = data.pop("options", None)
         if options:
-            config = get_config(
-                data.pop("dataset", options.dataset),
-                options.block,
-                options.config,
-            )
+            config = get_config(options.config)
 
             self.assign(config.extract, "chunk_size", options.chunk_size)
             self.assign(config.transform, "chunk_size", options.chunk_size)

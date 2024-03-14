@@ -1,25 +1,23 @@
-import hashlib
 import os
 import re
 from functools import cache
 from importlib import import_module
 from importlib.util import module_from_spec, spec_from_file_location
-from io import BytesIO
 from pathlib import Path
 from typing import Any, Callable
 
-import orjson
 from banal import clean_dict, ensure_dict, ensure_list, is_listish, is_mapping
 from followthemoney.util import join_text as _join_text
-from ftmq.util import clean_name
+from ftmq.util import clean_name, make_fingerprint, make_fingerprint_id
 from ftmq.util import make_proxy as _make_proxy
+from ftmq.util import make_string_id
 from nomenklatura.dataset import DefaultDataset
 from nomenklatura.entity import CE
 from normality import slugify
 from pydantic import BaseModel
 from runpandarun.util import PathLike
 
-from investigraph.exceptions import ImproperlyConfigured
+from investigraph.exceptions import DataError, ImproperlyConfigured
 from investigraph.types import SDict
 
 
@@ -29,12 +27,18 @@ def slugified_dict(data: dict[Any, Any]) -> SDict:
 
 def make_proxy(
     schema: str,
-    id: str,
+    id: str | None = None,
     dataset: str | None = DefaultDataset,
     **properties,
 ) -> CE:
-    data = {"id": id, "schema": schema, "properties": properties}
-    return _make_proxy(data, dataset)
+    if properties and not id:
+        raise DataError("Specify Entity ID when using properties kwargs!")
+    data = {"id": id, "schema": schema}
+    proxy = _make_proxy(data, dataset)
+    # add the property values via this api to ensure type checking & cleaning
+    for k, v in properties.items():
+        proxy.add(k, v)
+    return proxy
 
 
 @cache
@@ -77,21 +81,6 @@ def join_text(*parts: Any, sep: str = " ") -> str | None:
     return _join_text(*parts, sep=sep)
 
 
-def checksum(io: BytesIO, algorithm: str | None = "md5") -> str:
-    handler = getattr(hashlib, algorithm)
-    hash_ = handler()
-    for chunk in iter(lambda: io.read(128 * hash_.block_size), b""):
-        hash_.update(chunk)
-    return hash_.hexdigest()
-
-
-def data_checksum(data: Any, algorithm: str | None = "md5") -> str:
-    if is_listish(data):
-        data = sorted(data, key=lambda x: repr(x))
-    data = orjson.dumps(data, option=orjson.OPT_SORT_KEYS, default=str)
-    return checksum(BytesIO(data), algorithm)
-
-
 def is_empty(value: Any) -> bool:
     if isinstance(value, (bool, int)):
         return False
@@ -123,9 +112,21 @@ def pydantic_merge(m1: BaseModel, m2: BaseModel) -> BaseModel:
     return m1.__class__(**dict_merge(m1.model_dump(), m2.model_dump()))
 
 
-def to_dict(obj: Any) -> dict[Any]:
+def to_dict(obj: Any) -> dict[str, Any]:
     if hasattr(obj, "model_dump"):
         return obj.model_dump()
     if hasattr(obj, "to_dict"):
         return obj.to_dict()
     return ensure_dict(obj)
+
+
+__all__ = [
+    "make_string_id",
+    "make_fingerprint",
+    "make_fingerprint_id",
+    "make_proxy",
+    "str_or_none",
+    "join_text",
+    "clean_name",
+    "is_empty",
+]

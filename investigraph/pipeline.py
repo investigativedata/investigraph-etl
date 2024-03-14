@@ -4,9 +4,10 @@ The main entrypoint for the prefect flow
 
 from collections.abc import Generator
 from datetime import datetime
-from typing import Any, Set
+from typing import Any
 
-from ftmq.model import Coverage
+from anystore.util import make_data_checksum
+from ftmq.model.coverage import DatasetStats
 from prefect import flow, task
 from prefect.task_runners import ConcurrentTaskRunner
 from prefect_dask import DaskTaskRunner
@@ -16,7 +17,6 @@ from investigraph import __version__, settings
 from investigraph.model.context import BaseContext, Context
 from investigraph.model.flow import Flow, FlowOptions
 from investigraph.model.resolver import Resolver
-from investigraph.util import data_checksum
 
 
 def get_runner_from_env() -> ConcurrentTaskRunner | DaskTaskRunner | RayTaskRunner:
@@ -38,11 +38,11 @@ def get_task_cache_key(_, params) -> str:
     cache_expiration=settings.TASK_CACHE_EXPIRATION,
     refresh_cache=not settings.TASK_CACHE,
 )
-def aggregate(ctx: Context, results: list[str], ckey: str) -> Coverage:
-    fragments, coverage = ctx.aggregate(ctx, results)
-    ctx.log.info("AGGREGATED %d fragments to %d proxies", fragments, coverage.entities)
+def aggregate(ctx: Context, results: list[str], ckey: str) -> DatasetStats:
+    fragments, stats = ctx.aggregate(ctx, results)
+    ctx.log.info("AGGREGATED %d fragments to %d proxies", fragments, stats.entity_count)
     ctx.log.info("OUTPUT: %s", ctx.config.load.entities_uri)
-    return coverage
+    return stats
 
 
 @task(
@@ -152,14 +152,9 @@ def run_pipeline(ctx: Context) -> list[Any]:
 def run(options: FlowOptions) -> Flow:
     flow = Flow.from_options(options)
     results = []
-    ctxs: Set[Context] = set()
     ctx = BaseContext.from_config(flow.config)
-    for source in ctx.config.seed.handle(ctx):
-        ctxs.add(ctx.from_source(source))
-    for source in ctx.config.extract.sources:
-        ctxs.add(ctx.from_source(source))
 
-    for ix, run_ctx in enumerate(ctxs):
+    for ix, run_ctx in enumerate(ctx.from_sources()):
         if ix == 0:  # only on first time
             ctx.export_metadata()
             ctx.log.info("INDEX: %s" % ctx.config.load.index_uri)
@@ -167,8 +162,8 @@ def run(options: FlowOptions) -> Flow:
 
     if flow.config.aggregate:
         fragments = [r.result() for r in results]
-        res = aggregate.submit(ctx, fragments, data_checksum(fragments))
-        ctx.config.dataset.coverage = res.result()
+        res = aggregate.submit(ctx, fragments, make_data_checksum(fragments))
+        ctx.config.dataset.apply_stats(res.result())
         ctx.export_metadata()
         ctx.log.info("INDEX (updated with coverage): %s" % ctx.config.load.index_uri)
 
