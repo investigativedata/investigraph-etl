@@ -4,7 +4,7 @@ The main entrypoint for the prefect flow
 
 from collections.abc import Generator
 from datetime import datetime
-from typing import Any, Set
+from typing import Any
 
 from anystore.util import make_data_checksum
 from ftmq.model.coverage import DatasetStats
@@ -152,14 +152,9 @@ def run_pipeline(ctx: Context) -> list[Any]:
 def run(options: FlowOptions) -> Flow:
     flow = Flow.from_options(options)
     results = []
-    ctxs: Set[Context] = set()
     ctx = BaseContext.from_config(flow.config)
-    for source in ctx.config.seed.handle(ctx):
-        ctxs.add(ctx.from_source(source))
-    for source in ctx.config.extract.sources:
-        ctxs.add(ctx.from_source(source))
 
-    for ix, run_ctx in enumerate(ctxs):
+    for ix, run_ctx in enumerate(ctx.from_sources()):
         if ix == 0:  # only on first time
             ctx.export_metadata()
             ctx.log.info("INDEX: %s" % ctx.config.load.index_uri)
@@ -168,7 +163,7 @@ def run(options: FlowOptions) -> Flow:
     if flow.config.aggregate:
         fragments = [r.result() for r in results]
         res = aggregate.submit(ctx, fragments, make_data_checksum(fragments))
-        ctx.config.dataset.coverage = res.result()
+        ctx.config.dataset.apply_stats(res.result())
         ctx.export_metadata()
         ctx.log.info("INDEX (updated with coverage): %s" % ctx.config.load.index_uri)
 

@@ -2,8 +2,7 @@
 Inspect dataset pipelines interactively
 """
 
-
-from typing import Any, Generator
+from typing import Any, Generator, Iterable
 
 import pandas as pd
 from nomenklatura.entity import CE
@@ -11,7 +10,7 @@ from rich import print
 
 from investigraph.model import Resolver
 from investigraph.model.config import Config, get_config
-from investigraph.model.context import Context, init_context
+from investigraph.model.context import BaseContext, Context
 from investigraph.util import PathLike
 
 
@@ -60,22 +59,24 @@ def inspect_extract(
     """
     Preview fetched & extracted records in tabular format
     """
-    for source in config.extract.sources:
-        ctx = init_context(config, source)
-        df = pd.DataFrame(get_records(ctx, limit))
-        yield source.name, df
+    ctx = BaseContext.from_config(config)
+    for ix, sctx in enumerate(ctx.from_sources(), 1):
+        df = pd.DataFrame(get_records(sctx, limit))
+        yield sctx.source.name, df
+        if ix == limit:
+            return
 
 
 def inspect_transform(
     config: Config, limit: int | None = 5
-) -> Generator[tuple[str, CE], None, None]:
+) -> Generator[tuple[str, Iterable[CE]], None, None]:
     """
     Preview first proxies
     """
-    for source in config.extract.sources:
-        ctx = init_context(config, source)
+    ctx = BaseContext.from_config(config)
+    for ix, sctx in enumerate(ctx.from_sources(), 1):
         proxies: list[CE] = []
-        for ix, rec in enumerate(get_records(ctx, limit)):
-            for proxy in ctx.config.transform.handle(ctx, rec, ix):
+        for ix, rec in enumerate(get_records(sctx, limit)):
+            for proxy in sctx.config.transform.handle(sctx, rec, ix):
                 proxies.append(proxy)
-        yield source.name, proxies
+        yield sctx.source.name, proxies

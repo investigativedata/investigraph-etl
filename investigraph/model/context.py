@@ -1,6 +1,6 @@
 from datetime import datetime
 from logging import Logger, LoggerAdapter
-from typing import Iterable
+from typing import Generator, Iterable
 
 from anystore.io import smart_write
 from followthemoney.util import make_entity_id
@@ -93,6 +93,12 @@ class BaseContext(BaseModel):
             config=self.config,
             source=source,
         )
+
+    def from_sources(self) -> Generator["Context", None, None]:
+        for source in self.config.seed.handle(self):
+            yield self.from_source(source)
+        for source in self.config.extract.sources:
+            yield self.from_source(source)
 
     @classmethod
     def from_config(cls, config: Config) -> "BaseContext":
