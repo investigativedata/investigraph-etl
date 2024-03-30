@@ -29,7 +29,7 @@ DEFAULT_AGGREGATOR = get_env(
 
 REDIS_URL = get_env("REDIS_URL", "redis://localhost:6379")
 REDIS_PREFIX = get_env("REDIS_PREFIX", f"investigraph:{VERSION}")
-REDIS_PERSIST = as_bool(get_env("REDIS_PERSIST", 0))
+REDIS_PERSIST = as_bool(get_env("REDIS_PERSIST", not DEBUG))
 
 TASK_CACHE = as_bool(get_env("TASK_CACHE", 1))
 TASK_RETRIES = int(get_env("TASK_RETRIES", 3))
