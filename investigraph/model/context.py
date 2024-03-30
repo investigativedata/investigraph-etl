@@ -1,6 +1,6 @@
 from datetime import datetime
 from logging import Logger, LoggerAdapter
-from typing import Generator, Iterable
+from typing import Any, Generator, Iterable
 
 from anystore.io import smart_write
 from followthemoney.util import make_entity_id
@@ -83,7 +83,7 @@ class BaseContext(BaseModel):
     def task(self) -> "TaskContext":
         return TaskContext(**self.model_dump())
 
-    def emit(self, proxy: CE) -> None:
+    def emit(self, proxy: CE | None) -> None:
         raise NotImplementedError
 
     def from_source(self, source: Source) -> "Context":
@@ -115,19 +115,22 @@ class Context(BaseContext):
 
 class TaskContext(Context):
     proxies: dict[str, CompositeEntity] = {}
+    data: dict[str, Any] = {}
     model_config = ConfigDict(arbitrary_types_allowed=True)
 
     def __iter__(self) -> CEGenerator:
         yield from self.proxies.values()
 
-    def emit(self, proxy: CE) -> None:
-        if not proxy.id:
-            raise DataError("No Entity ID!")
-        # mimic zavod api, do merge already
-        if proxy.id in self.proxies:
-            self.proxies[proxy.id] = merge(self, self.proxies[proxy.id], proxy)
-        else:
-            self.proxies[proxy.id] = proxy
+    def emit(self, *proxies: CE | None) -> None:
+        for proxy in proxies:
+            if proxy is not None:
+                if not proxy.id:
+                    raise DataError("No Entity ID!")
+                # mimic zavod api, do merge already
+                if proxy.id in self.proxies:
+                    self.proxies[proxy.id] = merge(self.proxies[proxy.id], proxy)
+                else:
+                    self.proxies[proxy.id] = proxy
 
 
 def init_context(config: Config, source: Source) -> Context:
