@@ -46,6 +46,7 @@ class SeedStage(Stage):
 
     glob: str | list[str] | None = None
     storage_options: dict[str, Any] | None = None
+    source_options: dict[str, Any] | None = None
 
 
 class ExtractStage(Stage):
@@ -86,5 +87,5 @@ class AggregateStage(Stage):
 
     def __init__(self, **data):
         if data.pop("handler", None) == "db":
-            data["handler"] = "investigraph.logic.aggregate.in_db"
+            data["handler"] = "investigraph.logic.aggregate:in_db"
         super().__init__(**data)
