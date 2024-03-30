@@ -4,7 +4,8 @@ The main entrypoint for the prefect flow
 
 from collections.abc import Generator
 from datetime import datetime
-from typing import Any
+from functools import cache
+from typing import Any, Type
 
 from anystore.util import make_data_checksum
 from ftmq.model.coverage import DatasetStats
@@ -19,7 +20,10 @@ from investigraph.model.flow import Flow, FlowOptions
 from investigraph.model.resolver import Resolver
 
 
-def get_runner_from_env() -> ConcurrentTaskRunner | DaskTaskRunner | RayTaskRunner:
+@cache
+def get_runner_from_env() -> (
+    Type[ConcurrentTaskRunner] | Type[DaskTaskRunner] | Type[RayTaskRunner]
+):
     if settings.TASK_RUNNER == "dask":
         return DaskTaskRunner
     if settings.TASK_RUNNER == "ray":
@@ -37,6 +41,7 @@ def get_task_cache_key(_, params) -> str:
     cache_key_fn=get_task_cache_key,
     cache_expiration=settings.TASK_CACHE_EXPIRATION,
     refresh_cache=not settings.TASK_CACHE,
+    cache_result_in_memory=False,
 )
 def aggregate(ctx: Context, results: list[str], ckey: str) -> DatasetStats:
     fragments, stats = ctx.aggregate(ctx, results)
@@ -51,14 +56,17 @@ def aggregate(ctx: Context, results: list[str], ckey: str) -> DatasetStats:
     cache_key_fn=get_task_cache_key,
     cache_expiration=settings.TASK_CACHE_EXPIRATION,
     refresh_cache=not settings.TASK_CACHE or not settings.LOAD_CACHE,
+    cache_result_in_memory=False,
 )
-def load(ctx: Context, ckey: str) -> str:
+def load(ctx: Context, ckey: str) -> str | None:
     proxies = ctx.cache.get(ckey)
-    if proxies:
-        out = ctx.load_fragments(proxies, ckey=ckey)
-        ctx.log.info("LOADED %d proxies", len(proxies))
-        ctx.log.info("OUTPUT: %s", out)
-        return out
+    if proxies is None:
+        ctx.log.warn(f"No proxies found for cache key `{ckey}`")
+        return
+    out = ctx.load_fragments(proxies, ckey=ckey)
+    ctx.log.info("LOADED %d proxies", len(proxies))
+    ctx.log.info("OUTPUT: %s", out)
+    return out
 
 
 @task(
@@ -67,10 +75,14 @@ def load(ctx: Context, ckey: str) -> str:
     cache_key_fn=get_task_cache_key,
     cache_expiration=settings.TASK_CACHE_EXPIRATION,
     refresh_cache=not settings.TASK_CACHE or not settings.TRANSFORM_CACHE,
+    cache_result_in_memory=False,
 )
-def transform(ctx: Context, ckey: str) -> str:
+def transform(ctx: Context, ckey: str) -> str | None:
     proxies: list[dict[str, Any]] = []
     records = ctx.cache.get(ckey)
+    if records is None:
+        ctx.log.warn(f"No records found for cache key `{ckey}`")
+        return
     for rec, ix in records:
         try:
             for proxy in ctx.config.transform.handle(ctx, rec, ix):
@@ -108,6 +120,7 @@ def extract(
     cache_key_fn=get_task_cache_key,
     cache_expiration=settings.TASK_CACHE_EXPIRATION,
     refresh_cache=not settings.TASK_CACHE or not settings.EXTRACT_CACHE,
+    cache_result_in_memory=False,
 )
 def extract_task(
     ctx: Context, ckey: str, res: Resolver | None = None
@@ -124,6 +137,12 @@ def dispatch_extract(
         return extract(ctx, ckey, res)
 
 
+@flow(
+    name="investigraph-pipeline",
+    version=__version__,
+    task_runner=get_runner_from_env(),
+    cache_result_in_memory=False,
+)
 def run_pipeline(ctx: Context) -> list[Any]:
     res = None
     if ctx.config.extract.fetch:
@@ -148,6 +167,7 @@ def run_pipeline(ctx: Context) -> list[Any]:
     version=__version__,
     flow_run_name="{options.flow_name}",
     task_runner=get_runner_from_env(),
+    cache_result_in_memory=False,
 )
 def run(options: FlowOptions) -> Flow:
     flow = Flow.from_options(options)
