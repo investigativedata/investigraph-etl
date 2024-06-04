@@ -43,7 +43,7 @@ def get_task_cache_key(_, params) -> str:
     retry_delay_seconds=SETTINGS.task_retry_delay,
     cache_key_fn=get_task_cache_key,
     cache_expiration=SETTINGS.task_cache_expiration,
-    refresh_cache=not SETTINGS.task_cache,
+    refresh_cache=not SETTINGS.task_cache or not SETTINGS.aggregate_cache,
     cache_result_in_memory=False,
 )
 def aggregate(ctx: Context, results: list[str], ckey: str) -> DatasetStats:

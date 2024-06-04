@@ -35,6 +35,7 @@ class Settings(BaseSettings):
     extract_cache: bool = True
     transform_cache: bool = True
     load_cache: bool = True
+    aggregate_cache: bool = True
 
     task_runner: Literal["dask", "ray"] | None = Field(
         None, alias="prefect_task_runner"
