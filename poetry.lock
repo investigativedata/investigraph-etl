@@ -1489,13 +1489,13 @@ tqdm = ["tqdm"]
 
 [[package]]
 name = "ftmq"
-version = "0.6.5"
+version = "0.6.6"
 description = "followthemoney query dsl and io helpers"
 optional = false
 python-versions = "<3.12,>=3.11"
 files = [
-    {file = "ftmq-0.6.5-py3-none-any.whl", hash = "sha256:80b5e1faee042418a8c6d61336aff2f667ce59d69e05ed2826f2565bbe022fbb"},
-    {file = "ftmq-0.6.5.tar.gz", hash = "sha256:37bc1a32ebf5d12c13d27a30d24a1e4e6eaa55f7d6bcf66709cfeb07fdf0999e"},
+    {file = "ftmq-0.6.6-py3-none-any.whl", hash = "sha256:f74087b3698af1ad50760eb5f3dbcc3058252bf69fc90343fcad46c827f3d969"},
+    {file = "ftmq-0.6.6.tar.gz", hash = "sha256:b77a2b7f751526b271cb2221abc55b2cbd64aa9e5924b453da8275a4c1064c41"},
 ]
 
 [package.dependencies]
@@ -1510,7 +1510,7 @@ followthemoney = ">=3.6.0,<4.0.0"
 nomenklatura = ">3.10,<3.11"
 orjson = ">=3.10.3,<4.0.0"
 pantomime = ">=0.6.1,<0.7.0"
-pycountry = ">=23.12.11,<24.0.0"
+pycountry = ">=23.12.11,<25.0.0"
 pydantic = ">=2.7.1,<3.0.0"
 PyICU = ">=2.13.1,<3.0.0"
 sqlalchemy = ">=2.0.30,<3.0.0"
@@ -2011,6 +2011,20 @@ http2 = ["h2 (>=3,<5)"]
 socks = ["socksio (==1.*)"]
 
 [[package]]
+name = "humanize"
+version = "4.9.0"
+description = "Python humanize utilities"
+optional = false
+python-versions = ">=3.8"
+files = [
+    {file = "humanize-4.9.0-py3-none-any.whl", hash = "sha256:ce284a76d5b1377fd8836733b983bfb0b76f1aa1c090de2566fcf008d7f6ab16"},
+    {file = "humanize-4.9.0.tar.gz", hash = "sha256:582a265c931c683a7e9b8ed9559089dea7edcf6cc95be39a3cbc2c5d5ac2bcfa"},
+]
+
+[package.extras]
+tests = ["freezegun", "pytest", "pytest-cov"]
+
+[[package]]
 name = "hyperframe"
 version = "6.0.1"
 description = "HTTP/2 framing layer for Python"
@@ -2228,6 +2242,21 @@ MarkupSafe = ">=2.0"
 
 [package.extras]
 i18n = ["Babel (>=2.7)"]
+
+[[package]]
+name = "jinja2-humanize-extension"
+version = "0.4.0"
+description = "a jinja2 extension to use humanize library inside jinja2 templates"
+optional = false
+python-versions = ">=3.0"
+files = [
+    {file = "jinja2_humanize_extension-0.4.0-py3-none-any.whl", hash = "sha256:b6326e2da0f7d425338bebf58848e830421defbce785f12ae812e65128518156"},
+    {file = "jinja2_humanize_extension-0.4.0.tar.gz", hash = "sha256:e7d69b1c20f32815bbec722330ee8af14b1287bb1c2b0afa590dbf031cadeaa0"},
+]
+
+[package.dependencies]
+humanize = ">=3.14.0"
+jinja2 = "*"
 
 [[package]]
 name = "jmespath"
@@ -3492,13 +3521,13 @@ virtualenv = ">=20.10.0"
 
 [[package]]
 name = "prefect"
-version = "2.16.8"
+version = "2.19.3"
 description = "Workflow orchestration and management."
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "prefect-2.16.8-py3-none-any.whl", hash = "sha256:f570f3be390a641169c1407bbf5eae34e28481a57764e87e68defdf59e47d0ee"},
-    {file = "prefect-2.16.8.tar.gz", hash = "sha256:c75eb1feac78c888f20d917e4a73dfbcfaafb4cb2db7a71ccebaaf5b6285794c"},
+    {file = "prefect-2.19.3-py3-none-any.whl", hash = "sha256:2438f2cc61184dc52b94b72ffb01e409ab3e9a146ebda0a8a0ac68b6423270e4"},
+    {file = "prefect-2.19.3.tar.gz", hash = "sha256:2d1e0f8b7b4375c38ff60cf03e7aa32a09eefafe338eedb6ec5a68c8c2bcf6bd"},
 ]
 
 [package.dependencies]
@@ -3519,19 +3548,22 @@ docker = ">=4.0,<7.0"
 fsspec = ">=2022.5.0"
 graphviz = ">=0.20.1"
 griffe = ">=0.20.0"
-httpcore = ">=0.15.0,<2.0.0"
+httpcore = ">=1.0.5,<2.0.0"
 httpx = {version = ">=0.23,<0.23.2 || >0.23.2", extras = ["http2"]}
+humanize = ">=4.9.0"
 importlib-resources = ">=6.1.3,<6.2.0"
 itsdangerous = "*"
 jinja2 = ">=3.0.0,<4.0.0"
+jinja2-humanize-extension = ">=0.4.0"
 jsonpatch = ">=1.32,<2.0"
-jsonschema = ">=3.2.0,<5.0.0"
+jsonschema = ">=4.0.0,<5.0.0"
 kubernetes = ">=24.2.0,<30.0.0"
 orjson = ">=3.7,<4.0"
 packaging = ">=21.3,<24.3"
 pathspec = ">=0.8.0"
 pendulum = {version = "<3.0", markers = "python_version < \"3.12\""}
 pydantic = {version = ">=1.10.0,<2.0.0 || >2.0.0,<2.0.1 || >2.0.1,<2.1.0 || >2.1.0,<3.0.0", extras = ["email"]}
+pydantic-core = ">=2.12.0,<3.0.0"
 python-dateutil = ">=2.8.2,<3.0.0"
 python-multipart = ">=0.0.7"
 python-slugify = ">=5.0,<9.0"
@@ -3544,14 +3576,31 @@ rich = ">=11.0,<14.0"
 sniffio = ">=1.3.0,<2.0.0"
 sqlalchemy = {version = ">=1.4.22,<1.4.33 || >1.4.33,<3.0.0", extras = ["asyncio"]}
 toml = ">=0.10.0"
-typer = ">=0.4.2"
+typer = ">=0.12.0,<0.12.2 || >0.12.2,<0.13.0"
 typing-extensions = ">=4.5.0,<5.0.0"
 ujson = ">=5.8.0,<6.0.0"
 uvicorn = ">=0.14.0,<0.29.0"
 websockets = ">=10.4,<13.0"
 
 [package.extras]
-dev = ["cairosvg", "codespell (>=2.2.6)", "ddtrace", "ipython", "ipython (==8.12.*)", "jinja2", "mike", "mkdocs", "mkdocs-gen-files", "mkdocs-material", "mkdocstrings-python", "mock", "moto (>=5)", "mypy", "numpy", "pillow", "pluggy (>=1.4.0)", "pre-commit", "pytest (>7,<8)", "pytest-asyncio (>=0.18.2,!=0.22.0,<0.23.0)", "pytest-benchmark", "pytest-cov", "pytest-env", "pytest-flakefinder", "pytest-timeout", "pytest-xdist (<3.4.0)", "pytkdocs (>=0.14.2)", "pyyaml", "requests", "respx", "ruff", "setuptools (!=60.9.0)", "vermin", "virtualenv", "watchfiles"]
+aws = ["prefect-aws"]
+azure = ["prefect-azure"]
+bitbucket = ["prefect-bitbucket"]
+dask = ["prefect-dask"]
+databricks = ["prefect-databricks"]
+dbt = ["prefect-dbt"]
+dev = ["cairosvg", "codespell (>=2.2.6)", "ddtrace", "ipython", "ipython (==8.12.*)", "jinja2", "mike", "mkdocs", "mkdocs-gen-files", "mkdocs-material", "mkdocstrings-python", "mock", "moto (>=5)", "mypy (>=1.9.0)", "numpy", "pillow", "pluggy (>=1.4.0)", "pre-commit", "pytest (>7,<8)", "pytest-asyncio (>=0.18.2,!=0.22.0,<0.23.0)", "pytest-benchmark", "pytest-cov", "pytest-env", "pytest-flakefinder", "pytest-timeout", "pytest-xdist (<3.4.0)", "pytkdocs (>=0.14.2)", "pyyaml", "requests (<2.32.0)", "respx", "ruff", "setuptools (!=60.9.0)", "types-PyYAML", "types-cachetools", "vermin", "virtualenv", "watchfiles"]
+docker = ["prefect-docker"]
+email = ["prefect-email"]
+gcp = ["prefect-gcp"]
+github = ["prefect-github"]
+gitlab = ["prefect-gitlab"]
+kubernetes = ["prefect-kubernetes"]
+ray = ["prefect-ray"]
+shell = ["prefect-shell"]
+slack = ["prefect-slack"]
+snowflake = ["prefect-snowflake"]
+sqlalchemy = ["prefect-sqlalchemy"]
 
 [[package]]
 name = "prefect-dask"
@@ -4704,13 +4753,13 @@ files = [
 
 [[package]]
 name = "runpandarun"
-version = "0.4.2"
+version = "0.4.3"
 description = "Tell pandas what to do – easy tabular data I/O playbooks"
 optional = false
-python-versions = ">=3.10,<3.13"
+python-versions = "<3.13,>=3.10"
 files = [
-    {file = "runpandarun-0.4.2-py3-none-any.whl", hash = "sha256:fca26b98a64b8f8539bd83168bda8ba57f058844e9514021ed3bf35c95b9a29e"},
-    {file = "runpandarun-0.4.2.tar.gz", hash = "sha256:6fe49df5a143b4165a3e91e63c125a4300bacdd53a21adb76a0c701995532c26"},
+    {file = "runpandarun-0.4.3-py3-none-any.whl", hash = "sha256:df1baa4e05860d929e8fe44255a41b554c3063e824d2eace7f18e67d377fe940"},
+    {file = "runpandarun-0.4.3.tar.gz", hash = "sha256:a2a94943621ac916dedcef7febf9dd51cd81b3d4a717097361f707c4fcd3a096"},
 ]
 
 [package.dependencies]
@@ -4723,15 +4772,15 @@ fsspec = ">=2024.2.0,<2025.0.0"
 normality = ">=2.5.0,<3.0.0"
 openpyxl = ">=3.1.2,<4.0.0"
 orjson = ">=3.9.15,<4.0.0"
-pandas = ">=2.2.1,<3.0.0"
+pandas = ">=2.2.2,<3.0.0"
 pantomime = ">=0.6.1,<0.7.0"
-pydantic = ">=2.6.2,<3.0.0"
+pydantic = ">=2.7.3,<3.0.0"
 pyicu = ">=2.12,<3.0"
 pytest-xdist = ">=3.5.0,<4.0.0"
 requests = ">=2.31.0,<3.0.0"
 s3fs = ">=2024.2.0,<2025.0.0"
 sqlalchemy = ">=2.0.27,<3.0.0"
-typer = ">=0.9.0,<0.10.0"
+typer = ">=0.12.3,<0.13.0"
 
 [[package]]
 name = "s3fs"
@@ -4841,6 +4890,17 @@ numpy = ">=1.22.4,<2.3"
 dev = ["cython-lint (>=0.12.2)", "doit (>=0.36.0)", "mypy", "pycodestyle", "pydevtool", "rich-click", "ruff", "types-psutil", "typing_extensions"]
 doc = ["jupyterlite-pyodide-kernel", "jupyterlite-sphinx (>=0.12.0)", "jupytext", "matplotlib (>=3.5)", "myst-nb", "numpydoc", "pooch", "pydata-sphinx-theme (>=0.15.2)", "sphinx (>=5.0.0)", "sphinx-design (>=0.4.0)"]
 test = ["array-api-strict", "asv", "gmpy2", "hypothesis (>=6.30)", "mpmath", "pooch", "pytest", "pytest-cov", "pytest-timeout", "pytest-xdist", "scikit-umfpack", "threadpoolctl"]
+
+[[package]]
+name = "shellingham"
+version = "1.5.4"
+description = "Tool to Detect Surrounding Shell"
+optional = false
+python-versions = ">=3.7"
+files = [
+    {file = "shellingham-1.5.4-py2.py3-none-any.whl", hash = "sha256:7ecfff8f2fd72616f7481040475a65b2bf8af90a56c89140852d1120324e8686"},
+    {file = "shellingham-1.5.4.tar.gz", hash = "sha256:8dbca0739d487e5bd35ab3ca4b36e11c4078f3a234bfce294b0a0291363404de"},
+]
 
 [[package]]
 name = "shortuuid"
@@ -5132,24 +5192,20 @@ files = [
 
 [[package]]
 name = "typer"
-version = "0.9.4"
+version = "0.12.3"
 description = "Typer, build great CLIs. Easy to code. Based on Python type hints."
 optional = false
-python-versions = ">=3.6"
+python-versions = ">=3.7"
 files = [
-    {file = "typer-0.9.4-py3-none-any.whl", hash = "sha256:aa6c4a4e2329d868b80ecbaf16f807f2b54e192209d7ac9dd42691d63f7a54eb"},
-    {file = "typer-0.9.4.tar.gz", hash = "sha256:f714c2d90afae3a7929fcd72a3abb08df305e1ff61719381384211c4070af57f"},
+    {file = "typer-0.12.3-py3-none-any.whl", hash = "sha256:070d7ca53f785acbccba8e7d28b08dcd88f79f1fbda035ade0aecec71ca5c914"},
+    {file = "typer-0.12.3.tar.gz", hash = "sha256:49e73131481d804288ef62598d97a1ceef3058905aa536a1134f90891ba35482"},
 ]
 
 [package.dependencies]
-click = ">=7.1.1,<9.0.0"
+click = ">=8.0.0"
+rich = ">=10.11.0"
+shellingham = ">=1.3.0"
 typing-extensions = ">=3.7.4.3"
-
-[package.extras]
-all = ["colorama (>=0.4.3,<0.5.0)", "rich (>=10.11.0,<14.0.0)", "shellingham (>=1.3.0,<2.0.0)"]
-dev = ["autoflake (>=1.3.1,<2.0.0)", "flake8 (>=3.8.3,<4.0.0)", "pre-commit (>=2.17.0,<3.0.0)"]
-doc = ["cairosvg (>=2.5.2,<3.0.0)", "mdx-include (>=1.4.1,<2.0.0)", "mkdocs (>=1.1.2,<2.0.0)", "mkdocs-material (>=8.1.4,<9.0.0)", "pillow (>=9.3.0,<10.0.0)"]
-test = ["black (>=22.3.0,<23.0.0)", "coverage (>=6.2,<7.0)", "isort (>=5.0.6,<6.0.0)", "mypy (==0.971)", "pytest (>=4.4.0,<8.0.0)", "pytest-cov (>=2.10.0,<5.0.0)", "pytest-sugar (>=0.9.4,<0.10.0)", "pytest-xdist (>=1.32.0,<4.0.0)", "rich (>=10.11.0,<14.0.0)", "shellingham (>=1.3.0,<2.0.0)"]
 
 [[package]]
 name = "types-pyyaml"
@@ -5681,4 +5737,4 @@ test = ["big-O", "jaraco.functools", "jaraco.itertools", "jaraco.test", "more-it
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.11,<3.12"
-content-hash = "1b1a09bf8376cde0f5d4b277dc0ff86bd81afbdb03bb647b489715246fc493bd"
+content-hash = "ea4604931c444fb12d9143ea07adce1183648af0a3a4f798a6e32b223a017af1"
