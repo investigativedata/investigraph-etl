@@ -5,7 +5,7 @@ from typing import Any
 
 from banal import as_bool
 from ftmstore import settings as ftmstore_settings
-from prefect.settings import PREFECT_API_DATABASE_CONNECTION_URL
+from prefect.settings import PREFECT_API_DATABASE_CONNECTION_URL, PREFECT_HOME
 
 
 def get_env(env: str, default: Any | None = None) -> Any | None:
@@ -49,3 +49,7 @@ CHUNK_SIZE = int(get_env("CHUNK_SIZE", 1000))
 
 FTM_STORE_URI = get_env("FTM_STORE_URI", PREFECT_API_DATABASE_CONNECTION_URL.value())
 ftmstore_settings.DATABASE_URI = FTM_STORE_URI
+
+ANYSTORE_URI = get_env(
+    "ANYSTORE_URI", (Path(PREFECT_HOME.value()) / ".anystore").absolute().as_uri()
+)

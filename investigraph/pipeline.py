@@ -99,46 +99,42 @@ def extract(
     ctx: Context, ckey: str, res: Resolver | None = None
 ) -> Generator[str, None, None]:
     ctx.log.info("Starting EXTRACT stage ...")
+    if settings.TASK_CACHE or settings.EXTRACT_CACHE:
+        cached_result = ctx.cache.get(ckey)
+        if cached_result is not None:
+            ctx.log.info("EXTRACT complete (CACHED)")
+            yield from cached_result
+            return
     if res is not None:
         enumerator = enumerate(ctx.config.extract.handle(ctx, res), 1)
     else:
         enumerator = enumerate(ctx.config.extract.handle(ctx), 1)
     batch = []
+    batch_keys = []
     ix = 0
     for ix, rec in enumerator:
         batch.append((rec, ix))
         if ix % ctx.config.transform.chunk_size == 0:
             ctx.log.info("extracting record %d ...", ix)
-            yield ctx.cache.set(batch)
+            batch_key = ctx.cache.set(batch)
+            batch_keys.append(batch_key)
+            yield batch_key
             batch = []
     if batch:
-        yield ctx.cache.set(batch)
+        batch_key = ctx.cache.set(batch)
+        batch_keys.append(batch_key)
+        yield batch_key
+    ctx.cache.set(batch_keys, ckey)
     ctx.log.info("EXTRACTED %d records", ix)
 
 
-@task(
-    retries=settings.TASK_RETRIES,
-    retry_delay_seconds=settings.TASK_RETRY_DELAY,
-    cache_key_fn=get_task_cache_key,
-    cache_expiration=settings.TASK_CACHE_EXPIRATION,
-    refresh_cache=not settings.TASK_CACHE or not settings.EXTRACT_CACHE,
+@flow(
+    name="investigraph-extract",
+    version=__version__,
+    flow_run_name="{ctx.source.name}",
+    task_runner=get_runner_from_env(),
     cache_result_in_memory=False,
 )
-def extract_task(
-    ctx: Context, ckey: str, res: Resolver | None = None
-) -> Generator[str, None, None]:
-    return extract(ctx, ckey, res)
-
-
-def dispatch_extract(
-    ctx: Context, ckey: str, res: Resolver | None = None
-) -> Generator[str, None, None]:
-    if ctx.config.extract.fetch:
-        return extract_task(ctx, ckey, res)
-    else:  # enable requests subflow
-        return extract(ctx, ckey, res)
-
-
 def run_pipeline(ctx: Context, extract_only: bool | None = False) -> list[Any]:
     res = None
     if ctx.config.extract.fetch:
@@ -150,12 +146,12 @@ def run_pipeline(ctx: Context, extract_only: bool | None = False) -> list[Any]:
         ckey = ctx.source.uri
 
     results = []
-    for key in dispatch_extract(ctx, f"extract-{ckey}", res):
+    for key in extract(ctx, f"extract-{ckey}", res):
         if extract_only:
             with smart_open(ctx.config.extract.records_uri, mode="ba") as f:
                 for record, _ in ctx.cache.get(key):
                     f.write(orjson.dumps(record, option=orjson.OPT_APPEND_NEWLINE))
-            return []
+            return results
 
         transformed = transform.submit(ctx, key)
         loaded = load.submit(ctx, transformed)
