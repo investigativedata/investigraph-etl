@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Any
+from typing import Any, Self
 
 from anystore.types import Uri
 from prefect.runtime import flow_run
@@ -14,8 +14,10 @@ class FlowOptions(BaseModel):
     config: Uri
     aggregate: bool | None = None
     chunk_size: int | None = CHUNK_SIZE
+    extract_only: bool | None = False
 
     index_uri: str | None = None
+    records_uri: str | None = None
     fragments_uri: str | None = None
     entities_uri: str | None = None
 
@@ -32,17 +34,20 @@ class Flow(BaseModel):
     end: datetime | None = None
     fragment_uris: set[str] | None = set()
     entities_uri: str | None = None
+    extract_only: bool | None = False
 
     def __init__(self, **data):
         data["start"] = data.get("start", datetime.utcnow())
         data["run_id"] = data.get("run_id", flow_run.get_id())
 
         # override base config with runtime options
-        options = data.pop("options", None)
+        options: FlowOptions | None = data.pop("options", None)
         if options:
+            data["extract_only"] = data.pop("extract_only", options.extract_only)
             config = get_config(options.config)
 
             self.assign(config.extract, "chunk_size", options.chunk_size)
+            self.assign(config.extract, "records_uri", options.records_uri)
             self.assign(config.transform, "chunk_size", options.chunk_size)
             self.assign(config.load, "chunk_size", options.chunk_size)
 
@@ -67,7 +72,7 @@ class Flow(BaseModel):
         self.entities_uri = self.config.load.entities_uri
 
     @classmethod
-    def from_options(cls, options: FlowOptions) -> "Flow":
+    def from_options(cls, options: FlowOptions) -> Self:
         return cls(options=options)
 
     @staticmethod

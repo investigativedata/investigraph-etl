@@ -55,6 +55,7 @@ class ExtractStage(Stage):
     fetch: bool | None = True
     sources: list[Source] | None = []
     pandas: Playbook | None = Playbook()
+    records_uri: str | None = None
 
     def __init__(self, **data):
         super().__init__(**data)

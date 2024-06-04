@@ -7,6 +7,8 @@ from datetime import datetime
 from functools import cache
 from typing import Any, Type
 
+import orjson
+from anystore.io import smart_open
 from anystore.util import make_data_checksum
 from ftmq.model.coverage import DatasetStats
 from prefect import flow, task
@@ -137,13 +139,7 @@ def dispatch_extract(
         return extract(ctx, ckey, res)
 
 
-@flow(
-    name="investigraph-pipeline",
-    version=__version__,
-    task_runner=get_runner_from_env(),
-    cache_result_in_memory=False,
-)
-def run_pipeline(ctx: Context) -> list[Any]:
+def run_pipeline(ctx: Context, extract_only: bool | None = False) -> list[Any]:
     res = None
     if ctx.config.extract.fetch:
         res = Resolver(source=ctx.source)
@@ -155,6 +151,12 @@ def run_pipeline(ctx: Context) -> list[Any]:
 
     results = []
     for key in dispatch_extract(ctx, f"extract-{ckey}", res):
+        if extract_only:
+            with smart_open(ctx.config.extract.records_uri, mode="ba") as f:
+                for record, _ in ctx.cache.get(key):
+                    f.write(orjson.dumps(record, option=orjson.OPT_APPEND_NEWLINE))
+            return []
+
         transformed = transform.submit(ctx, key)
         loaded = load.submit(ctx, transformed)
         results.append(loaded)
@@ -178,7 +180,7 @@ def run(options: FlowOptions) -> Flow:
         if ix == 0:  # only on first time
             ctx.export_metadata()
             ctx.log.info("INDEX: %s" % ctx.config.load.index_uri)
-        results.extend(run_pipeline(run_ctx))
+        results.extend(run_pipeline(run_ctx, extract_only=flow.extract_only))
 
     if flow.config.aggregate:
         fragments = [r.result() for r in results]
