@@ -24,7 +24,7 @@ investigraph = "investigraph.cli:cli"
 
 [tool.poetry.dependencies]
 python = ">=3.11,<3.12"
-cachelib = "^0.10.2"
+cachelib = ">=0.10.2,<0.14.0"
 dateparser = "^1.1.8"
 fakeredis = "^2.20.0"
 followthemoney-store = "^3.0.6"
