@@ -33,7 +33,7 @@ class Cache:
             con.ping()
             log.info("Redis connected: `fakeredis`")
         else:
-            con = redis.from_url(SETTINGS.redis_url)
+            con = redis.from_url(str(SETTINGS.redis_url))
             con.ping()
             log.info("Redis connected: `{settings.REDIS_URL}`")
         self.cache = con
