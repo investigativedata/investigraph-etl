@@ -1,4 +1,3 @@
-import shutil
 import sys
 from pathlib import Path
 from typing import Annotated, Optional
@@ -7,7 +6,6 @@ import orjson
 import typer
 from anystore.io import smart_write
 from ftmq.model import Catalog
-from prefect.settings import PREFECT_HOME
 from rich import print
 from rich.console import Console
 from rich.table import Table
@@ -20,7 +18,7 @@ from investigraph.inspect import (
 )
 from investigraph.model.flow import FlowOptions
 from investigraph.pipeline import run
-from investigraph.settings import VERSION
+from investigraph.settings import SETTINGS, VERSION
 
 cli = typer.Typer(no_args_is_help=True)
 console = Console()
@@ -45,7 +43,7 @@ def cli_run(
     fragments_uri: Annotated[Optional[str], typer.Option(...)] = None,
     entities_uri: Annotated[Optional[str], typer.Option(...)] = None,
     aggregate: Annotated[Optional[bool], typer.Option(...)] = True,
-    chunk_size: Annotated[Optional[int], typer.Option(...)] = 1_000,
+    chunk_size: Annotated[Optional[int], typer.Option(...)] = SETTINGS.chunk_size,
 ):
     """
     Execute a dataset pipeline
@@ -171,12 +169,14 @@ def cli_catalog(
     smart_write(out_uri, data.encode())
 
 
-@cli.command("reset")
-def cli_reset(yes: Annotated[str, typer.Option(prompt="Are you sure? [yes/no]")]):
+@cli.command("config")
+def cli_config(
+    out_uri: Annotated[str, typer.Option("-o")] = "-",
+):
     """
-    Reset all prefect data in `PREFECT_HOME`
+    Show current config
     """
-    if yes == "yes":
-        path = PREFECT_HOME.value()
-        shutil.rmtree(str(path), ignore_errors=True)
-        print(f"[bold green]OK[/bold green] deleted everything in `{path}`.")
+    if out_uri == "-":
+        print(SETTINGS)
+    else:
+        smart_write(out_uri, SETTINGS.model_dump_json().encode())

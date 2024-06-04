@@ -5,15 +5,7 @@ from pydantic import BaseModel
 from runpandarun import Playbook
 
 from investigraph.model.mapping import QueryMapping
-from investigraph.settings import (
-    CHUNK_SIZE,
-    DEFAULT_AGGREGATOR,
-    DEFAULT_EXTRACTOR,
-    DEFAULT_LOADER,
-    DEFAULT_SEEDER,
-    DEFAULT_TRANSFORMER,
-    FTM_STORE_URI,
-)
+from investigraph.settings import SETTINGS
 from investigraph.types import TaskResult
 from investigraph.util import get_func, pydantic_merge
 
@@ -27,7 +19,7 @@ class Stage(BaseModel):
     default_handler: ClassVar[str | None] = None
 
     handler: str
-    chunk_size: int | None = CHUNK_SIZE
+    chunk_size: int | None = SETTINGS.chunk_size
 
     def __init__(self, **data):
         data["handler"] = data.pop("handler", self.default_handler)
@@ -42,7 +34,7 @@ class Stage(BaseModel):
 
 
 class SeedStage(Stage):
-    default_handler: ClassVar[str] = DEFAULT_SEEDER
+    default_handler: ClassVar[str] = SETTINGS.default_seeder
 
     glob: str | list[str] | None = None
     storage_options: dict[str, Any] | None = None
@@ -50,7 +42,7 @@ class SeedStage(Stage):
 
 
 class ExtractStage(Stage):
-    default_handler: ClassVar[str] = DEFAULT_EXTRACTOR
+    default_handler: ClassVar[str] = SETTINGS.default_extractor
 
     fetch: bool | None = True
     sources: list[Source] | None = []
@@ -64,7 +56,7 @@ class ExtractStage(Stage):
 
 
 class TransformStage(Stage):
-    default_handler: ClassVar[str] = DEFAULT_TRANSFORMER
+    default_handler: ClassVar[str] = SETTINGS.default_transformer
 
     queries: list[QueryMapping] | None = None
 
@@ -74,7 +66,7 @@ class TransformStage(Stage):
 
 
 class LoadStage(Stage):
-    default_handler: ClassVar[str] = DEFAULT_LOADER
+    default_handler: ClassVar[str] = SETTINGS.default_loader
 
     index_uri: str | None = None
     fragments_uri: str | None = None
@@ -82,9 +74,9 @@ class LoadStage(Stage):
 
 
 class AggregateStage(Stage):
-    default_handler: ClassVar[str] = DEFAULT_AGGREGATOR
+    default_handler: ClassVar[str] = SETTINGS.default_aggregator
 
-    db_uri: str | None = FTM_STORE_URI
+    db_uri: str | None = SETTINGS.ftm_store_uri
 
     def __init__(self, **data):
         if data.pop("handler", None) == "db":

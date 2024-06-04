@@ -24,8 +24,8 @@ RUN pip install -q /investigraph
 RUN mkdir -p /data/prefect
 RUN chown -R 1000:1000 /data
 
-ENV DATA_ROOT=/data
-ENV PREFECT_HOME=/data/prefect
+ENV INVESTIGRAPH_DATA_ROOT=/data
+ENV PREFECT_HOME=/data/.prefect
 ENV PREFECT_EXTRA_ENTRYPOINTS=investigraph
 ENV PREFECT_SERVER_API_HOST=0.0.0.0
 ENV PREFECT_RESULTS_PERSIST_BY_DEFAULT=true

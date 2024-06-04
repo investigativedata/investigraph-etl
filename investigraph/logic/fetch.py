@@ -14,13 +14,13 @@ from anystore.util import make_data_checksum
 
 from investigraph.logging import get_logger
 from investigraph.model.source import Source
-from investigraph.settings import ANYSTORE_URI
+from investigraph.settings import SETTINGS
 
 
 @cache
 def get_anystore() -> BaseStore:
     settings = Settings()
-    settings.uri = ANYSTORE_URI
+    settings.uri = SETTINGS.anystore_uri
     return get_store(**settings.model_dump())
 
 

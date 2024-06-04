@@ -58,3 +58,9 @@ bump2version = "^1.0.1"
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.pytest_env]
+DEBUG = 1
+PREFECT_HOME = ".test"
+INVESTIGRAPH_REDIS = 0
+INVESTIGRAPH_DATA_ROOT = ".test"

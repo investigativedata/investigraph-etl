@@ -16,19 +16,20 @@ from prefect.task_runners import ConcurrentTaskRunner
 from prefect_dask import DaskTaskRunner
 from prefect_ray import RayTaskRunner
 
-from investigraph import __version__, settings
+from investigraph import __version__
 from investigraph.model.context import BaseContext, Context
 from investigraph.model.flow import Flow, FlowOptions
 from investigraph.model.resolver import Resolver
+from investigraph.settings import SETTINGS
 
 
 @cache
 def get_runner_from_env() -> (
     Type[ConcurrentTaskRunner] | Type[DaskTaskRunner] | Type[RayTaskRunner]
 ):
-    if settings.TASK_RUNNER == "dask":
+    if SETTINGS.task_runner == "dask":
         return DaskTaskRunner
-    if settings.TASK_RUNNER == "ray":
+    if SETTINGS.task_runner == "ray":
         return RayTaskRunner
     return ConcurrentTaskRunner
 
@@ -38,11 +39,11 @@ def get_task_cache_key(_, params) -> str:
 
 
 @task(
-    retries=settings.TASK_RETRIES,
-    retry_delay_seconds=settings.TASK_RETRY_DELAY,
+    retries=SETTINGS.task_retries,
+    retry_delay_seconds=SETTINGS.task_retry_delay,
     cache_key_fn=get_task_cache_key,
-    cache_expiration=settings.TASK_CACHE_EXPIRATION,
-    refresh_cache=not settings.TASK_CACHE,
+    cache_expiration=SETTINGS.task_cache_expiration,
+    refresh_cache=not SETTINGS.task_cache,
     cache_result_in_memory=False,
 )
 def aggregate(ctx: Context, results: list[str], ckey: str) -> DatasetStats:
@@ -53,17 +54,17 @@ def aggregate(ctx: Context, results: list[str], ckey: str) -> DatasetStats:
 
 
 @task(
-    retries=settings.TASK_RETRIES,
-    retry_delay_seconds=settings.TASK_RETRY_DELAY,
+    retries=SETTINGS.task_retries,
+    retry_delay_seconds=SETTINGS.task_retry_delay,
     cache_key_fn=get_task_cache_key,
-    cache_expiration=settings.TASK_CACHE_EXPIRATION,
-    refresh_cache=not settings.TASK_CACHE or not settings.LOAD_CACHE,
+    cache_expiration=SETTINGS.task_cache_expiration,
+    refresh_cache=not SETTINGS.task_cache or not SETTINGS.load_cache,
     cache_result_in_memory=False,
 )
 def load(ctx: Context, ckey: str) -> str | None:
     proxies = ctx.cache.get(ckey)
     if proxies is None:
-        ctx.log.warn(f"No proxies found for cache key `{ckey}`")
+        ctx.log.warning(f"No proxies found for cache key `{ckey}`")
         return
     out = ctx.load_fragments(proxies, ckey=ckey)
     ctx.log.info("LOADED %d proxies", len(proxies))
@@ -72,18 +73,18 @@ def load(ctx: Context, ckey: str) -> str | None:
 
 
 @task(
-    retries=settings.TASK_RETRIES,
-    retry_delay_seconds=settings.TASK_RETRY_DELAY,
+    retries=SETTINGS.task_retries,
+    retry_delay_seconds=SETTINGS.task_retry_delay,
     cache_key_fn=get_task_cache_key,
-    cache_expiration=settings.TASK_CACHE_EXPIRATION,
-    refresh_cache=not settings.TASK_CACHE or not settings.TRANSFORM_CACHE,
+    cache_expiration=SETTINGS.task_cache_expiration,
+    refresh_cache=not SETTINGS.task_cache or not SETTINGS.transform_cache,
     cache_result_in_memory=False,
 )
 def transform(ctx: Context, ckey: str) -> str | None:
     proxies: list[dict[str, Any]] = []
     records = ctx.cache.get(ckey)
     if records is None:
-        ctx.log.warn(f"No records found for cache key `{ckey}`")
+        ctx.log.warning(f"No records found for cache key `{ckey}`")
         return
     for rec, ix in records:
         try:
@@ -99,7 +100,7 @@ def extract(
     ctx: Context, ckey: str, res: Resolver | None = None
 ) -> Generator[str, None, None]:
     ctx.log.info("Starting EXTRACT stage ...")
-    if settings.TASK_CACHE or settings.EXTRACT_CACHE:
+    if SETTINGS.task_cache and SETTINGS.extract_cache:
         cached_result = ctx.cache.get(ckey)
         if cached_result is not None:
             ctx.log.info("EXTRACT complete (CACHED)")

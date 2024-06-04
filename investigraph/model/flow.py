@@ -6,14 +6,14 @@ from prefect.runtime import flow_run
 from pydantic import BaseModel
 
 from investigraph.model.config import Config, get_config
-from investigraph.settings import CHUNK_SIZE, DATA_ROOT
+from investigraph.settings import SETTINGS
 from investigraph.util import ensure_path
 
 
 class FlowOptions(BaseModel):
     config: Uri
     aggregate: bool | None = None
-    chunk_size: int | None = CHUNK_SIZE
+    chunk_size: int | None = SETTINGS.chunk_size
     extract_only: bool | None = False
 
     index_uri: str | None = None
@@ -62,7 +62,7 @@ class Flow(BaseModel):
             super().__init__(dataset=config.dataset.name, config=config, **data)
         else:
             super().__init__(**data)
-        path = ensure_path(DATA_ROOT / self.config.dataset.name)
+        path = ensure_path(SETTINGS.data_root / self.config.dataset.name)
         if self.config.load.index_uri is None:
             self.config.load.index_uri = (path / "index.json").as_uri()
         if self.config.load.fragments_uri is None:
