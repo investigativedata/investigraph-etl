@@ -46,7 +46,7 @@ ftmq = "^0.6.2"
 [tool.poetry.group.dev.dependencies]
 pytest-env = ">=1.1.1"
 pytest = ">=7.4.3,<9.0.0"
-pytest-cov = "^4.1.0"
+pytest-cov = ">=4.1,<6.0"
 black = ">=23.11,<25.0"
 isort = "^5.12.0"
 mypy = "^1.7.0"
