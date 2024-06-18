@@ -51,6 +51,9 @@ class Settings(BaseSettings):
         alias="anystore_uri",
     )
 
+    archive_uri: str = Field(str((Path.cwd() / "data" / "archive").absolute()))
+
 
 SETTINGS = Settings()
+DEBUG = SETTINGS.debug
 ftmstore_settings.DATABASE_URI = SETTINGS.ftm_store_uri
