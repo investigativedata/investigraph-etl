@@ -31,6 +31,8 @@ class EntityMapping(BaseModel):
 
 class QueryMapping(BaseModel):
     entities: dict[str, EntityMapping] | None = {}
+    filters: dict[str, str] | None = {}
+    filters_not: dict[str, str] | None = {}
 
     def get_mapping(self) -> _QueryMapping:
         return load_mapping(self)
@@ -41,7 +43,7 @@ class QueryMapping(BaseModel):
 
 @cache
 def load_mapping(mapping: QueryMapping) -> _QueryMapping:
-    mapping = mapping.dict(by_alias=True)
+    mapping = mapping.model_dump(by_alias=True)
     mapping.pop("database", None)
     mapping["csv_url"] = "/dev/null"
     return model.make_mapping(mapping)
