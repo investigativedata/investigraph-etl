@@ -3,9 +3,11 @@ resolver for `.source.Source`
 """
 
 from io import BytesIO
+from typing import Any
 
 import requests
 from anystore.util import make_checksum
+from ftmq.io import orjson
 from ftmq.io import smart_open as open
 from normality import slugify
 from pantomime import types
@@ -99,6 +101,11 @@ class Resolver(BaseModel):
     def get_content(self) -> bytes:
         self._resolve_content()
         return self.content
+
+    def get_json(self) -> dict[str, Any] | None:
+        self._resolve_content()
+        if self.content is not None:
+            return orjson.loads(self.content)
 
     def get_cache_key(self) -> str:
         slug = f"RESOLVE#{slugify(self.source.uri)}"
