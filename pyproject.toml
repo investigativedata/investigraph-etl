@@ -41,7 +41,7 @@ tabulate = "^0.9.0"
 typer = "^0.12.3"
 runpandarun = "^0.4.3"
 xlrd = "^2.0.1"
-ftmq = "^0.6.6"
+ftmq = "^0.6.7"
 
 [tool.poetry.group.dev.dependencies]
 pytest-env = ">=1.1.1"
