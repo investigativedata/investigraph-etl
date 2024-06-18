@@ -4,9 +4,7 @@ from io import StringIO
 
 import orjson
 
-# from investigraph.logic import requests
-import requests
-
+from investigraph.logic import fetch
 from investigraph.model import Context, Source
 
 URL = "http://localhost:8000/all-authorities.csv"
@@ -17,7 +15,7 @@ def seed(ctx: Context):
 
 
 def extract(ctx: Context, *args, **kwargs):
-    res = requests.get(URL)
+    res = fetch.get(URL)
     reader = csv.DictReader(StringIO(res.text))
     yield from reader
 

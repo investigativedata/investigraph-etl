@@ -47,6 +47,7 @@ class Source(BaseModel):
     mimetype: str | None = None
     pandas: Playbook | None = Playbook()
     stream: bool | None = None
+    data: dict | None = {}
 
     def __init__(self, **data):
         data["uri"] = str(data["uri"])

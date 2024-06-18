@@ -41,7 +41,7 @@ class Loader:
         self.is_store = "sql" in urlparse(uri).scheme
         self.parts = parts
 
-    def write(self, proxies: TProxies, **kwargs) -> None:
+    def write(self, proxies: TProxies, **kwargs) -> str:
         if self.is_store:
             to_store(self.uri, self.ctx.dataset, proxies)
             return self.uri
@@ -49,6 +49,7 @@ class Loader:
             uri = self.uri
             if self.parts:
                 uri += f".{kwargs.pop('ckey')}"
+            kwargs["dataset"] = self.ctx.dataset
             to_uri(uri, proxies, **kwargs)
             return uri
 

@@ -6,6 +6,7 @@ from importlib.util import module_from_spec, spec_from_file_location
 from pathlib import Path
 from typing import Any, Callable
 
+from anystore.util import make_data_checksum
 from banal import clean_dict, ensure_dict, ensure_list, is_listish, is_mapping
 from followthemoney.util import join_text as _join_text
 from ftmq.util import clean_name, make_fingerprint, make_fingerprint_id
@@ -125,6 +126,7 @@ __all__ = [
     "make_fingerprint",
     "make_fingerprint_id",
     "make_proxy",
+    "make_data_checksum",
     "str_or_none",
     "join_text",
     "clean_name",

@@ -4,7 +4,7 @@ Seed sources for extraction
 
 from typing import Generator
 
-from banal import ensure_list
+from banal import ensure_dict, ensure_list
 from fsspec import get_fs_token_paths
 
 from investigraph.model.context import BaseContext
@@ -20,4 +20,4 @@ def handle(ctx: BaseContext) -> Generator[Source, None, None]:
             for uri in paths:
                 if hasattr(fs, "url"):
                     uri = fs.url(uri)
-                yield Source(uri=uri)
+                yield Source(uri=uri, **ensure_dict(ctx.config.seed.source_options))

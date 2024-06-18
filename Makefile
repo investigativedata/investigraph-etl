@@ -16,7 +16,7 @@ pre-commit:
 
 test:
 	rm -rf .test
-	poetry run pytest tests -v --capture=sys --cov=investigraph --cov-report term-missing
+	poetry run pytest tests -v --capture=sys --cov=investigraph --cov-report lcov
 	rm -rf .test
 
 typecheck:
