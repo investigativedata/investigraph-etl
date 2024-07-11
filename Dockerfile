@@ -1,8 +1,8 @@
-FROM prefecthq/prefect:2-python3.11
+FROM prefecthq/prefect:2-python3.12
 
-LABEL org.opencontainers.image.title "Investigraph ETL"
-LABEL org.opencontainers.image.licenses MIT
-LABEL org.opencontainers.image.source https://github.com/investigativedata/investigraph-etl
+LABEL org.opencontainers.image.title="Investigraph ETL"
+LABEL org.opencontainers.image.licenses=MIT
+LABEL org.opencontainers.image.source=https://github.com/investigativedata/investigraph-etl
 
 RUN apt-get update && apt-get -y upgrade
 RUN pip install -q -U pip setuptools
