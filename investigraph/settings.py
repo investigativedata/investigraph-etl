@@ -7,7 +7,7 @@ from prefect.settings import PREFECT_API_DATABASE_CONNECTION_URL, PREFECT_HOME
 from pydantic import Field, RedisDsn
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
-VERSION = "0.5.2"
+VERSION = "0.6.0"
 
 
 class Settings(BaseSettings):
