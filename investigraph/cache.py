@@ -7,11 +7,11 @@ import redis
 from anystore.util import make_data_checksum
 from cachelib.serializers import RedisSerializer
 
-from investigraph import settings
+from investigraph.settings import SETTINGS
 
 log = logging.getLogger(__name__)
 
-DELETE = settings.DEBUG or not settings.REDIS_PERSIST
+DELETE = SETTINGS.debug or not SETTINGS.redis_persist
 
 
 class Cache:
@@ -28,12 +28,12 @@ class Cache:
     serializer = RedisSerializer()
 
     def __init__(self):
-        if settings.DEBUG:
+        if SETTINGS.debug or not SETTINGS.redis:
             con = fakeredis.FakeStrictRedis()
             con.ping()
             log.info("Redis connected: `fakeredis`")
         else:
-            con = redis.from_url(settings.REDIS_URL)
+            con = redis.from_url(str(SETTINGS.redis_url))
             con.ping()
             log.info("Redis connected: `{settings.REDIS_URL}`")
         self.cache = con
@@ -71,7 +71,7 @@ class Cache:
 
     @staticmethod
     def get_key(key: str) -> str:
-        return f"{settings.REDIS_PREFIX}:{key}"
+        return f"{SETTINGS.redis_prefix}:{key}"
 
 
 @cache

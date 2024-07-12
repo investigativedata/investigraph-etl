@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "investigraph"
-version = "0.5.2"
+version = "0.6.0"
 description = "etl pipeline for investigations with follow the money data"
 authors = ["Simon Wörpel <simon@investigativedata.org>"]
 license = "MIT"
@@ -13,8 +13,9 @@ classifiers = [
     "Operating System :: OS Independent",
     "Programming Language :: Python",
     "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
 ]
-packages = [{include = "investigraph"}]
+packages = [{ include = "investigraph" }]
 
 [tool.poetry.scripts]
 investigraph = "investigraph.cli:cli"
@@ -23,30 +24,30 @@ investigraph = "investigraph.cli:cli"
 "Bug Tracker" = "https://github.com/investigativedata/investigraph-etl/issues"
 
 [tool.poetry.dependencies]
-python = ">=3.11,<3.12"
-cachelib = "^0.10.2"
-dateparser = "^1.1.8"
-fakeredis = "^2.20.0"
-followthemoney-store = "^3.0.6"
+python = ">=3.11,<4"
+cachelib = "^0.13.0"
+dateparser = "^1.2.0"
+followthemoney-store = "^3.1.0"
 html2text = "^2024.2.26"
-pandas = "^2.2.1"
+pandas = "^2.2.2"
 pantomime = "^0.6.1"
-prefect = "^2.16.3"
-prefect-dask = "^0.2.6"
-prefect-ray = "^0.3.3"
-ray = "^2.9.3"
-redis = "^5.0.1"
-requests = "^2.31.0"
-tabulate = "^0.9.0"
-typer = "^0.9.0"
-runpandarun = "^0.4.2"
+prefect = "^2.19.8"
+prefect-dask = "^0.2.9"
+prefect-ray = "^0.3.6"
+ray = "^2.32.0"
+requests = "^2.32.3"
+typer = "^0.12.3"
+runpandarun = "^0.5.0"
 xlrd = "^2.0.1"
-ftmq = "^0.6.1"
+datapatch = "^1.2.0"
+anystore = {extras = ["redis"], version = "^0.1.6"}
+ftmq = "^0.6.8"
+fakeredis = "^2.23.3"
 
 [tool.poetry.group.dev.dependencies]
 pytest-env = ">=1.1.1"
 pytest = ">=7.4.3,<9.0.0"
-pytest-cov = "^4.1.0"
+pytest-cov = ">=4.1,<6.0"
 black = ">=23.11,<25.0"
 isort = "^5.12.0"
 mypy = "^1.7.0"
@@ -58,3 +59,9 @@ bump2version = "^1.0.1"
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.pytest_env]
+DEBUG = 1
+PREFECT_HOME = ".test"
+INVESTIGRAPH_REDIS = 0
+INVESTIGRAPH_DATA_ROOT = ".test"

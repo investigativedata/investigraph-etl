@@ -1,8 +1,8 @@
-FROM prefecthq/prefect:2-python3.11
+FROM prefecthq/prefect:2-python3.12
 
-LABEL org.opencontainers.image.title "Investigraph ETL"
-LABEL org.opencontainers.image.licenses MIT
-LABEL org.opencontainers.image.source https://github.com/investigativedata/investigraph-etl
+LABEL org.opencontainers.image.title="Investigraph ETL"
+LABEL org.opencontainers.image.licenses=MIT
+LABEL org.opencontainers.image.source=https://github.com/investigativedata/investigraph-etl
 
 RUN apt-get update && apt-get -y upgrade
 RUN pip install -q -U pip setuptools
@@ -24,8 +24,8 @@ RUN pip install -q /investigraph
 RUN mkdir -p /data/prefect
 RUN chown -R 1000:1000 /data
 
-ENV DATA_ROOT=/data
-ENV PREFECT_HOME=/data/prefect
+ENV INVESTIGRAPH_DATA_ROOT=/data
+ENV PREFECT_HOME=/data/.prefect
 ENV PREFECT_EXTRA_ENTRYPOINTS=investigraph
 ENV PREFECT_SERVER_API_HOST=0.0.0.0
 ENV PREFECT_RESULTS_PERSIST_BY_DEFAULT=true

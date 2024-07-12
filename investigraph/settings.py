@@ -1,51 +1,59 @@
-import os
 from datetime import timedelta
 from pathlib import Path
-from typing import Any
+from typing import Literal
 
-from banal import as_bool
 from ftmstore import settings as ftmstore_settings
-from prefect.settings import PREFECT_API_DATABASE_CONNECTION_URL
+from prefect.settings import PREFECT_API_DATABASE_CONNECTION_URL, PREFECT_HOME
+from pydantic import Field, RedisDsn
+from pydantic_settings import BaseSettings, SettingsConfigDict
+
+VERSION = "0.6.0"
 
 
-def get_env(env: str, default: Any | None = None) -> Any | None:
-    return os.environ.get(env, default)
+class Settings(BaseSettings):
+    model_config = SettingsConfigDict(env_prefix="investigraph_", extra="allow")
+
+    debug: bool = Field(False, alias="debug")
+    data_root: Path = Field((Path.cwd() / "data").absolute())
+    default_seeder: str = "investigraph.logic.seed:handle"
+    default_extractor: str = "investigraph.logic.extract:handle"
+    default_transformer: str = "investigraph.logic.transform:map_ftm"
+    default_loader: str = "investigraph.logic.load:load_proxies"
+    default_aggregator: str = "investigraph.logic.aggregate:in_memory"
+
+    redis: bool = False
+    redis_url: RedisDsn = Field("redis://localhost:6379")
+    redis_prefix: str = f"investigraph:{VERSION}"
+    redis_persist: bool = True
+
+    task_cache: bool = False
+    task_retries: int = 3
+    task_retry_delay: int = 5
+    task_cache_expiration: timedelta | None = None
+
+    fetch_cache: bool = True
+    extract_cache: bool = True
+    transform_cache: bool = True
+    load_cache: bool = True
+    aggregate_cache: bool = True
+
+    task_runner: Literal["dask", "ray"] | None = Field(
+        None, alias="prefect_task_runner"
+    )
+
+    chunk_size: int = 1_000
+
+    ftm_store_uri: str = Field(
+        PREFECT_API_DATABASE_CONNECTION_URL.value(), alias="ftm_store_uri"
+    )
+    anystore_uri: str = Field(
+        (Path(PREFECT_HOME.value()) / ".anystore").absolute().as_uri(),
+        alias="anystore_uri",
+    )
+
+    archive_uri: str = Field(str((Path.cwd() / "data" / "archive").absolute()))
 
 
-VERSION = "0.5.2"
-
-DEBUG = as_bool(get_env("DEBUG", 0))
-DATA_ROOT = Path(get_env("DATA_ROOT", Path.cwd() / "data")).absolute()
-
-DEFAULT_SEEDER = get_env("DEFAULT_SEEDER", "investigraph.logic.seed:handle")
-DEFAULT_EXTRACTOR = get_env("DEFAULT_EXTRACTOR", "investigraph.logic.extract:handle")
-DEFAULT_TRANSFORMER = get_env(
-    "DEFAULT_TRANSFORMER", "investigraph.logic.transform:map_ftm"
-)
-DEFAULT_LOADER = get_env("DEFAULT_LOADER", "investigraph.logic.load:load_proxies")
-DEFAULT_AGGREGATOR = get_env(
-    "DEFAULT_AGGREGATOR", "investigraph.logic.aggregate:in_memory"
-)
-
-REDIS_URL = get_env("REDIS_URL", "redis://localhost:6379")
-REDIS_PREFIX = get_env("REDIS_PREFIX", f"investigraph:{VERSION}")
-REDIS_PERSIST = as_bool(get_env("REDIS_PERSIST", 0))
-
-TASK_CACHE = as_bool(get_env("TASK_CACHE", 1))
-TASK_RETRIES = int(get_env("TASK_RETRIES", 3))
-TASK_RETRY_DELAY = int(get_env("TASK_RETRY_DELAY", 5))
-TASK_CACHE_EXPIRATION = int(get_env("TASK_CACHE_EXPIRATION", 0)) or None  # in minutes
-TASK_CACHE_EXPIRATION = (
-    timedelta(TASK_CACHE_EXPIRATION) if TASK_CACHE_EXPIRATION is not None else None
-)
-FETCH_CACHE = as_bool(get_env("FETCH_CACHE"), TASK_CACHE)
-EXTRACT_CACHE = as_bool(get_env("EXTRACT_CACHE"), TASK_CACHE)
-TRANSFORM_CACHE = as_bool(get_env("TRANSFORM_CACHE"), TASK_CACHE)
-LOAD_CACHE = as_bool(get_env("LOAD_CACHE"), TASK_CACHE)
-
-TASK_RUNNER = get_env("PREFECT_TASK_RUNNER", "").lower()
-
-CHUNK_SIZE = int(get_env("CHUNK_SIZE", 1000))
-
-FTM_STORE_URI = get_env("FTM_STORE_URI", PREFECT_API_DATABASE_CONNECTION_URL.value())
-ftmstore_settings.DATABASE_URI = FTM_STORE_URI
+SETTINGS = Settings()
+DEBUG = SETTINGS.debug
+ftmstore_settings.DATABASE_URI = SETTINGS.ftm_store_uri

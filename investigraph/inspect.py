@@ -53,6 +53,19 @@ def inspect_config(p: PathLike) -> Config:
     return config
 
 
+def inspect_seed(config: Config, limit: int | None = 5) -> pd.DataFrame:
+    """
+    Preview seeded sources in tabular format
+    """
+    ctx = BaseContext.from_config(config)
+    sources = []
+    for ix, sctx in enumerate(ctx.from_sources(), 1):
+        sources.append(sctx.source.model_dump())
+        if ix == limit:
+            break
+    return pd.DataFrame(sources)
+
+
 def inspect_extract(
     config: Config, limit: int | None = 5
 ) -> Generator[tuple[str, pd.DataFrame], None, None]:

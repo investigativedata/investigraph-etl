@@ -1,4 +1,3 @@
-import shutil
 import sys
 from pathlib import Path
 from typing import Annotated, Optional
@@ -7,15 +6,19 @@ import orjson
 import typer
 from anystore.io import smart_write
 from ftmq.model import Catalog
-from prefect.settings import PREFECT_HOME
 from rich import print
 from rich.console import Console
 from rich.table import Table
 
-from investigraph.inspect import inspect_config, inspect_extract, inspect_transform
+from investigraph.inspect import (
+    inspect_config,
+    inspect_extract,
+    inspect_seed,
+    inspect_transform,
+)
 from investigraph.model.flow import FlowOptions
 from investigraph.pipeline import run
-from investigraph.settings import VERSION
+from investigraph.settings import SETTINGS, VERSION
 
 cli = typer.Typer(no_args_is_help=True)
 console = Console()
@@ -40,7 +43,7 @@ def cli_run(
     fragments_uri: Annotated[Optional[str], typer.Option(...)] = None,
     entities_uri: Annotated[Optional[str], typer.Option(...)] = None,
     aggregate: Annotated[Optional[bool], typer.Option(...)] = True,
-    chunk_size: Annotated[Optional[int], typer.Option(...)] = 1_000,
+    chunk_size: Annotated[Optional[int], typer.Option(...)] = SETTINGS.chunk_size,
 ):
     """
     Execute a dataset pipeline
@@ -56,9 +59,28 @@ def cli_run(
     run(options)
 
 
+@cli.command("extract")
+def cli_extract(
+    config: Annotated[
+        str,
+        typer.Option("-c", help="Any local or remote json or yaml uri"),
+    ],
+    uri: Annotated[str, typer.Option("-o")] = "-",
+    chunk_size: Annotated[Optional[int], typer.Option(...)] = 1_000,
+):
+    """
+    Execute a dataset pipelines extract stage and write records to out (default: stdout)
+    """
+    options = FlowOptions(
+        config=config, chunk_size=chunk_size, records_uri=uri, extract_only=True
+    )
+    run(options)
+
+
 @cli.command("inspect")
 def cli_inspect(
     config_path: Annotated[Path, typer.Argument()],
+    seed: Annotated[Optional[bool], typer.Option("-s", "--seed")] = False,
     extract: Annotated[Optional[bool], typer.Option("-e", "--extract")] = False,
     transform: Annotated[Optional[bool], typer.Option("-t", "--transform")] = False,
     limit: Annotated[Optional[int], typer.Option("-l", "--limit")] = 5,
@@ -78,6 +100,26 @@ def cli_inspect(
         print(f"[bold green]OK[/bold green] `{config_path}`")
         print(f"[bold]dataset:[/bold] {config.dataset.name}")
         print(f"[bold]title:[/bold] {config.dataset.title}")
+
+    if seed:
+        df = inspect_seed(config, limit)
+        if usecols:
+            df = df[[c for c in usecols.split(",") if c in df.columns]]
+        if not to_json and not to_csv:
+            print("[bold green]OK[/bold green]")
+        if to_json:
+            for _, row in df.iterrows():
+                typer.echo(
+                    orjson.dumps(row.to_dict(), option=orjson.OPT_APPEND_NEWLINE)
+                )
+        elif to_csv:
+            df.to_csv(sys.stdout, index=False)
+        else:
+            table = Table(*df.columns.map(str))
+            df = df.fillna("").map(str)
+            for _, row in df.iterrows():
+                table.add_row(*row.values)
+            console.print(table)
 
     if extract:
         for name, df in inspect_extract(config, limit):
@@ -113,38 +155,28 @@ def cli_inspect(
 
 @cli.command("build-catalog")
 def cli_catalog(
-    path: Annotated[Path, typer.Argument()],
-    uri: Annotated[str, typer.Option("-o")] = "-",
-    flatten: Annotated[Optional[bool], typer.Option(...)] = False,
+    in_uri: Annotated[str, typer.Option("-i")] = "-",
+    out_uri: Annotated[str, typer.Option("-o")] = "-",
 ):
     """
     Build a catalog from datasets metadata and write it to anywhere from stdout
     (default) to any uri `fsspec` can handle, e.g.:
 
-        investigraph build-catalog catalog.yml -u s3://mybucket/catalog.json
+        investigraph build-catalog -i catalog.yml -o s3://mybucket/catalog.json
     """
-    catalog = Catalog.from_path(path)
-    if flatten:
-        datasets = [d.model_dump() for d in catalog.get_datasets()]
-        data = {
-            "datasets": datasets,
-            "catalog": catalog.metadata(),
-        }
-    else:
-        data = catalog.model_dump()
-    data = orjson.dumps(data, option=orjson.OPT_APPEND_NEWLINE)
-    if uri == "-":
-        sys.stdout.write(data.decode())
-    else:
-        smart_write(uri, data)
+    catalog = Catalog._from_uri(in_uri)
+    data = catalog.model_dump_json()
+    smart_write(out_uri, data.encode())
 
 
-@cli.command("reset")
-def cli_reset(yes: Annotated[str, typer.Option(prompt="Are you sure? [yes/no]")]):
+@cli.command("config")
+def cli_config(
+    out_uri: Annotated[str, typer.Option("-o")] = "-",
+):
     """
-    Reset all prefect data in `PREFECT_HOME`
+    Show current config
     """
-    if yes == "yes":
-        path = PREFECT_HOME.value()
-        shutil.rmtree(str(path), ignore_errors=True)
-        print(f"[bold green]OK[/bold green] deleted everything in `{path}`.")
+    if out_uri == "-":
+        print(SETTINGS)
+    else:
+        smart_write(out_uri, SETTINGS.model_dump_json().encode())

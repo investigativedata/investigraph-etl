@@ -3,15 +3,18 @@ resolver for `.source.Source`
 """
 
 from io import BytesIO
+from typing import Any
 
+import requests
 from anystore.util import make_checksum
+from ftmq.io import orjson
 from ftmq.io import smart_open as open
 from normality import slugify
 from pantomime import types
 from pydantic import BaseModel, ConfigDict
 
 from investigraph.exceptions import ImproperlyConfigured
-from investigraph.logic import requests
+from investigraph.logic import fetch
 from investigraph.model.source import Source, SourceHead
 from investigraph.types import BytesGenerator
 
@@ -55,7 +58,7 @@ class Resolver(BaseModel):
             if self.source.stream is None:
                 if self.mimetype == types.CSV:
                     self.source.stream = self.head.can_stream()
-            res = requests.get(self.source.uri, stream=self.source.stream)
+            res = fetch.get(self.source.uri, stream=self.source.stream)
             assert res.ok
             self.response = res
 
@@ -98,6 +101,11 @@ class Resolver(BaseModel):
     def get_content(self) -> bytes:
         self._resolve_content()
         return self.content
+
+    def get_json(self) -> dict[str, Any] | None:
+        self._resolve_content()
+        if self.content is not None:
+            return orjson.loads(self.content)
 
     def get_cache_key(self) -> str:
         slug = f"RESOLVE#{slugify(self.source.uri)}"
