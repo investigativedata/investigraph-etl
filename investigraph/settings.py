@@ -51,7 +51,7 @@ class Settings(BaseSettings):
         alias="anystore_uri",
     )
 
-    archive_uri: str = Field(str((Path.cwd() / "data" / "archive").absolute()))
+    archive_uri: str = Field(str((Path.cwd() / "data" / "archive").absolute().as_uri()))
 
 
 SETTINGS = Settings()
