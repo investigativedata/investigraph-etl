@@ -269,13 +269,13 @@ trio = ["trio (<0.22)"]
 
 [[package]]
 name = "anystore"
-version = "0.1.7"
+version = "0.1.9"
 description = "Store and cache things anywhere"
 optional = false
 python-versions = "<4,>=3.11"
 files = [
-    {file = "anystore-0.1.7-py3-none-any.whl", hash = "sha256:42fc5724e3aecfabc8a487ada0502162aad72a3a7be1d55b97b3b2bc7c364865"},
-    {file = "anystore-0.1.7.tar.gz", hash = "sha256:a5468a40f359d518e584f8b491ff3e5bdcdfdb27876508af89d1b1012d2f54c8"},
+    {file = "anystore-0.1.9-py3-none-any.whl", hash = "sha256:47ad3326f2478acc45acd72479c366e2ca4c8f2bc16874f2294d533d9e27df3d"},
+    {file = "anystore-0.1.9.tar.gz", hash = "sha256:ea63501ff6909247fbe0f543fbaff8239e633af64c77f5235dbabc182199a8f6"},
 ]
 
 [package.dependencies]
@@ -292,6 +292,7 @@ pydantic-settings = ">=2.2.1,<3.0.0"
 pytest = ">=8.0.2,<9.0.0"
 rich = ">=13.7.0,<14.0.0"
 s3fs = ">2023.10,<2025"
+structlog = ">=24.4.0,<25.0.0"
 typer = ">=0.9,<0.13"
 
 [[package]]
@@ -5257,6 +5258,23 @@ python-versions = "*"
 files = [
     {file = "stringcase-1.2.0.tar.gz", hash = "sha256:48a06980661908efe8d9d34eab2b6c13aefa2163b3ced26972902e3bdfd87008"},
 ]
+
+[[package]]
+name = "structlog"
+version = "24.4.0"
+description = "Structured Logging for Python"
+optional = false
+python-versions = ">=3.8"
+files = [
+    {file = "structlog-24.4.0-py3-none-any.whl", hash = "sha256:597f61e80a91cc0749a9fd2a098ed76715a1c8a01f73e336b746504d1aad7610"},
+    {file = "structlog-24.4.0.tar.gz", hash = "sha256:b27bfecede327a6d2da5fbc96bd859f114ecc398a6389d664f62085ee7ae6fc4"},
+]
+
+[package.extras]
+dev = ["freezegun (>=0.2.8)", "mypy (>=1.4)", "pretend", "pytest (>=6.0)", "pytest-asyncio (>=0.17)", "rich", "simplejson", "twisted"]
+docs = ["cogapp", "furo", "myst-parser", "sphinx", "sphinx-notfound-page", "sphinxcontrib-mermaid", "sphinxext-opengraph", "twisted"]
+tests = ["freezegun (>=0.2.8)", "pretend", "pytest (>=6.0)", "pytest-asyncio (>=0.17)", "simplejson"]
+typing = ["mypy (>=1.4)", "rich", "twisted"]
 
 [[package]]
 name = "tblib"
