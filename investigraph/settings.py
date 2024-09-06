@@ -7,7 +7,7 @@ from prefect.settings import PREFECT_API_DATABASE_CONNECTION_URL, PREFECT_HOME
 from pydantic import Field, RedisDsn
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
-VERSION = "0.6.0"
+VERSION = "0.6.1"
 
 
 class Settings(BaseSettings):
@@ -51,7 +51,7 @@ class Settings(BaseSettings):
         alias="anystore_uri",
     )
 
-    archive_uri: str = Field(str((Path.cwd() / "data" / "archive").absolute()))
+    archive_uri: str = Field(str((Path.cwd() / "data" / "archive").absolute().as_uri()))
 
 
 SETTINGS = Settings()
