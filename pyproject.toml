@@ -37,7 +37,7 @@ prefect-ray = "^0.3.6"
 ray = "^2.32.0"
 requests = "^2.32.3"
 typer = "^0.12.3"
-runpandarun = "^0.5.0"
+runpandarun = "^0.5.1"
 xlrd = "^2.0.1"
 datapatch = "^1.2.0"
 anystore = {extras = ["redis"], version = "^0.1.7"}
