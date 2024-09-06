@@ -4,7 +4,7 @@ from typing import Any, Generator, Iterable
 
 from anystore.io import smart_write
 from followthemoney.util import make_entity_id
-from ftmq.util import join_slug
+from ftmq.util import join_slug, make_fingerprint_id
 from nomenklatura.entity import CE, CompositeEntity
 from prefect import get_run_logger
 from prefect.exceptions import MissingContextError
@@ -76,6 +76,10 @@ class BaseContext(BaseModel):
     def make_id(self, *args, **kwargs) -> str:
         prefix = kwargs.pop("prefix", self.prefix)
         return join_slug(make_entity_id(*args), prefix=prefix)
+
+    def make_fingerprint_id(self, *args, **kwargs) -> str:
+        prefix = kwargs.pop("prefix", self.prefix)
+        return join_slug(make_fingerprint_id(*args), prefix=prefix)
 
     def make_cache_key(self, *args: Iterable[str]) -> str:
         return join_slug(*args, sep="#")
