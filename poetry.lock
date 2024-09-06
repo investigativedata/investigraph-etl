@@ -1489,13 +1489,13 @@ tqdm = ["tqdm"]
 
 [[package]]
 name = "ftmq"
-version = "0.6.9"
+version = "0.6.10"
 description = "followthemoney query dsl and io helpers"
 optional = false
 python-versions = "<4,>=3.11"
 files = [
-    {file = "ftmq-0.6.9-py3-none-any.whl", hash = "sha256:da0117b7803ba887030a764f50fe8f71201fa45d80b2dd068c3a51cf34b1a137"},
-    {file = "ftmq-0.6.9.tar.gz", hash = "sha256:84e28bd0f3dcfb5c96d2b19d2abb8c55a5cc4fc001635559ceafdf1ef397f390"},
+    {file = "ftmq-0.6.10-py3-none-any.whl", hash = "sha256:472f278857509467f575499ccf1ee1263121c55eeaba69cab54b9000abfa8633"},
+    {file = "ftmq-0.6.10.tar.gz", hash = "sha256:276730f5fcc1d068a66034d692d47837dd241bb0d1ce26eeae93676753a8ab64"},
 ]
 
 [package.dependencies]
@@ -1514,6 +1514,7 @@ pycountry = ">=23.12.11,<25.0.0"
 pydantic = ">=2.8.2,<3.0.0"
 PyICU = ">=2.13.1,<3.0.0"
 sqlalchemy = ">=2.0.31,<3.0.0"
+structlog = ">=24.4.0,<25.0.0"
 urllib3 = "<3"
 
 [[package]]
