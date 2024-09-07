@@ -14,11 +14,8 @@ class FlowOptions(BaseModel):
     config: Uri
     aggregate: bool | None = None
     chunk_size: int | None = SETTINGS.chunk_size
-    extract_only: bool | None = False
 
     index_uri: str | None = None
-    records_uri: str | None = None
-    fragments_uri: str | None = None
     entities_uri: str | None = None
 
     @property
@@ -32,9 +29,6 @@ class Flow(BaseModel):
     run_id: str | None = None
     start: datetime
     end: datetime | None = None
-    fragment_uris: set[str] | None = set()
-    entities_uri: str | None = None
-    extract_only: bool | None = False
 
     def __init__(self, **data):
         data["start"] = data.get("start", datetime.utcnow())
@@ -43,33 +37,34 @@ class Flow(BaseModel):
         # override base config with runtime options
         options: FlowOptions | None = data.pop("options", None)
         if options:
-            data["extract_only"] = data.pop("extract_only", options.extract_only)
             config = get_config(options.config)
 
             self.assign(config.extract, "chunk_size", options.chunk_size)
-            self.assign(config.extract, "records_uri", options.records_uri)
             self.assign(config.transform, "chunk_size", options.chunk_size)
             self.assign(config.load, "chunk_size", options.chunk_size)
 
-            self.assign(config.load, "index_uri", options.index_uri)
-            self.assign(config.load, "fragments_uri", options.fragments_uri)
-            self.assign(config.load, "entities_uri", options.entities_uri)
             if options.aggregate is False:
                 config.aggregate = False
             if config.aggregate:
+                self.assign(config.aggregate, "index_uri", options.index_uri)
+                self.assign(config.aggregate, "entities_uri", options.entities_uri)
                 self.assign(config.aggregate, "chunk_size", options.chunk_size)
 
             super().__init__(dataset=config.dataset.name, config=config, **data)
         else:
             super().__init__(**data)
         path = ensure_path(SETTINGS.data_root / self.config.dataset.name)
-        if self.config.load.index_uri is None:
-            self.config.load.index_uri = (path / "index.json").as_uri()
-        if self.config.load.fragments_uri is None:
-            self.config.load.fragments_uri = (path / "fragments.json").as_uri()
-        if self.config.load.entities_uri is None:
-            self.config.load.entities_uri = (path / "entities.ftm.json").as_uri()
-        self.entities_uri = self.config.load.entities_uri
+        if self.config.aggregate:
+            if self.config.aggregate.index_uri is None:
+                self.config.aggregate.index_uri = (path / "index.json").as_uri()
+            if self.config.aggregate.entities_uri is None:
+                self.config.aggregate.entities_uri = (
+                    path / "entities.ftm.json"
+                ).as_uri()
+
+    @property
+    def entities_uri(self) -> str:
+        return self.config.aggregate.entities_uri
 
     @classmethod
     def from_options(cls, options: FlowOptions) -> Self:

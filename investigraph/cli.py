@@ -4,6 +4,7 @@ from typing import Annotated, Optional
 
 import orjson
 import typer
+from anystore import smart_stream
 from anystore.io import smart_write
 from ftmq.model import Catalog
 from rich import print
@@ -16,6 +17,11 @@ from investigraph.inspect import (
     inspect_seed,
     inspect_transform,
 )
+from investigraph.logging import configure_logging
+from investigraph.logic.extract import extract_records_from_config
+from investigraph.logic.transform import transform_record
+from investigraph.model.config import get_config
+from investigraph.model.context import BaseContext
 from investigraph.model.flow import FlowOptions
 from investigraph.pipeline import run
 from investigraph.settings import SETTINGS, VERSION
@@ -31,6 +37,7 @@ def cli_version(
     if version:
         print(VERSION)
         raise typer.Exit()
+    configure_logging()
 
 
 @cli.command("run")
@@ -40,7 +47,6 @@ def cli_run(
         typer.Option("-c", help="Any local or remote json or yaml uri"),
     ],
     index_uri: Annotated[Optional[str], typer.Option(...)] = None,
-    fragments_uri: Annotated[Optional[str], typer.Option(...)] = None,
     entities_uri: Annotated[Optional[str], typer.Option(...)] = None,
     aggregate: Annotated[Optional[bool], typer.Option(...)] = True,
     chunk_size: Annotated[Optional[int], typer.Option(...)] = SETTINGS.chunk_size,
@@ -51,7 +57,6 @@ def cli_run(
     options = FlowOptions(
         config=config,
         index_uri=index_uri,
-        fragments_uri=fragments_uri,
         entities_uri=entities_uri,
         aggregate=aggregate,
         chunk_size=chunk_size,
@@ -65,16 +70,32 @@ def cli_extract(
         str,
         typer.Option("-c", help="Any local or remote json or yaml uri"),
     ],
-    uri: Annotated[str, typer.Option("-o")] = "-",
-    chunk_size: Annotated[Optional[int], typer.Option(...)] = 1_000,
 ):
     """
-    Execute a dataset pipelines extract stage and write records to out (default: stdout)
+    Execute a dataset pipelines extract stage and write records to stdout
     """
-    options = FlowOptions(
-        config=config, chunk_size=chunk_size, records_uri=uri, extract_only=True
-    )
-    run(options)
+    ctx = BaseContext.from_config(get_config(config))
+    for record in extract_records_from_config(ctx):
+        smart_write("-", orjson.dumps(record, option=orjson.OPT_APPEND_NEWLINE))
+
+
+@cli.command("transform")
+def cli_transform(
+    config: Annotated[
+        str,
+        typer.Option("-c", help="Any local or remote json or yaml uri"),
+    ],
+    in_uri: Annotated[str, typer.Option("-i")] = "-",
+):
+    """
+    Execute a dataset pipelines transform stage with records from in_uri
+    (default: stdin) and write proxies to stdout
+    """
+    ctx = BaseContext.from_config(get_config(config))
+    for ix, record in enumerate(smart_stream(in_uri, mode="rb")):
+        for proxy in transform_record(ctx, orjson.loads(record), ix):
+            data = orjson.dumps(proxy.to_dict(), option=orjson.OPT_APPEND_NEWLINE)
+            smart_write("-", data)
 
 
 @cli.command("inspect")

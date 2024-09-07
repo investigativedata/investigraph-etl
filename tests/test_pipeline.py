@@ -2,12 +2,10 @@
 
 import cloudpickle
 from ftmq.io import smart_read_proxies
-from ftmstore import get_dataset
 
 from investigraph.model import FlowOptions
 from investigraph.model.context import init_context
 from investigraph.pipeline import run
-from investigraph.settings import SETTINGS
 
 
 def test_pipeline_pickle_ctx(gdho):
@@ -49,19 +47,9 @@ def test_pipeline_local():
 
 def test_pipeline_from_config():
     options = FlowOptions(config="./tests/fixtures/ec_meetings/config.yml")
-    run(options)
-
-
-def test_pipeline_local_ftmstore():
-    store_uri = f"sqlite:///{SETTINGS.data_root}/store.db"
-    options = FlowOptions(
-        config="./tests/fixtures/eu_authorities.local.yml",
-        entities_uri=store_uri,
-    )
-    run(options)
-    store = get_dataset("eu_authorities", database_uri=store_uri)
-    entities = [e for e in store.iterate()]
-    assert len(entities) == 151
+    out = run(options)
+    proxies = [p for p in smart_read_proxies(out.entities_uri)]
+    assert len(proxies) > 50_000
 
 
 def test_pipeline_local_customized():

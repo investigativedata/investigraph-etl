@@ -1,14 +1,10 @@
 """
-Load transformed data (aka CE proxies) to various targets like json files,
-databases, s3 endpoints...
+Load transformed data (proxy fragments) to a nomenklatura statement store
 """
 
-from functools import cache
 from typing import TYPE_CHECKING, Iterable, TypeAlias
-from urllib.parse import urlparse
 
-from ftmq.io import smart_write_proxies
-from ftmstore import get_dataset
+from ftmq.util import make_proxy
 
 from investigraph.types import SDict
 
@@ -18,49 +14,10 @@ if TYPE_CHECKING:
 TProxies: TypeAlias = Iterable[SDict]
 
 
-def to_uri(uri: str, proxies: TProxies, **kwargs):
-    smart_write_proxies(uri, proxies, **kwargs)
-
-
-def to_store(uri: str, dataset: str, proxies: TProxies):
-    dataset = get_dataset(dataset, database_uri=uri)
-    bulk = dataset.bulk()
-    for ix, proxy in enumerate(proxies):
-        bulk.put(proxy, fragment=str(ix))
-    bulk.flush()
-
-
-class Loader:
-    """
-    write entity proxies to anywhere
-    """
-
-    def __init__(self, ctx: "Context", uri: str, parts: bool | None = False):
-        self.uri = uri
-        self.ctx = ctx
-        self.is_store = "sql" in urlparse(uri).scheme
-        self.parts = parts
-
-    def write(self, proxies: TProxies, **kwargs) -> str:
-        if self.is_store:
-            to_store(self.uri, self.ctx.dataset, proxies)
-            return self.uri
-        else:
-            uri = self.uri
-            if self.parts:
-                uri += f".{kwargs.pop('ckey')}"
-            kwargs["dataset"] = self.ctx.dataset
-            to_uri(uri, proxies, **kwargs)
-            return uri
-
-
-@cache
-def get_loader(ctx: "Context", uri: str, parts: bool | None = False) -> Loader:
-    return Loader(ctx, uri, parts)
-
-
-def load_proxies(
-    ctx: "Context", proxies: TProxies, uri: str, parts: bool | None = False, **kwargs
-) -> str:
-    loader = get_loader(ctx, uri, parts)
-    return loader.write(proxies, **kwargs)
+def handle(ctx: "Context", proxies: TProxies) -> int:
+    ix = 0
+    with ctx.store.writer() as bulk:
+        for proxy in proxies:
+            bulk.add_entity(make_proxy(proxy))
+            ix += 1
+    return ix
