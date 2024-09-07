@@ -25,24 +25,17 @@ investigraph = "investigraph.cli:cli"
 
 [tool.poetry.dependencies]
 python = ">=3.11,<4"
+prefect = "^3.0.1"
+ftmq = "^0.6.14"
+anystore = {extras = ["redis"], version = "^0.1.10"}
+runpandarun = "^0.5.1"
 cachelib = "^0.13.0"
 dateparser = "^1.2.0"
 followthemoney-store = "^3.1.0"
 html2text = "^2024.2.26"
 pandas = "^2.2.2"
 pantomime = "^0.6.1"
-prefect = "^2.19.8"
-prefect-dask = "^0.2.9"
-prefect-ray = "^0.3.6"
-ray = "^2.32.0"
-requests = "^2.32.3"
-typer = "^0.12.3"
-runpandarun = "^0.5.1"
-xlrd = "^2.0.1"
-datapatch = "^1.2.0"
-anystore = {extras = ["redis"], version = "^0.1.7"}
-ftmq = "^0.6.14"
-fakeredis = "^2.23.3"
+fakeredis = "^2.24.1"
 
 [tool.poetry.group.dev.dependencies]
 pytest-env = ">=1.1.1"
@@ -55,6 +48,7 @@ pre-commit = "^3.5.0"
 flake8 = ">=6.1,<8.0"
 pytest-xdist = "^3.4.0"
 bump2version = "^1.0.1"
+poetry-plugin-export = "^1.8.0"
 
 [build-system]
 requires = ["poetry-core"]

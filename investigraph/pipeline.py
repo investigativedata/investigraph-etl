@@ -2,19 +2,15 @@
 The main entrypoint for the prefect flow
 """
 
-from collections.abc import Generator
 from datetime import datetime
-from functools import cache
-from typing import Any, Type
+from typing import Any, Generator, Type
 
 import orjson
 from anystore.io import smart_open
 from anystore.util import make_data_checksum
 from ftmq.model.coverage import DatasetStats
 from prefect import flow, task
-from prefect.task_runners import ConcurrentTaskRunner
-from prefect_dask import DaskTaskRunner
-from prefect_ray import RayTaskRunner
+from prefect.task_runners import TaskRunner, ThreadPoolTaskRunner
 
 from investigraph import __version__
 from investigraph.model.context import BaseContext, Context
@@ -23,15 +19,22 @@ from investigraph.model.resolver import Resolver
 from investigraph.settings import SETTINGS
 
 
-@cache
-def get_runner_from_env() -> (
-    Type[ConcurrentTaskRunner] | Type[DaskTaskRunner] | Type[RayTaskRunner]
-):
+def get_runner_from_env() -> Type[TaskRunner]:
     if SETTINGS.task_runner == "dask":
-        return DaskTaskRunner
+        try:
+            from prefect_dask.task_runners import DaskTaskRunner
+
+            return DaskTaskRunner
+        except ImportError:
+            raise ImportError("Install prefect dask dependencies")
     if SETTINGS.task_runner == "ray":
-        return RayTaskRunner
-    return ConcurrentTaskRunner
+        try:
+            from prefect_ray import RayTaskRunner
+
+            return RayTaskRunner
+        except ImportError:
+            raise ImportError("Install prefect ray dependencies")
+    return ThreadPoolTaskRunner
 
 
 def get_task_cache_key(_, params) -> str:
