@@ -1495,20 +1495,6 @@ types-PyYAML = "*"
 dev = ["bump2version", "coverage (>=4.1)", "flake8 (>=2.6.0)", "mypy", "pip (>=10.0.0)", "pytest", "pytest-cov", "recommonmark (>=0.4.0)", "responses (>=0.9.0)", "transifex-client", "twine", "types-PyYAML", "types-openpyxl", "types-requests", "types-setuptools", "wheel (>=0.29.0)"]
 
 [[package]]
-name = "followthemoney-store"
-version = "3.1.0"
-description = "Store raw and structured FollowTheMoney data from different datasets in a data lake"
-optional = false
-python-versions = "*"
-files = [
-    {file = "followthemoney-store-3.1.0.tar.gz", hash = "sha256:4c8e05ddbec4eb729670e813f2e0d768c79229fa2bea6458de87897d51cf5908"},
-    {file = "followthemoney_store-3.1.0-py2.py3-none-any.whl", hash = "sha256:93a021f5c822dfcc21e85bf2291494d96f50c53dfceeb9a86418c6a99feaab82"},
-]
-
-[package.extras]
-postgresql = ["psycopg2-binary (>=2.7)"]
-
-[[package]]
 name = "frozenlist"
 version = "1.4.1"
 description = "A list-like structure which implements collections.abc.MutableSequence"
@@ -5990,4 +5976,4 @@ type = ["pytest-mypy"]
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.11,<4"
-content-hash = "454e06c60ce3d12df5289db2032a2a0011b3439f96461049d3436ade6365da4e"
+content-hash = "c5b524232a5fb64a8fba59b664cc050c9a2cb1d0d655273396f516831d7537ef"

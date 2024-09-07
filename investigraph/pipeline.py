@@ -5,8 +5,6 @@ The main entrypoint for the prefect flow
 from datetime import datetime
 from typing import Any, Generator, Type
 
-import orjson
-from anystore.io import smart_open
 from anystore.util import make_data_checksum
 from ftmq.model.coverage import DatasetStats
 from prefect import flow, task
@@ -49,10 +47,10 @@ def get_task_cache_key(_, params) -> str:
     refresh_cache=not SETTINGS.task_cache or not SETTINGS.aggregate_cache,
     cache_result_in_memory=False,
 )
-def aggregate(ctx: Context, results: list[str], ckey: str) -> DatasetStats:
-    fragments, stats = ctx.aggregate(ctx, results)
-    ctx.log.info("AGGREGATED %d fragments to %d proxies", fragments, stats.entity_count)
-    ctx.log.info("OUTPUT: %s", ctx.config.load.entities_uri)
+def aggregate(ctx: Context, ckey: str) -> DatasetStats:
+    stats = ctx.aggregate(ctx)
+    ctx.log.info("AGGREGATED to %d proxies", stats.entity_count)
+    ctx.log.info("ENTITIES EXPORT: %s", ctx.config.aggregate.entities_uri)
     return stats
 
 
@@ -68,11 +66,9 @@ def load(ctx: Context, ckey: str) -> str | None:
     proxies = ctx.cache.get(ckey)
     if proxies is None:
         ctx.log.warning(f"No proxies found for cache key `{ckey}`")
-        return
-    out = ctx.load_fragments(proxies, ckey=ckey)
-    ctx.log.info("LOADED %d proxies", len(proxies))
-    ctx.log.info("OUTPUT: %s", out)
-    return out
+    count = ctx.load(proxies)
+    ctx.log.info(f"LOADED {count} proxies to `{ctx.config.load.uri}`")
+    return make_data_checksum(proxies)
 
 
 @task(
@@ -139,7 +135,7 @@ def extract(
     task_runner=get_runner_from_env(),
     cache_result_in_memory=False,
 )
-def run_pipeline(ctx: Context, extract_only: bool | None = False) -> list[Any]:
+def run_pipeline(ctx: Context) -> list[Any]:
     res = None
     if ctx.config.extract.fetch:
         res = Resolver(source=ctx.source)
@@ -151,12 +147,6 @@ def run_pipeline(ctx: Context, extract_only: bool | None = False) -> list[Any]:
 
     results = []
     for key in extract(ctx, f"extract-{ckey}", res):
-        if extract_only:
-            with smart_open(ctx.config.extract.records_uri, mode="ba") as f:
-                for record, _ in ctx.cache.get(key):
-                    f.write(orjson.dumps(record, option=orjson.OPT_APPEND_NEWLINE))
-            return results
-
         transformed = transform.submit(ctx, key)
         loaded = load.submit(ctx, transformed)
         results.append(loaded)
@@ -176,20 +166,15 @@ def run(options: FlowOptions) -> Flow:
     results = []
     ctx = BaseContext.from_config(flow.config)
 
-    for ix, run_ctx in enumerate(ctx.from_sources()):
-        if ix == 0:  # only on first time
-            ctx.export_metadata()
-            ctx.log.info("INDEX: %s" % ctx.config.load.index_uri)
-        results.extend(run_pipeline(run_ctx, extract_only=flow.extract_only))
+    for run_ctx in ctx.from_sources():
+        results.extend(run_pipeline(run_ctx))
 
     if flow.config.aggregate:
         fragments = [r.result() for r in results]
-        res = aggregate.submit(ctx, fragments, make_data_checksum(fragments))
+        res = aggregate.submit(ctx, make_data_checksum(fragments))
         ctx.config.dataset.apply_stats(res.result())
         ctx.export_metadata()
-        ctx.log.info("INDEX (updated with coverage): %s" % ctx.config.load.index_uri)
+        ctx.log.info("INDEX EXPORT: %s" % ctx.config.aggregate.index_uri)
 
     flow.end = datetime.utcnow()
-    fragment_uris = [r.result() for r in results]
-    flow.fragment_uris = filter(lambda x: x is not None, fragment_uris)
     return flow

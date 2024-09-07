@@ -31,7 +31,6 @@ anystore = {extras = ["redis"], version = "^0.1.10"}
 runpandarun = "^0.5.1"
 cachelib = "^0.13.0"
 dateparser = "^1.2.0"
-followthemoney-store = "^3.1.0"
 html2text = "^2024.2.26"
 pandas = "^2.2.2"
 pantomime = "^0.6.1"

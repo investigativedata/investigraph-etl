@@ -1,9 +1,11 @@
 from datetime import datetime
 from logging import Logger, LoggerAdapter
-from typing import Any, Generator, Iterable
+from typing import Any, Generator, Self
 
 from anystore.io import smart_write
 from followthemoney.util import make_entity_id
+from ftmq.model import DatasetStats
+from ftmq.store import Store, get_store
 from ftmq.util import join_slug, make_fingerprint_id
 from nomenklatura.entity import CE, CompositeEntity
 from prefect import get_run_logger
@@ -12,7 +14,7 @@ from pydantic import BaseModel, ConfigDict
 
 from investigraph.cache import Cache, get_cache
 from investigraph.exceptions import DataError
-from investigraph.logic.aggregate import AggregatorResult, merge
+from investigraph.logic.aggregate import merge
 from investigraph.model.config import Config
 from investigraph.model.source import Source
 from investigraph.types import CEGenerator
@@ -20,6 +22,8 @@ from investigraph.util import make_proxy
 
 
 class BaseContext(BaseModel):
+    model_config = ConfigDict(arbitrary_types_allowed=True)
+
     dataset: str
     prefix: str
     config: Config
@@ -35,6 +39,10 @@ class BaseContext(BaseModel):
         return get_cache()
 
     @property
+    def store(self) -> Store:
+        return get_store(self.config.load.uri)
+
+    @property
     def log(self) -> LoggerAdapter | Logger:
         try:
             return get_run_logger()
@@ -43,24 +51,17 @@ class BaseContext(BaseModel):
 
             return logging.getLogger(__name__)
 
-    def load_fragments(self, *args, **kwargs) -> str:
-        kwargs["uri"] = kwargs.pop("uri", self.config.load.fragments_uri)
-        kwargs["parts"] = True
+    def load(self, *args, **kwargs) -> int:
         return self.config.load.handle(self, *args, **kwargs)
 
-    def load_entities(self, *args, **kwargs) -> str:
-        kwargs["uri"] = kwargs.pop("uri", self.config.load.entities_uri)
-        kwargs["parts"] = False
-        return self.config.load.handle(self, *args, **kwargs)
-
-    def aggregate(self, *args, **kwargs) -> AggregatorResult:
+    def aggregate(self, *args, **kwargs) -> DatasetStats:
         return self.config.aggregate.handle(*args, **kwargs)
 
     def export_metadata(self) -> None:
         data = self.config.dataset
         data.updated_at = data.updated_at or datetime.utcnow()
         data = data.model_dump_json().encode()
-        smart_write(self.config.load.index_uri, data)
+        smart_write(self.config.aggregate.index_uri, data)
 
     def make_proxy(self, *args, **kwargs) -> CE:
         return make_proxy(*args, dataset=self.dataset, **kwargs)
@@ -80,9 +81,6 @@ class BaseContext(BaseModel):
     def make_fingerprint_id(self, *args, **kwargs) -> str:
         prefix = kwargs.pop("prefix", self.prefix)
         return join_slug(make_fingerprint_id(*args), prefix=prefix)
-
-    def make_cache_key(self, *args: Iterable[str]) -> str:
-        return join_slug(*args, sep="#")
 
     def task(self) -> "TaskContext":
         return TaskContext(**self.model_dump())
@@ -105,7 +103,7 @@ class BaseContext(BaseModel):
             yield self.from_source(source)
 
     @classmethod
-    def from_config(cls, config: Config) -> "BaseContext":
+    def from_config(cls, config: Config) -> Self:
         return cls(
             dataset=config.dataset.name,
             prefix=config.dataset.prefix,

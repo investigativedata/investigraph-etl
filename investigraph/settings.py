@@ -2,9 +2,8 @@ from datetime import timedelta
 from pathlib import Path
 from typing import Literal
 
-from ftmstore import settings as ftmstore_settings
-from prefect.settings import PREFECT_API_DATABASE_CONNECTION_URL, PREFECT_HOME
-from pydantic import Field, RedisDsn
+from prefect.settings import PREFECT_HOME
+from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 VERSION = "0.6.1"
@@ -18,13 +17,13 @@ class Settings(BaseSettings):
     default_seeder: str = "investigraph.logic.seed:handle"
     default_extractor: str = "investigraph.logic.extract:handle"
     default_transformer: str = "investigraph.logic.transform:map_ftm"
-    default_loader: str = "investigraph.logic.load:load_proxies"
-    default_aggregator: str = "investigraph.logic.aggregate:in_memory"
+    default_loader: str = "investigraph.logic.load:handle"
+    default_aggregator: str = "investigraph.logic.aggregate:handle"
 
-    redis: bool = False
-    redis_url: RedisDsn = Field("redis://localhost:6379")
-    redis_prefix: str = f"investigraph:{VERSION}"
-    redis_persist: bool = True
+    # cache_uri: str = "memory:///"
+    cache_prefix: str = f"investigraph/{VERSION}"
+    cache_persist: bool = False
+    cache_ttl: int | None = None
 
     task_cache: bool = False
     task_retries: int = 3
@@ -43,9 +42,6 @@ class Settings(BaseSettings):
 
     chunk_size: int = 1_000
 
-    ftm_store_uri: str = Field(
-        PREFECT_API_DATABASE_CONNECTION_URL.value(), alias="ftm_store_uri"
-    )
     anystore_uri: str = Field(
         (Path(PREFECT_HOME.value()) / ".anystore").absolute().as_uri(),
         alias="anystore_uri",
@@ -56,4 +52,3 @@ class Settings(BaseSettings):
 
 SETTINGS = Settings()
 DEBUG = SETTINGS.debug
-ftmstore_settings.DATABASE_URI = SETTINGS.ftm_store_uri
