@@ -27,7 +27,7 @@ investigraph = "investigraph.cli:cli"
 python = ">=3.11,<4"
 prefect = "^3.0.1"
 ftmq = "^0.6.14"
-anystore = {extras = ["redis"], version = "^0.1.10"}
+anystore = "^0.1.11"
 runpandarun = "^0.5.1"
 cachelib = "^0.13.0"
 dateparser = "^1.2.0"

@@ -20,7 +20,7 @@ class Settings(BaseSettings):
     default_loader: str = "investigraph.logic.load:handle"
     default_aggregator: str = "investigraph.logic.aggregate:handle"
 
-    # cache_uri: str = "memory:///"
+    cache_uri: str = "memory:///"
     cache_prefix: str = f"investigraph/{VERSION}"
     cache_persist: bool = False
     cache_ttl: int | None = None

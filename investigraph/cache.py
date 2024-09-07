@@ -14,7 +14,7 @@ DELETE = SETTINGS.debug or not SETTINGS.cache_persist
 
 class Cache:
     def __init__(self):
-        self.store = get_store()
+        self.store = get_store(uri=SETTINGS.cache_uri)
 
     def set(self, data: Any, key: str | None = None) -> str:
         key = key or make_data_checksum(data)
