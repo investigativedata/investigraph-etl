@@ -49,6 +49,9 @@ class Settings(BaseSettings):
 
     archive_uri: str = Field(str((Path.cwd() / "data" / "archive").absolute().as_uri()))
 
+    log_json: bool = Field(alias="log_json", default=False)
+    log_level: str = Field(alias="log_level", default="info")
+
 
 SETTINGS = Settings()
 DEBUG = SETTINGS.debug

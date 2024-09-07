@@ -6,7 +6,6 @@ import orjson
 import typer
 from anystore import smart_stream
 from anystore.io import smart_write
-from anystore.logging import configure_logging
 from ftmq.model import Catalog
 from rich import print
 from rich.console import Console
@@ -18,6 +17,7 @@ from investigraph.inspect import (
     inspect_seed,
     inspect_transform,
 )
+from investigraph.logging import configure_logging
 from investigraph.logic.extract import extract_records_from_config
 from investigraph.logic.transform import transform_record
 from investigraph.model.config import get_config
@@ -34,10 +34,10 @@ console = Console()
 def cli_version(
     version: Annotated[Optional[bool], typer.Option(..., help="Show version")] = False
 ):
-    configure_logging()
     if version:
         print(VERSION)
         raise typer.Exit()
+    configure_logging()
 
 
 @cli.command("run")

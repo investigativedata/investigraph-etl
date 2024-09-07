@@ -7,6 +7,7 @@ import pytest
 import requests
 from prefect.testing.utilities import prefect_test_harness
 
+from investigraph.logging import configure_logging
 from investigraph.model import Config
 
 FIXTURES_PATH = (Path(__file__).parent / "fixtures").absolute()
@@ -14,6 +15,7 @@ FIXTURES_PATH = (Path(__file__).parent / "fixtures").absolute()
 
 @pytest.fixture(autouse=True, scope="session")
 def prefect_test_fixture():
+    configure_logging()
     with prefect_test_harness():
         yield
 
