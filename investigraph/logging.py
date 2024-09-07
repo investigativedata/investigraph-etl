@@ -92,6 +92,8 @@ def configure_logging(level: int = logging.INFO) -> None:
     root_logger.addHandler(out_handler)
     root_logger.addHandler(error_handler)
 
+    logging.getLogger("httpx").setLevel(logging.WARNING)
+
 
 def format_json(_: Any, __: Any, ed: Dict[str, str]) -> Dict[str, str]:
     """Stackdriver uses `message` and `severity` keys to display logs"""
