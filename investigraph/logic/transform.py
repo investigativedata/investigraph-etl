@@ -11,7 +11,7 @@ if TYPE_CHECKING:
 
 from ftmq.util import make_proxy
 
-from investigraph.types import CEGenerator, SDict
+from investigraph.types import CEGenerator, Record, SDict
 
 
 def map_record(
@@ -27,3 +27,10 @@ def map_record(
 def map_ftm(ctx: "Context", data: SDict, ix: int) -> CEGenerator:
     for mapping in ctx.config.transform.queries:
         yield from map_record(data, mapping, ctx.config.dataset.name)
+
+
+def transform_record(ctx: "Context", record: Record, ix: int) -> CEGenerator:
+    """
+    Used for inspect and bare cli transform
+    """
+    yield from ctx.config.transform.handle(ctx, record, ix)

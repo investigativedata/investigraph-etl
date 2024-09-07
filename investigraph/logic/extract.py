@@ -7,7 +7,7 @@ import pandas as pd
 from pantomime import types
 from runpandarun.io import guess_handler_from_mimetype
 
-from investigraph.model.context import Context
+from investigraph.model.context import BaseContext, Context
 from investigraph.model.resolver import Resolver
 from investigraph.types import RecordGenerator
 
@@ -41,3 +41,18 @@ def extract_pandas(
 # entrypoint
 def handle(ctx: Context, resolver: Resolver, *args, **kwargs) -> RecordGenerator:
     yield from extract_pandas(resolver, *args, **kwargs)
+
+
+def extract_records_from_source(ctx: Context) -> RecordGenerator:
+    """
+    Used for inspect and bare cli extract
+    """
+    res = Resolver(source=ctx.source)
+    if res.source.is_http and ctx.config.extract.fetch:
+        res._resolve_http()
+    yield from ctx.config.extract.handle(ctx, res)
+
+
+def extract_records_from_config(ctx: BaseContext) -> RecordGenerator:
+    for source in ctx.from_sources():
+        yield from extract_records_from_source(source)
