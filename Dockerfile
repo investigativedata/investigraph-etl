@@ -1,4 +1,4 @@
-FROM prefecthq/prefect:2-python3.12
+FROM prefecthq/prefect:3-python3.12
 
 LABEL org.opencontainers.image.title="Investigraph ETL"
 LABEL org.opencontainers.image.licenses=MIT
