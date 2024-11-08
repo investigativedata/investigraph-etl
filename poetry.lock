@@ -1220,6 +1220,23 @@ files = [
 ]
 
 [[package]]
+name = "deprecated"
+version = "1.2.14"
+description = "Python @deprecated decorator to deprecate old python classes, functions or methods."
+optional = false
+python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
+files = [
+    {file = "Deprecated-1.2.14-py2.py3-none-any.whl", hash = "sha256:6fac8b097794a90302bdbb17b9b815e732d3c4720583ff1b198499d78470466c"},
+    {file = "Deprecated-1.2.14.tar.gz", hash = "sha256:e5323eb936458dccc2582dc6f9c322c852a775a27065ff2b0c4970b9d53d01b3"},
+]
+
+[package.dependencies]
+wrapt = ">=1.10,<2"
+
+[package.extras]
+dev = ["PyTest", "PyTest-Cov", "bump2version (<1)", "sphinx (<2)", "tox"]
+
+[[package]]
 name = "distlib"
 version = "0.3.8"
 description = "Distribution utilities"
@@ -3236,6 +3253,21 @@ files = [
 et-xmlfile = "*"
 
 [[package]]
+name = "opentelemetry-api"
+version = "1.27.0"
+description = "OpenTelemetry Python API"
+optional = false
+python-versions = ">=3.8"
+files = [
+    {file = "opentelemetry_api-1.27.0-py3-none-any.whl", hash = "sha256:953d5871815e7c30c81b56d910c707588000fff7a3ca1c73e6531911d53065e7"},
+    {file = "opentelemetry_api-1.27.0.tar.gz", hash = "sha256:ed673583eaa5f81b5ce5e86ef7cdaf622f88ef65f0b9aab40b843dcae5bef342"},
+]
+
+[package.dependencies]
+deprecated = ">=1.2.6"
+importlib-metadata = ">=6.0,<=8.4.0"
+
+[[package]]
 name = "orjson"
 version = "3.10.7"
 description = "Fast, correct Python JSON library supporting dataclasses, datetimes, and numpy"
@@ -3682,13 +3714,13 @@ virtualenv = ">=20.10.0"
 
 [[package]]
 name = "prefect"
-version = "3.0.1"
+version = "3.1.0"
 description = "Workflow orchestration and management."
 optional = false
 python-versions = ">=3.9"
 files = [
-    {file = "prefect-3.0.1-py3-none-any.whl", hash = "sha256:210d9ef3d15dfa9c7b9aa6432112377d11ce3399dcda07d597f212b0ddf8f55b"},
-    {file = "prefect-3.0.1.tar.gz", hash = "sha256:745db70b35218cd9577cd352c27c58a5c6aaa46c7f0d8cb1b1fe18ad019eebc2"},
+    {file = "prefect-3.1.0-py3-none-any.whl", hash = "sha256:53da90cb9ce6bfea4d6db0adf123aad49ce2f851ed9fcd349e5a03408c12cf41"},
+    {file = "prefect-3.1.0.tar.gz", hash = "sha256:0a3d405493ad344fe0069fd1c2d956d14c933a6f986608fee7823dcdc1a5d994"},
 ]
 
 [package.dependencies]
@@ -3702,7 +3734,7 @@ cachetools = ">=5.3,<6.0"
 click = ">=8.0,<8.2"
 cloudpickle = ">=2.0,<4.0"
 coolname = ">=1.0.4,<3.0.0"
-croniter = ">=1.0.12,<4.0.0"
+croniter = ">=1.0.12,<5.0.0"
 cryptography = ">=36.0.1"
 dateparser = ">=1.1.1,<2.0.0"
 docker = ">=4.0,<8.0"
@@ -3718,6 +3750,7 @@ jinja2 = ">=3.0.0,<4.0.0"
 jinja2-humanize-extension = ">=0.4.0"
 jsonpatch = ">=1.32,<2.0"
 jsonschema = ">=4.0.0,<5.0.0"
+opentelemetry-api = ">=1.27.0,<2.0.0"
 orjson = ">=3.7,<4.0"
 packaging = ">=21.3,<24.3"
 pathspec = ">=0.8.0"
@@ -3726,7 +3759,7 @@ prometheus-client = ">=0.20.0"
 pydantic = ">=2.7,<3.0.0"
 pydantic-core = ">=2.12.0,<3.0.0"
 pydantic-extra-types = ">=2.8.2,<3.0.0"
-pydantic-settings = "*"
+pydantic-settings = ">2.2.1"
 python-dateutil = ">=2.8.2,<3.0.0"
 python-slugify = ">=5.0,<9.0"
 pytz = ">=2021.1,<2025"
@@ -3751,15 +3784,16 @@ bitbucket = ["prefect-bitbucket (>=0.3.0rc1)"]
 dask = ["prefect-dask (>=0.3.0rc1)"]
 databricks = ["prefect-databricks (>=0.3.0rc1)"]
 dbt = ["prefect-dbt (>=0.6.0rc1)"]
-dev = ["cairosvg", "codespell (>=2.2.6)", "ipython", "jinja2", "mkdocs", "mkdocs-gen-files", "mkdocs-material", "mkdocstrings[python]", "moto (>=5)", "mypy (>=1.9.0)", "numpy", "pillow", "pluggy (>=1.4.0)", "pre-commit", "pytest (>7,<9)", "pytest-asyncio (>=0.18.2,!=0.22.0,<0.23.0)", "pytest-benchmark", "pytest-codspeed", "pytest-cov", "pytest-env", "pytest-flakefinder", "pytest-timeout", "pytest-xdist (>=3.6.1)", "pyyaml", "redis (>=5.0.1)", "respx", "ruff", "setuptools", "types-PyYAML", "types-cachetools", "uv (>=0.4.5)", "vale", "vermin", "virtualenv", "watchfiles"]
+dev = ["cairosvg", "codespell (>=2.2.6)", "ipython", "jinja2", "mkdocs", "mkdocs-gen-files", "mkdocs-material", "mkdocstrings[python]", "moto (>=5)", "mypy (>=1.9.0)", "numpy", "pillow", "pluggy (>=1.4.0)", "pre-commit", "pytest (>=8.3)", "pytest-asyncio (>=0.24)", "pytest-benchmark", "pytest-cov", "pytest-env", "pytest-flakefinder", "pytest-timeout", "pytest-xdist (>=3.6.1)", "pyyaml", "redis (>=5.0.1)", "respx", "ruff", "setuptools", "types-PyYAML", "types-cachetools", "uv (>=0.4.5)", "vale", "vermin", "virtualenv", "watchfiles"]
 docker = ["prefect-docker (>=0.6.0rc1)"]
 email = ["prefect-email (>=0.4.0rc1)"]
 gcp = ["prefect-gcp (>=0.6.0rc1)"]
 github = ["prefect-github (>=0.3.0rc1)"]
 gitlab = ["prefect-gitlab (>=0.3.0rc1)"]
 kubernetes = ["prefect-kubernetes (>=0.4.0rc1)"]
+otel = ["opentelemetry-distro (>=0.48b0,<1.0.0)", "opentelemetry-exporter-otlp (>=1.27.0,<2.0.0)", "opentelemetry-instrumentation (>=0.48b0,<1.0.0)", "opentelemetry-instrumentation-logging (>=0.48b0,<1.0.0)"]
 ray = ["prefect-ray (>=0.4.0rc1)"]
-redis = ["redis (>=5.0.1)"]
+redis = ["prefect-redis (>=0.2.0)"]
 shell = ["prefect-shell (>=0.3.0rc1)"]
 slack = ["prefect-slack (>=0.3.0rc1)"]
 snowflake = ["prefect-snowflake (>=0.28.0rc1)"]
