@@ -35,6 +35,8 @@ html2text = "^2024.2.26"
 pandas = "^2.2.2"
 pantomime = "^0.6.1"
 fakeredis = "^2.24.1"
+prefect-dask = "^0.3.1"
+prefect-ray = "^0.4.2"
 
 [tool.poetry.group.dev.dependencies]
 pytest-env = ">=1.1.1"
