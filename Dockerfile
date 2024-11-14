@@ -21,7 +21,7 @@ COPY README.md /investigraph/
 
 RUN pip install -q /investigraph
 
-RUN mkdir -p /data/prefect
+RUN mkdir -p /data/.prefect
 RUN chown -R 1000:1000 /data
 
 ENV INVESTIGRAPH_DATA_ROOT=/data
