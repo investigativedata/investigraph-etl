@@ -4158,21 +4158,21 @@ sqlalchemy = ["prefect-sqlalchemy (>=0.5.0)"]
 
 [[package]]
 name = "prefect-dask"
-version = "0.3.1"
+version = "0.3.2"
 description = "Prefect integrations with the Dask execution framework."
 optional = false
 python-versions = ">=3.9"
 files = [
-    {file = "prefect_dask-0.3.1-py3-none-any.whl", hash = "sha256:295ba199b837c24371077b54e27545c253bddba06f785fa63d072aba987b0a39"},
-    {file = "prefect_dask-0.3.1.tar.gz", hash = "sha256:1e99e7aa645dfab60673a37ff9f5a2efd08863eb00ddf2320a536351b2d00357"},
+    {file = "prefect_dask-0.3.2-py3-none-any.whl", hash = "sha256:3c8a9acaafbd09967de57e4294457a6193879ff73341b092a21c026a09d0adb5"},
+    {file = "prefect_dask-0.3.2.tar.gz", hash = "sha256:54aab08668004a0bbf465a61f7481f5d6b8d57337ffb1fc246eeae7646ecf2b4"},
 ]
 
 [package.dependencies]
 distributed = ">=2022.5.0,<2023.3.2 || >2023.3.2,<2023.3.2.1 || >2023.3.2.1,<2023.4.dev0 || >=2023.6.dev0"
-prefect = ">=3.0.0rc1"
+prefect = ">=3.0.0"
 
 [package.extras]
-dev = ["coverage", "interrogate", "mkdocs", "mkdocs-gen-files", "mkdocs-material", "mkdocstrings[python]", "mypy", "pillow", "pre-commit", "pytest", "pytest-asyncio (>=0.18.2,!=0.22.0,<0.23.0)", "pytest-env", "pytest-xdist"]
+dev = ["coverage", "dask[dataframe] (>=2022.5.0,!=2023.3.2,!=2023.3.2.1,<2023.4.dev0 || >=2023.6.dev0)", "interrogate", "mkdocs", "mkdocs-gen-files", "mkdocs-material", "mkdocstrings[python]", "mypy", "pillow", "pre-commit", "pytest (>=8.3)", "pytest-asyncio (>=0.18.2,!=0.22.0,<0.23.0)", "pytest-env", "pytest-xdist"]
 
 [[package]]
 name = "prefect-ray"
