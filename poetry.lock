@@ -2208,6 +2208,14 @@ files = [
     {file = "jellyfish-1.1.0-cp312-cp312-musllinux_1_1_x86_64.whl", hash = "sha256:2fcaefebe9d67f282d89d3a66646b77184a42b3eca2771636789b2dc1288c003"},
     {file = "jellyfish-1.1.0-cp312-none-win32.whl", hash = "sha256:e512c99941a257541ffd9f75c7a5c4689de0206841b72f1eb015599d17fed2c3"},
     {file = "jellyfish-1.1.0-cp312-none-win_amd64.whl", hash = "sha256:2b928bad2887c662783a4d9b5828ed1fa0e943f680589f7fc002c456fc02e184"},
+    {file = "jellyfish-1.1.0-cp313-cp313-macosx_10_12_x86_64.whl", hash = "sha256:5d510b04e2a39f27aef391ca18bf527ec5d9a2438a63731b87faada83996cb92"},
+    {file = "jellyfish-1.1.0-cp313-cp313-macosx_11_0_arm64.whl", hash = "sha256:57d005cc5daa4d0a8d88341d86b1dce24e3f1d7721da75326c0b7af598a4f58c"},
+    {file = "jellyfish-1.1.0-cp313-cp313-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:889edab0fb2a29d29c148c9327752df525c9bdaef03eef01d1bd9c1f90b47ebf"},
+    {file = "jellyfish-1.1.0-cp313-cp313-manylinux_2_17_armv7l.manylinux2014_armv7l.whl", hash = "sha256:937b657aacba8fe8482ebc5fea5ba1aee987ecb9da0f037bfb8a1a9045d05746"},
+    {file = "jellyfish-1.1.0-cp313-cp313-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:3cb5088436ce1fdabcb46aed3a3cc215f0432313596f4e5abe5300ed833b697c"},
+    {file = "jellyfish-1.1.0-cp313-cp313-musllinux_1_1_aarch64.whl", hash = "sha256:af74156301a0ff05a22e8cf46250678e23fa447279ba6dffbf9feff01128f51d"},
+    {file = "jellyfish-1.1.0-cp313-cp313-musllinux_1_1_i686.whl", hash = "sha256:3f978bc430bbed4df3c10b2a66be7b5bddd09e6c2856c7a17fa2298fb193d4d4"},
+    {file = "jellyfish-1.1.0-cp313-cp313-musllinux_1_1_x86_64.whl", hash = "sha256:b460f0bbde533f6f8624c1d7439e7f511b227ca18a58781e7f38f21961bd3f09"},
     {file = "jellyfish-1.1.0-cp38-cp38-macosx_10_12_x86_64.whl", hash = "sha256:7cd4b706cb6c4739846d78a398c67996cb451b09a732a625793cfe8d4f37af1b"},
     {file = "jellyfish-1.1.0-cp38-cp38-macosx_11_0_arm64.whl", hash = "sha256:61cded25b47fe6b4c2ea9478c0a5a7531845218525a1b2627c67907ee9fe9b15"},
     {file = "jellyfish-1.1.0-cp38-cp38-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:04bf33577059afba33227977e4a2c08ccb954eb77c849fde564af3e31ee509d9"},
@@ -4297,17 +4305,14 @@ cli = ["click (>=5.0)"]
 
 [[package]]
 name = "python-multipart"
-version = "0.0.9"
+version = "0.0.18"
 description = "A streaming multipart parser for Python"
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "python_multipart-0.0.9-py3-none-any.whl", hash = "sha256:97ca7b8ea7b05f977dc3849c3ba99d51689822fab725c3703af7c866a0c2b215"},
-    {file = "python_multipart-0.0.9.tar.gz", hash = "sha256:03f54688c663f1b7977105f021043b0793151e4cb1c1a9d4a11fc13d622c4026"},
+    {file = "python_multipart-0.0.18-py3-none-any.whl", hash = "sha256:efe91480f485f6a361427a541db4796f9e1591afc0fb8e7a4ba06bfbc6708996"},
+    {file = "python_multipart-0.0.18.tar.gz", hash = "sha256:7a68db60c8bfb82e460637fa4750727b45af1d5e2ed215593f917f64694d34fe"},
 ]
-
-[package.extras]
-dev = ["atomicwrites (==1.4.1)", "attrs (==23.2.0)", "coverage (==7.4.1)", "hatch", "invoke (==2.2.0)", "more-itertools (==10.2.0)", "pbr (==6.0.0)", "pluggy (==1.4.0)", "py (==1.11.0)", "pytest (==8.0.0)", "pytest-cov (==4.1.0)", "pytest-timeout (==2.2.0)", "pyyaml (==6.0.1)", "ruff (==0.2.1)"]
 
 [[package]]
 name = "python-slugify"
