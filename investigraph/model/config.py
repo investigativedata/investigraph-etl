@@ -22,14 +22,15 @@ log = logging.getLogger(__name__)
 
 
 class Config(BaseModel):
-    dataset: Dataset
-    base_path: Path | None = Path()
-    seed: SeedStage | None = SeedStage()
-    extract: ExtractStage | None = ExtractStage()
-    transform: TransformStage | None = TransformStage()
-    load: LoadStage | None = LoadStage()
-    aggregate: bool | AggregateStage | None = AggregateStage()
     model_config = ConfigDict(arbitrary_types_allowed=True)
+
+    dataset: Dataset
+    base_path: Path = Path()
+    seed: SeedStage = SeedStage()
+    extract: ExtractStage = ExtractStage()
+    transform: TransformStage = TransformStage()
+    load: LoadStage = LoadStage()
+    aggregate: bool | AggregateStage = AggregateStage()
 
     def __init__(self, **data):
         if "dataset" not in data:

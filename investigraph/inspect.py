@@ -6,26 +6,26 @@ from typing import Any, Generator, Iterable
 
 import pandas as pd
 from nomenklatura.entity import CE
-from rich import print
 
-from investigraph.model import Resolver
+from investigraph.logging import get_logger
+from investigraph.logic.extract import extract_records_from_source
+from investigraph.logic.transform import transform_record
 from investigraph.model.config import Config, get_config
 from investigraph.model.context import BaseContext, Context
 from investigraph.util import PathLike
 
+log = get_logger(__name__)
 
-def print_error(msg: str):
-    print(f"[bold red]ERROR[/bold red] {msg}")
+
+def log_error(msg: str):
+    log.error(f"[bold red]ERROR[/bold red] {msg}")
 
 
 def get_records(ctx: Context, limit: int | None = 5) -> list[dict[str, Any]]:
     records: list[dict[str, Any]] = []
-    # print("Extracting `%s` ..." % ctx.source.uri)
-    res = Resolver(source=ctx.source)
-    if res.source.is_http and ctx.config.extract.fetch:
-        res._resolve_http()
-    for rec in ctx.config.extract.handle(ctx, res):
-        records.append(rec)
+    log.info("Extracting `%s` ..." % ctx.source.uri)
+    for record in extract_records_from_source(ctx):
+        records.append(record)
         if len(records) == limit:
             return records
     return records
@@ -35,21 +35,19 @@ def inspect_config(p: PathLike) -> Config:
     config = get_config(p)
     try:
         if not callable(config.extract.get_handler()):
-            print_error(f"module not found or not callable: `{config.extract.handler}`")
+            log_error(f"module not found or not callable: `{config.extract.handler}`")
     except ModuleNotFoundError:
-        print_error(f"no custom extract module: `{config.extract.handler}`")
+        log_error(f"no custom extract module: `{config.extract.handler}`")
     try:
         if not callable(config.transform.get_handler()):
-            print_error(
-                f"module not found or not callable: `{config.transform.handler}`"
-            )
+            log_error(f"module not found or not callable: `{config.transform.handler}`")
     except ModuleNotFoundError:
-        print_error(f"no custom transform module: `{config.transform.handler}`")
+        log_error(f"no custom transform module: `{config.transform.handler}`")
     try:
         if not callable(config.load.get_handler()):
-            print_error(f"module not found or not callable: `{config.load.handler}`")
+            log_error(f"module not found or not callable: `{config.load.handler}`")
     except ModuleNotFoundError:
-        print_error(f"no custom load module: `{config.load.handler}`")
+        log_error(f"no custom load module: `{config.load.handler}`")
     return config
 
 
@@ -90,6 +88,5 @@ def inspect_transform(
     for ix, sctx in enumerate(ctx.from_sources(), 1):
         proxies: list[CE] = []
         for ix, rec in enumerate(get_records(sctx, limit)):
-            for proxy in sctx.config.transform.handle(sctx, rec, ix):
-                proxies.append(proxy)
+            proxies.extend(transform_record(sctx, rec, ix))
         yield sctx.source.name, proxies
