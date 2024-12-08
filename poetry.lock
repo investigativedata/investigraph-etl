@@ -4176,21 +4176,21 @@ dev = ["coverage", "dask[dataframe] (>=2022.5.0,!=2023.3.2,!=2023.3.2.1,<2023.4.
 
 [[package]]
 name = "prefect-ray"
-version = "0.4.2"
+version = "0.4.3"
 description = "Prefect integrations with the Ray execution framework."
 optional = false
 python-versions = ">=3.9"
 files = [
-    {file = "prefect_ray-0.4.2-py3-none-any.whl", hash = "sha256:fb075c78dad3deb3720d953c68fdb269945613577494c0c097e0aba871c7e6cd"},
-    {file = "prefect_ray-0.4.2.tar.gz", hash = "sha256:2d9118865e0884363a270b569fb9db0b1ebb411acf3fe439740b5f82f97f05ab"},
+    {file = "prefect_ray-0.4.3-py3-none-any.whl", hash = "sha256:1dfa1129d116a1610413bc0b5d5fe4c39e47f4cb92ea03b0c953248660731bdf"},
+    {file = "prefect_ray-0.4.3.tar.gz", hash = "sha256:9c6535ad344c24f258be6f243bf710130613b1e1612340c784ad44414ee810e6"},
 ]
 
 [package.dependencies]
-prefect = ">=3.0.0rc1"
+prefect = ">=3.0.0"
 ray = {version = ">=2.0.0", extras = ["default"]}
 
 [package.extras]
-dev = ["aiohttp", "coverage", "interrogate", "mkdocs", "mkdocs-gen-files", "mkdocs-material", "mkdocstrings[python]", "mypy", "pillow", "pre-commit", "pytest", "pytest-asyncio", "pytest-asyncio (>=0.18.2,!=0.22.0,<0.23.0)", "pytest-env", "pytest-xdist"]
+dev = ["aiohttp", "coverage", "interrogate", "mkdocs", "mkdocs-gen-files", "mkdocs-material", "mkdocstrings[python]", "mypy", "pillow", "pre-commit", "pytest (>=8.3)", "pytest-asyncio", "pytest-asyncio (>=0.18.2,!=0.22.0,<0.23.0)", "pytest-env", "pytest-xdist"]
 
 [[package]]
 name = "prefixdate"
