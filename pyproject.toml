@@ -1,6 +1,6 @@
 [project]
 name = "investigraph"
-version = "0.8.0"
+version = "0.9.0"
 description = "etl pipeline for investigations with follow the money data"
 authors = [{ name = "Simon Wörpel", email = "simon.woerpel@pm.me" }]
 license = "MIT"

@@ -5,7 +5,7 @@ from anystore.model import StoreModel
 from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
-VERSION = "0.8.0"
+VERSION = "0.9.0"
 
 DATA_ROOT = Path(
     os.environ.get("INVESTIGRAPH_DATA_ROOT", Path.cwd() / "data")
