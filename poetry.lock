@@ -2077,21 +2077,22 @@ test = ["objgraph", "psutil", "setuptools"]
 
 [[package]]
 name = "griffe"
-version = "1.15.0"
+version = "2.2.0"
 description = "Signatures for entire Python programs. Extract the structure, the frame, the skeleton of your project, to generate API documentation or find breaking changes in your API."
 optional = false
 python-versions = ">=3.10"
 groups = ["dev"]
 files = [
-    {file = "griffe-1.15.0-py3-none-any.whl", hash = "sha256:6f6762661949411031f5fcda9593f586e6ce8340f0ba88921a0f2ef7a81eb9a3"},
-    {file = "griffe-1.15.0.tar.gz", hash = "sha256:7726e3afd6f298fbc3696e67958803e7ac843c1cfe59734b6251a40cdbfb5eea"},
+    {file = "griffe-2.2.0-py3-none-any.whl", hash = "sha256:db20672b31c3de2a1af5a18a3b3d8c186ccc2425e10290486b4f0364d25929e9"},
+    {file = "griffe-2.2.0.tar.gz", hash = "sha256:9c0dd9a7feda9e169d783507d777c6fb2f2fc2919b139747a5b4f5357517a611"},
 ]
 
 [package.dependencies]
-colorama = ">=0.4"
+griffecli = "2.2.0"
+griffelib = "2.2.0"
 
 [package.extras]
-pypi = ["pip (>=24.0)", "platformdirs (>=4.2)", "wheel (>=0.42)"]
+pypi = ["griffelib[pypi] (==2.2.0)"]
 
 [[package]]
 name = "griffe-pydantic"
@@ -2107,6 +2108,22 @@ files = [
 
 [package.dependencies]
 griffelib = ">=2.0"
+
+[[package]]
+name = "griffecli"
+version = "2.2.0"
+description = "Signatures for entire Python programs. Extract the structure, the frame, the skeleton of your project, to generate API documentation or find breaking changes in your API."
+optional = false
+python-versions = ">=3.10"
+groups = ["dev"]
+files = [
+    {file = "griffecli-2.2.0-py3-none-any.whl", hash = "sha256:8ebb7ae1dcc2617f5d39f00e4c238dd6b5cd0b13157b0ce22c1ea4ca8b4c5d1d"},
+    {file = "griffecli-2.2.0.tar.gz", hash = "sha256:b9e763131218eb19887ed52de20fe944252d811bfb4a3e339874908a588f0044"},
+]
+
+[package.dependencies]
+colorama = ">=0.4"
+griffelib = "2.2.0"
 
 [[package]]
 name = "griffelib"
@@ -6779,4 +6796,4 @@ sql = ["sqlalchemy"]
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.11,<3.15"
-content-hash = "c6501a8d87733515a93732b73b1dc2df9b4e8e023b12c07793e5b62f6398a7c1"
+content-hash = "a87f22fe7f4e23c8de1bda2fd9b56a67e104709d996c916ef8bdde29898269a7"
